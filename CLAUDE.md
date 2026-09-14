@@ -23,7 +23,7 @@ aquí se segueixen les mateixes convencions amb les excepcions de sota.
 
 | UT | Títol | Estat |
 |---|---|---|
-| 1 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | NB 1.1 i diapositives |
+| 1 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | NB 1.1 (XOR, pingüins, llunes), NB 1.2 (MNIST) i diapositives |
 | — | Xarxes neuronals no supervisades: k-means, SOM i xarxes de Hopfield | pendent |
 | — | Llibreries de tercers, accés a dades, pla de proves i publicació de paquets | pendent |
 | — | Anàlisi de dades amb NumPy, pandas i visualització amb Matplotlib i Seaborn | pendent |
@@ -36,6 +36,8 @@ aquí se segueixen les mateixes convencions amb les excepcions de sota.
   dels gràfics dins del notebook.
 - Les **figures de les diapositives** van amb etiquetes en català.
 - Dades per **URL raw de GitHub** (els pingüins es carreguen del repositori del 5134).
+  MNIST és una còpia de `fetch_openml("mnist_784")` a `UT01-.../mnist/mnist.npz`
+  (uint8, 60.000 + 10.000), per no dependre d'OpenML a Colab.
 - Cada cel·la de codi porta la seva cel·la d'explicació. Referències creuades
   explícites al 5134 quan hi ha relació.
 - Els números que cita el text han de coincidir amb l'execució real: **executa el
@@ -58,4 +60,5 @@ UTnn-Nom_de_la_unitat/
   NB_u_n_titol.ipynb
   UTn_titol.html      font de les diapositives
   UTn_titol.pdf
+  <dataset>/          dades que carreguen els notebooks per URL raw
 ```
