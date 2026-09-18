@@ -54,7 +54,7 @@ La UT10 és la FEMPO.
 
 | UT | Títol | h | Eines | Criteris d'avaluació | Estat |
 |---|---|---|---|---|---|
-| 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT01-...`: NB 1.1 (XOR, pingüins, llunes) i NB 1.2 (MNIST) adaptats a scikit-learn; **les diapositives encara expliquen la versió programada des de zero** |
+| 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT01-...`: NB 1.1 (XOR, pingüins, llunes), NB 1.2 (MNIST) i diapositives, adaptats a scikit-learn |
 | 6 | Xarxes neuronals convolucionals i introducció a la visió per computador | 24 | PyTorch, torchvision | 3.a | pendent |
 | 7 | Xarxes neuronals no supervisades: k-means, SOM i xarxes de Hopfield | 24 | scikit-learn, MiniSom, classe Hopfield | 3.b–3.e | pendent |
 | 8 | Llibreries de tercers, accés a dades, anàlisi amb NumPy, pandas, Matplotlib i Seaborn, KDD i **inferència amb el model entrenat** | 24 | pandas, requests, joblib, pytest | 4.a–4.f, 2.h–2.k | pendent |
