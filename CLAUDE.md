@@ -76,6 +76,11 @@ reanomena, perquè les URL raw de MNIST hi apunten.
   explícites al 5134 quan hi ha relació.
 - Els números que cita el text han de coincidir amb l'execució real: **executa el
   notebook sencer abans de donar-lo per bo**.
+- **Aquest repositori és públic i l'alumnat el llegeix.** Els exercicis hi van amb
+  l'enunciat, però **cap solució**: els solucionaris s'escriuen al repositori
+  privat bessó (`../desenvolupament-components-software-solucions`) i arriben a
+  l'alumnat per Google Classroom després del termini d'entrega. El `.gitignore`
+  bloqueja `*_solucions*.ipynb` com a xarxa de seguretat.
 
 ## Diapositives
 
