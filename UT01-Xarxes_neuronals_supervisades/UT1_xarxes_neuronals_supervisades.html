@@ -133,7 +133,7 @@
       <div class="tag t">MP 5134</div>
       <h3>Algorismes clàssics</h3>
       <div class="sub">Disseny i avaluació de models</div>
-      <p>Regressió lineal i logística, k veïns, arbres, boscos aleatoris, SVM, k-means.</p>
+      <p>Regressió lineal i logística, k-nearest neighbors, decision trees, random forest, SVM, k-means.</p>
       <p>Cada algorisme és <b>una idea concreta</b> sobre com separar o ajustar les dades.
          Els feu servir amb scikit-learn i us centreu a <b>avaluar-los</b>.</p>
     </div>
@@ -142,12 +142,13 @@
       <h3>Xarxes neuronals</h3>
       <div class="sub">Desenvolupament de components software</div>
       <p>Perceptró, perceptró multicapa, mapes autoorganitzatius, xarxes de Hopfield.</p>
-      <p>Una xarxa és <b>un joc de construcció</b> amb peces iguals i simples. Aquí les
-         <b>entrenarem amb biblioteques</b> (scikit-learn i PyTorch) i les <b>mirarem</b> per entendre-les.</p>
+      <p>Totes es construeixen igual: <b>moltes neurones molt simples, totes iguals, connectades en capes</b>.
+         Cap neurona sola fa gran cosa; la potència ve de connectar-ne moltes.</p>
     </div>
   </div>
-  <p class="muted" style="margin-top:26px">Als dos mòduls, la mateixa caixa: <span class="chip">fit</span>
-    i <span class="chip">predict</span>. Al 5149 hi posem xarxes neuronals, sense fórmules.</p>
+  <p class="muted" style="margin-top:26px">Als dos mòduls es treballa igual: amb scikit-learn, qualsevol model s'entrena amb
+    <span class="chip">fit</span> i fa prediccions amb <span class="chip">predict</span>. Aquí no programarem les xarxes per dins
+    ni en farem les fórmules: les <b>entrenarem amb biblioteques</b> (scikit-learn i PyTorch) i n'<b>observarem</b> el comportament.</p>
   </div>
   <div class="num">2</div>
 </section>
@@ -160,7 +161,7 @@
       <div class="lab teal">ML clàssic</div>
       <div class="box" style="width:1.4in">Dades</div><div class="arr">&rarr;</div>
       <div class="box person" style="width:3.1in"><div>Característiques noves<br>pensades per una persona</div></div><div class="arr">&rarr;</div>
-      <div class="box" style="width:2.4in"><div>Model<br><span class="muted small">recta, arbre, SVM&hellip;</span></div></div><div class="arr">&rarr;</div>
+      <div class="box" style="width:2.4in"><div>Model<br><span class="muted small">recta, decision tree, SVM&hellip;</span></div></div><div class="arr">&rarr;</div>
       <div class="box" style="width:1.4in">Predicció</div>
     </div>
     <div class="pipe">
@@ -186,12 +187,12 @@
     <tr><th></th><th class="c1">Algorismes clàssics</th><th class="c2">Xarxes neuronals</th></tr>
     <tr><td>Què són</td><td>Una idea per algorisme: una recta, preguntes encadenades, el marge més ample</td><td>Moltes neurones iguals i simples, connectades en capes</td></tr>
     <tr><td>Característiques</td><td>Les prepara la persona: polinòmiques, transformacions, codificació</td><td>Les capes ocultes aprenen representacions noves</td></tr>
-    <tr><td>Entrenament</td><td>Un mètode específic per a cada algorisme; molts donen sempre el mateix resultat</td><td>Sempre la mateixa recepta: descens del gradient i retropropagació. Depèn de l'atzar inicial</td></tr>
+    <tr><td>Entrenament</td><td>Un mètode específic per a cada algorisme; molts donen sempre el mateix resultat</td><td>Sempre la mateixa recepta: gradient descent i backpropagation. Depèn de l'atzar inicial</td></tr>
     <tr><td>On brillen</td><td>Taules de dades estructurades</td><td>Imatges, so, text: dades no estructurades i abundants</td></tr>
     <tr><td>Cost</td><td>Segons, en qualsevol ordinador</td><td>Sovint necessiten GPU</td></tr>
-    <tr><td>Explicació</td><td>Molts es poden llegir: coeficients, arbres</td><td>Difícils d'explicar: milers o milions de pesos</td></tr>
+    <tr><td>Explicació</td><td>Molts es poden llegir: coeficients, decision trees</td><td>Difícils d'explicar: milers o milions de pesos</td></tr>
   </table>
-  <p class="muted small" style="margin-top:18px">Atenció: <b>no són sempre millors</b>. Amb dades tabulars, un bosc aleatori o un
+  <p class="muted small" style="margin-top:18px">Atenció: <b>no són sempre millors</b>. Amb dades tabulars, un random forest o un
     <i>gradient boosting</i> sovint iguala o supera una xarxa, i és molt més barat.</p>
   </div>
   <div class="num">4</div>
@@ -249,7 +250,7 @@
 
       <circle cx="662" cy="150" r="8" fill="#E8871E"/><line x1="662" y1="158" x2="662" y2="236" stroke="#E8871E"/>
       <text x="662" y="262" text-anchor="middle" font-size="20" font-weight="700" fill="#C9700F">1986</text>
-      <text x="662" y="284" text-anchor="middle">Rumelhart, Hinton, Williams</text><text x="662" y="302" text-anchor="middle" fill="#5C6B85">retropropagació</text>
+      <text x="662" y="284" text-anchor="middle">Rumelhart, Hinton, Williams</text><text x="662" y="302" text-anchor="middle" fill="#5C6B85">backpropagation</text>
 
       <circle cx="880" cy="150" r="8" fill="#E8871E"/><line x1="880" y1="158" x2="880" y2="236" stroke="#E8871E"/>
       <text x="880" y="262" text-anchor="middle" font-size="20" font-weight="700" fill="#C9700F">2012</text>
@@ -3427,12 +3428,21 @@ z
 </svg>
 </div></div>
     <div>
-      <p class="lead">L'equació <b>w₁·x₁ + w₂·x₂ + b = 0</b> és una recta. Tot el que
-        queda a un costat dóna 1; tot el que queda a l'altre, 0.</p>
-      <p style="margin-top:18px">Amb w = (1, 1) i b = −1,5 obtenim la porta <b>AND</b>: només el punt
-        (1, 1) cau a la zona taronja.</p>
-      <p class="muted" style="margin-top:18px">Canvia el biaix a −0,5 i la recta es desplaça: ara és una porta
-        OR. Amb tres entrades seria un pla; amb més, un hiperplà. La idea és la mateixa.</p>
+      <p>Provem-ho amb pesos <b>w₁ = 1, w₂ = 1</b> i biaix <b>b = −1,5</b>. La neurona calcula
+        z = x₁ + x₂ − 1,5 per a cada punt:</p>
+      <table class="vals" style="margin-top:10px; font-size:17px">
+        <tr><th>x₁, x₂</th><th>z</th><th>z ≥ 0?</th><th>ŷ</th></tr>
+        <tr><td>0, 0</td><td class="mono">−1,5</td><td>no</td><td>0</td></tr>
+        <tr><td>0, 1</td><td class="mono">−0,5</td><td>no</td><td>0</td></tr>
+        <tr><td>1, 0</td><td class="mono">−0,5</td><td>no</td><td>0</td></tr>
+        <tr><td>1, 1</td><td class="mono amber">+0,5</td><td class="amber">sí</td><td class="amber"><b>1</b></td></tr>
+      </table>
+      <p class="small" style="margin-top:12px">És la porta <b>AND</b>. La línia negra són els punts on z val
+        exactament 0 (x₁ + x₂ = 1,5): per damunt, z és positiu i la neurona diu 1 (zona taronja); per davall,
+        negatiu i diu 0 (zona blava).</p>
+      <p class="small muted" style="margin-top:8px">Els <b>pesos</b> decideixen la inclinació de la recta i el
+        <b>biaix</b> la desplaça. Amb b = −0,5 la recta baixa i tenim una porta OR. Per tant, <b>entrenar
+        una neurona és buscar la recta</b> que deixa cada classe a un costat.</p>
     </div>
   </div>
   </div>
@@ -3445,28 +3455,58 @@ z
   <div class="body">
   <div class="two" style="align-items:flex-start">
     <div>
-      <div class="formula small pre"><span class="c"># per a cada mostra, a cada època</span>
-fa la seva predicció
-si encerta   &rarr; no toca res
-si s'equivoca &rarr; empeny els pesos
-               cap al costat bo</div>
-      <div class="code" style="margin-top:16px">Perceptron(<span class="q">eta0</span>=<span class="s">0.1</span>)   <span class="c"># sklearn.linear_model</span></div>
-      <p class="muted small" style="margin-top:16px">Una <b>època</b> és una passada per totes les mostres.
-        El <b>coeficient d'aprenentatge</b> (<code>eta0</code>) és el primer hiperparàmetre: no s'aprèn, el tries tu.</p>
+      <p class="lead">El perceptró comença amb uns pesos qualssevol, és a dir, amb una recta posada a l'atzar.
+        Després repassa les mostres una a una:</p>
+      <div class="formula small pre" style="margin-top:16px">per a cada mostra:
+  1. calcula z i fa la seva predicció ŷ
+  2. si encerta     &rarr; no toca res
+  3. si s'equivoca  &rarr; corregeix els pesos</div>
+      <p class="small" style="margin-top:16px">Una passada per totes les mostres és una <b>epoch</b>. Es fan
+        epochs fins que ja no s'equivoca amb cap mostra, o fins a un màxim.</p>
     </div>
-    <div style="flex:0 0 5in">
+    <div style="flex:0 0 6.2in">
       <table class="vals" style="width:100%">
-        <tr><th>Si&hellip;</th><th>què fa</th></tr>
-        <tr><td>encerta</td><td>no toca res</td></tr>
-        <tr><td>havia de dir 1 i diu 0</td><td><b>puja</b> la suma d'aquesta mostra</td></tr>
-        <tr><td>havia de dir 0 i diu 1</td><td><b>baixa</b> la suma d'aquesta mostra</td></tr>
+        <tr><th>Si&hellip;</th><th>la z era&hellip;</th><th>què fa</th></tr>
+        <tr><td>encerta</td><td>correcta</td><td>no toca res</td></tr>
+        <tr><td>havia de dir 1 i diu 0</td><td>massa baixa</td><td>a cada pes li <b>suma</b> una mica de la seva entrada</td></tr>
+        <tr><td>havia de dir 0 i diu 1</td><td>massa alta</td><td>a cada pes li <b>resta</b> una mica de la seva entrada</td></tr>
       </table>
-      <p style="margin-top:20px">Cada error empeny la recta una mica cap al costat bo
-        per a la mostra que ha fallat.</p>
+      <p class="small" style="margin-top:16px">Així, la pròxima vegada la z d'aquesta mostra queda més a prop del
+        costat bo: <b>la recta es mou una mica</b> cap a deixar-la ben classificada.</p>
+      <p class="small muted" style="margin-top:10px">Una entrada que val 0 no ha contribuït a l'error, i el seu pes no
+        es toca. El biaix es corregeix sempre.</p>
     </div>
   </div>
   </div>
   <div class="num">11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">1 &middot; Com aprèn</div>
+  <h2>Un exemple a mà: la primera epoch de la porta AND</h2>
+  <div class="body">
+  <p>Pesos inicials w₁ = 0, w₂ = 0, b = 0. Cada correcció és de <b>0,1</b> (el <b>learning rate</b>).
+    Predicció: ŷ = 1 si z ≥ 0.</p>
+  <table class="vals" style="width:100%; margin-top:14px; font-size:17px">
+    <tr><th>Mostra</th><th>Resposta</th><th>z = w₁·x₁ + w₂·x₂ + b</th><th>ŷ</th><th>Què passa</th><th>Pesos després</th></tr>
+    <tr><td class="mono" style="white-space:nowrap">(0, 0)</td><td>0</td><td class="mono" style="white-space:nowrap">0 + 0 + 0 = 0</td><td class="amber"><b>1</b></td>
+        <td><b class="amber">Error</b>: havia de dir 0. Com que les entrades valen 0, només baixa el biaix</td><td class="mono" style="white-space:nowrap">w₁ = 0 · w₂ = 0 · b = −0,1</td></tr>
+    <tr><td class="mono" style="white-space:nowrap">(0, 1)</td><td>0</td><td class="mono" style="white-space:nowrap">0 + 0 − 0,1 = −0,1</td><td>0</td>
+        <td>Encerta</td><td class="mono" style="white-space:nowrap">sense canvis</td></tr>
+    <tr><td class="mono" style="white-space:nowrap">(1, 0)</td><td>0</td><td class="mono" style="white-space:nowrap">0 + 0 − 0,1 = −0,1</td><td>0</td>
+        <td>Encerta</td><td class="mono" style="white-space:nowrap">sense canvis</td></tr>
+    <tr><td class="mono" style="white-space:nowrap">(1, 1)</td><td>1</td><td class="mono" style="white-space:nowrap">0 + 0 − 0,1 = −0,1</td><td class="amber"><b>0</b></td>
+        <td><b class="amber">Error</b>: havia de dir 1. Pugen els dos pesos i el biaix</td><td class="mono" style="white-space:nowrap">w₁ = 0,1 · w₂ = 0,1 · b = 0</td></tr>
+  </table>
+  <div class="two" style="margin-top:22px; align-items:flex-start">
+    <div><p class="small">Dos errors a la primera epoch. A la segona passada es repeteix el mateix amb els pesos
+      nous, i cada error torna a moure la recta una mica.</p></div>
+    <div><p class="small muted">El <b>learning rate</b> (a scikit-learn, <code>Perceptron(eta0=0.1)</code>) és el
+      primer <b>hiperparàmetre</b>: no s'aprèn de les dades, el tries tu. Amb un valor més gran, cada correcció mou la
+      recta més lluny.</p></div>
+  </div>
+  </div>
+  <div class="num">12</div>
 </section>
 
 <section class="slide">
@@ -6011,7 +6051,7 @@ z
     </g>
    </g>
    <g id="text_5">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="100.464688" y="17.25" transform="rotate(-0 100.464688 17.25)">després de l'època 1</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="100.464688" y="17.25" transform="rotate(-0 100.464688 17.25)">després de l'epoch 1</text>
    </g>
   </g>
   <g id="axes_2">
@@ -9306,7 +9346,7 @@ z
     </g>
    </g>
    <g id="text_8">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="283.279688" y="17.25" transform="rotate(-0 283.279688 17.25)">després de l'època 2</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="283.279688" y="17.25" transform="rotate(-0 283.279688 17.25)">després de l'epoch 2</text>
    </g>
   </g>
   <g id="axes_3">
@@ -12601,7 +12641,7 @@ z
     </g>
    </g>
    <g id="text_11">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="466.094688" y="17.25" transform="rotate(-0 466.094688 17.25)">després de l'època 3</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="466.094688" y="17.25" transform="rotate(-0 466.094688 17.25)">després de l'epoch 3</text>
    </g>
   </g>
   <g id="axes_4">
@@ -15896,7 +15936,7 @@ z
     </g>
    </g>
    <g id="text_14">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="648.909688" y="17.25" transform="rotate(-0 648.909688 17.25)">després de l'època 4</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="648.909688" y="17.25" transform="rotate(-0 648.909688 17.25)">després de l'epoch 4</text>
    </g>
   </g>
  </g>
@@ -15917,13 +15957,13 @@ z
 </svg>
 </div>
   <div class="two" style="margin-top:22px; align-items:flex-start">
-    <div><p>Errors per època: <span class="chip">2, 1, 0, 0, 0, 0, 0, 0</span>. Amb
-      <span class="chip">partial_fit</span> l'entrenem una època cada vegada; a partir de la tercera ja no s'equivoca.</p></div>
+    <div><p>Errors per epoch: <span class="chip">2, 1, 0, 0, 0, 0, 0, 0</span>. Amb
+      <span class="chip">partial_fit</span> l'entrenem una epoch cada vegada; a partir de la tercera ja no s'equivoca.</p></div>
     <div><p class="muted"><b>Teorema de convergència:</b> si existeix una recta que separa les classes,
       el perceptró la troba en un nombre finit de passos. Fixau-vos en el «si».</p></div>
   </div>
   </div>
-  <div class="num">12</div>
+  <div class="num">13</div>
 </section>
 
 <section class="slide">
@@ -20078,7 +20118,7 @@ z
     <div>
       <p class="lead">274 pingüins del 5134. Dues mesures. <b>Encert a test: 100%</b>.</p>
       <p style="margin-top:18px">Però mira quant costa aprendre segons l'escala de les entrades.
-        Errors a les primeres èpoques:</p>
+        Errors a les primeres epochs:</p>
       <table class="vals" style="margin-top:12px">
         <tr><td>mesures en mm</td><td class="mono">98 · 98 · 0 · 0</td></tr>
         <tr class="best"><td>mesures escalades</td><td class="mono">1 · 0 · 0 · 0</td></tr>
@@ -20088,7 +20128,7 @@ z
     </div>
   </div>
   </div>
-  <div class="num">13</div>
+  <div class="num">14</div>
 </section>
 
 <section class="slide">
@@ -23182,13 +23222,13 @@ z
     <div>
       <p class="lead">XOR val 1 quan <b>una i només una</b> entrada és 1.</p>
       <p style="margin-top:16px">Els punts taronges són a una diagonal i els blaus a l'altra:
-        <b>no hi ha cap recta</b> que els separi. El perceptró hi pot estar èpoques i èpoques.</p>
+        <b>no hi ha cap recta</b> que els separi. El perceptró hi pot estar epochs i epochs.</p>
       <p class="muted" style="margin-top:16px">Minsky i Papert ho van analitzar al llibre <i>Perceptrons</i>. La
         retallada de finançament que va seguir es coneix com el <b>primer hivern de la IA</b>.</p>
     </div>
   </div>
   </div>
-  <div class="num">14</div>
+  <div class="num">15</div>
 </section>
 
 <section class="slide">
@@ -23214,7 +23254,7 @@ z
     </div>
   </div>
   </div>
-  <div class="num">15</div>
+  <div class="num">16</div>
 </section>
 
 <section class="slide dark">
@@ -23224,7 +23264,7 @@ z
     <p class="lead muted" style="margin-top:24px; max-width:8.8in">Posar neurones entre l'entrada i la sortida.
       Primer ho farem a mà, per entendre per què funciona. Després, que ho aprengui sola.</p>
   </div>
-  <div class="num">16</div>
+  <div class="num">17</div>
 </section>
 
 <section class="slide">
@@ -23266,7 +23306,7 @@ z
     </div>
   </div>
   </div>
-  <div class="num">17</div>
+  <div class="num">18</div>
 </section>
 
 <section class="slide">
@@ -26328,7 +26368,7 @@ z
       mà amb x₁·x₂. La diferència: en una xarxa entrenada <b>les tria l'entrenament</b>.</p></div>
   </div>
   </div>
-  <div class="num">18</div>
+  <div class="num">19</div>
 </section>
 
 <section class="slide">
@@ -26344,21 +26384,25 @@ z
       <p class="muted">Si la xarxa s'equivoca, quina neurona oculta en té la culpa, i quanta?</p>
     </div>
     <div class="card">
-      <h3>2. L'esglaó és pla</h3>
-      <p>Si mous un pes una mica, la sortida continua sent 0 o 1: <b>no canvia gens</b>.</p>
+      <h3>2. La funció step és plana</h3>
+      <p>La neurona dona 0 o 1 i res entremig. Si mous un pes una mica, la sortida continua sent la mateixa:
+        <b>no canvia gens</b>.</p>
       <p class="muted">Sense cap canvi, no hi ha pista de cap a on moure el pes per millorar.</p>
     </div>
   </div>
-  <p class="muted" style="margin-top:24px">La solució té tres peces: <b>activacions suaus</b>, <b>descens del gradient</b> i
-    <b>retropropagació</b>.</p>
+  <p class="muted" style="margin-top:24px">La solució té tres peces: <b>funcions d'activació sense salts</b>, <b>gradient descent</b> i
+    <b>backpropagation</b>.</p>
   </div>
-  <div class="num">19</div>
+  <div class="num">20</div>
 </section>
 
 <section class="slide">
   <div class="eyebrow">2 &middot; Peça 1</div>
-  <h2>Funcions d'activació suaus</h2>
+  <h2>Funcions d'activació sense salts</h2>
   <div class="body">
+  <p class="small" style="margin-bottom:12px">La funció step salta de cop de 0 a 1. Les altres tres fan una
+    <b>corba sense salts</b>: si un pes canvia una mica, la sortida també canvia una mica, i això ens diu cap a on
+    moure'l per equivocar-nos menys.</p>
   <div class="chartbox"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="100%"  viewBox="0 0 922.267969 216.304219" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -26523,7 +26567,7 @@ L 223.597969 190.26
 " style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="text_10">
-    <text style="fill: #17233d; font: 700 14px 'Helvetica Neue'; text-anchor: middle" x="131.832969" y="17.98" transform="rotate(-0 131.832969 17.98)">esglaó</text>
+    <text style="fill: #17233d; font: 700 14px 'Helvetica Neue'; text-anchor: middle" x="131.832969" y="17.98" transform="rotate(-0 131.832969 17.98)">step</text>
    </g>
    <g id="legend_1">
     <g id="line2d_14">
@@ -27115,7 +27159,7 @@ L 915.067969 190.26
 </svg>
 </div>
   <div class="cards" style="margin-top:20px; gap:18px">
-    <div class="card" style="padding:16px 18px"><p class="small"><b>Esglaó.</b> Pendent zero: no dóna cap pista. No serveix per entrenar capes.</p></div>
+    <div class="card" style="padding:16px 18px"><p class="small"><b>Step.</b> Plana, amb un salt al 0: no dona cap pista. No serveix per entrenar capes.</p></div>
     <div class="card" style="padding:16px 18px"><p class="small"><b>Sigmoide.</b> De 0 a 1, es llegeix com una probabilitat. A la sortida.</p></div>
     <div class="card" style="padding:16px 18px"><p class="small"><b>tanh.</b> De −1 a 1, centrada. La farem servir a la capa oculta.</p></div>
     <div class="card" style="padding:16px 18px"><p class="small"><b>ReLU.</b> L'opció per defecte de les xarxes profundes actuals.</p></div>
@@ -27123,16 +27167,16 @@ L 915.067969 190.26
   <p class="muted small" style="margin-top:16px">Per al 5134: <b>una neurona amb sigmoide és exactament una regressió logística</b>.
     El que la converteix en xarxa és apilar-ne moltes.</p>
   </div>
-  <div class="num">20</div>
+  <div class="num">21</div>
 </section>
 
 <section class="slide">
   <div class="eyebrow">2 &middot; Peça 2</div>
-  <h2>Pèrdua i descens del gradient</h2>
+  <h2>Loss i gradient descent</h2>
   <div class="body">
   <div class="two" style="align-items:flex-start">
     <div>
-      <p class="lead">La <b>funció de pèrdua</b> diu com de malament ho fa la xarxa. Al 5134 vau veure que
+      <p class="lead">La <b>loss</b> diu com de malament ho fa la xarxa. Al 5134 vau veure que
         dibuixa una <b>vall</b>.</p>
       <p style="margin-top:14px">Enmig de la boira, per baixar mires cap a on fa pendent i fas una passa cap avall.</p>
     </div>
@@ -27263,7 +27307,7 @@ L -3.5 0
      </g>
     </g>
     <g id="text_10">
-     <text style="fill: #7c8aa0; font: 13px 'Helvetica Neue'; text-anchor: middle" x="17.21" y="94.842187" transform="rotate(-90 17.21 94.842187)">pèrdua</text>
+     <text style="fill: #7c8aa0; font: 13px 'Helvetica Neue'; text-anchor: middle" x="17.21" y="94.842187" transform="rotate(-90 17.21 94.842187)">loss</text>
     </g>
    </g>
    <g id="line2d_9">
@@ -27929,12 +27973,12 @@ L 914.038594 166.982188
 </svg>
 </div>
   </div>
-  <div class="num">21</div>
+  <div class="num">22</div>
 </section>
 
 <section class="slide">
   <div class="eyebrow">2 &middot; Peça 3</div>
-  <h2>Retropropagació: repartir la culpa cap enrere</h2>
+  <h2>Backpropagation: repartir la culpa cap enrere</h2>
   <div class="body">
   <div class="two">
     <div style="flex:0 0 6.6in">
@@ -27959,7 +28003,7 @@ L 914.038594 166.982188
           <text x="340" y="22" text-anchor="middle" font-size="16" fill="#1C7293" font-weight="700">1 · PAS ENDAVANT: calcular la predicció</text>
           <line x1="590" y1="338" x2="90" y2="338" stroke="#E8871E" stroke-width="3" marker-end="url(#ab)"/>
           <text x="340" y="364" text-anchor="middle" font-size="16" fill="#C9700F" font-weight="700">3 · PAS ENRERE: repartir la culpa de l'error</text>
-          <text x="640" y="240" text-anchor="middle" font-size="14" fill="#5C6B85">2 · pèrdua</text>
+          <text x="640" y="240" text-anchor="middle" font-size="14" fill="#5C6B85">2 · loss</text>
         </g>
       </svg>
     </div>
@@ -27970,11 +28014,11 @@ L 914.038594 166.982188
         <li>el <b>pes</b> que la uneix amb la sortida (si el seu vot pesava molt, té molta culpa)</li>
         <li>el <b>pendent</b> de la seva activació (si estava saturada, poca)</li>
       </ul>
-      <p class="muted" style="margin-top:14px">4 · Amb la culpa de cada neurona, fem una passa de descens del gradient a cada pes.</p>
+      <p class="muted" style="margin-top:14px">4 · Amb la culpa de cada neurona, fem una passa de gradient descent a cada pes.</p>
     </div>
   </div>
   </div>
-  <div class="num">22</div>
+  <div class="num">23</div>
 </section>
 
 <section class="slide">
@@ -27985,7 +28029,7 @@ L 914.038594 166.982188
     <div style="flex:0 0 6.9in">
       <div class="formula small pre"><span class="c">a cada passa d'entrenament:</span>
   <span class="c">1.</span> pas endavant   &rarr; predicció
-  <span class="c">2.</span> pèrdua         &rarr; com de malament
+  <span class="c">2.</span> loss           &rarr; com de malament
   <span class="c">3.</span> pas enrere     &rarr; culpa de cada neurona
   <span class="c">4.</span> actualització  &rarr; una passa avall</div>
       <div class="code" style="margin-top:16px"><span class="k">model</span> = MLPClassifier(hidden_layer_sizes=(<span class="s">3</span>,),
@@ -28006,7 +28050,7 @@ L 914.038594 166.982188
     </div>
   </div>
   </div>
-  <div class="num">23</div>
+  <div class="num">24</div>
 </section>
 
 <section class="slide">
@@ -28108,7 +28152,7 @@ L 0 3.5
      </g>
     </g>
     <g id="text_6">
-     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="208.8979" y="231.84" transform="rotate(-0 208.8979 231.84)">època</text>
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="208.8979" y="231.84" transform="rotate(-0 208.8979 231.84)">epoch</text>
     </g>
    </g>
    <g id="matplotlib.axis_2">
@@ -28158,7 +28202,7 @@ L -3.5 0
      </g>
     </g>
     <g id="text_11">
-     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="15.976" y="108.2845" transform="rotate(-90 15.976 108.2845)">pèrdua</text>
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="15.976" y="108.2845" transform="rotate(-90 15.976 108.2845)">loss</text>
     </g>
    </g>
    <g id="line2d_10">
@@ -28209,7 +28253,7 @@ L 369.982832 193.319
 " style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="text_12">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="208.8979" y="17.25" transform="rotate(-0 208.8979 17.25)">Corba de pèrdua</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="208.8979" y="17.25" transform="rotate(-0 208.8979 17.25)">Corba de loss</text>
    </g>
   </g>
   <g id="axes_2">
@@ -32327,11 +32371,11 @@ z
 </div>
   <div class="two" style="margin-top:18px; align-items:flex-start">
     <div><p>No li hem dit que calien portes OR i NAND ni quins pesos fan falta. Només les quatre files i les respostes.</p></div>
-    <div><p class="muted">La corba de pèrdua és el primer gràfic que s'ha de mirar sempre: aquí cau en picat les primeres èpoques i després
+    <div><p class="muted">La corba de loss és el primer gràfic que s'ha de mirar sempre: aquí cau en picat les primeres epochs i després
       s'aplana a prop de zero. I la frontera <b>ja no és una recta</b>: en són dues, que formen una franja.</p></div>
   </div>
   </div>
-  <div class="num">24</div>
+  <div class="num">25</div>
 </section>
 
 <section class="slide">
@@ -40135,12 +40179,12 @@ z
     </div>
   </div>
   </div>
-  <div class="num">25</div>
+  <div class="num">26</div>
 </section>
 
 <section class="slide">
   <div class="eyebrow">2 &middot; Hiperparàmetres</div>
-  <h2>Neurones, coeficient d'aprenentatge i atzar</h2>
+  <h2>Neurones, learning rate i atzar</h2>
   <div class="body">
   <div class="chartbox"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="100%"  viewBox="0 0 900.72 195.12" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
@@ -62462,14 +62506,14 @@ z
 </div>
   <div class="cards" style="margin-top:20px; gap:20px">
     <div class="card" style="padding:18px 20px"><p class="small"><b>Neurones ocultes.</b> Amb poques, la frontera no es pot corbar.
-      Amb 32, l'entrenament puja al 0,99 i el test baixa: memoritza el soroll, el <b>sobreajust</b>.</p></div>
-    <div class="card" style="padding:18px 20px"><p class="small"><b>Coeficient d'aprenentatge.</b> Probablement el més important.
-      Massa petit no avança; massa gran rebota o divergeix. Es diagnostica mirant la corba de pèrdua.</p></div>
+      Amb 32, l'entrenament puja al 0,99 i el test baixa: memoritza el soroll, l'<b>overfitting</b>.</p></div>
+    <div class="card" style="padding:18px 20px"><p class="small"><b>Learning rate.</b> Probablement el més important.
+      Massa petit no avança; massa gran rebota o divergeix. Es diagnostica mirant la corba de loss.</p></div>
     <div class="card warm" style="padding:18px 20px"><p class="small"><b>La llavor aleatòria.</b> Amb 2 neurones ocultes, la XOR
       s'encalla o no segons els pesos inicials: un <b>mínim local</b>. Una regressió lineal sempre dóna el mateix.</p></div>
   </div>
   </div>
-  <div class="num">26</div>
+  <div class="num">27</div>
 </section>
 
 <section class="slide">
@@ -62494,20 +62538,20 @@ model.loss_curve_</div>
         <tr><th>Paràmetre</th><th>Què és</th></tr>
         <tr><td class="mono">hidden_layer_sizes</td><td>capes ocultes i neurones de cada una</td></tr>
         <tr><td class="mono">activation</td><td>funció d'activació de les capes ocultes</td></tr>
-        <tr><td class="mono">learning_rate_init</td><td>coeficient d'aprenentatge</td></tr>
+        <tr><td class="mono">learning_rate_init</td><td>learning rate</td></tr>
         <tr><td class="mono">batch_size</td><td>mostres per passa (part 3)</td></tr>
-        <tr><td class="mono">max_iter</td><td>màxim d'èpoques</td></tr>
+        <tr><td class="mono">max_iter</td><td>màxim d'epochs</td></tr>
         <tr><td class="mono">random_state</td><td>llavor dels pesos inicials</td></tr>
       </table>
     </div>
   </div>
   <p style="margin-top:24px; max-width:11in">La interfície és la de tots els models de scikit-learn: <span class="chip">fit</span>,
     <span class="chip">predict</span> i <span class="chip">score</span>. <b>Es pot intercanviar per una regressió logística o un
-    bosc aleatori sense tocar la resta del codi.</b></p>
-  <p class="muted small" style="margin-top:12px">Per defecte fa servir ReLU i l'optimitzador <b>Adam</b>, una variant del descens del gradient
-    que ajusta la passa de cada pes. La recepta de fons és la mateixa: pas endavant, pèrdua, pas enrere, actualització.</p>
+    random forest sense tocar la resta del codi.</b></p>
+  <p class="muted small" style="margin-top:12px">Per defecte fa servir ReLU i l'optimitzador <b>Adam</b>, una variant del gradient descent
+    que ajusta la passa de cada pes. La recepta de fons és la mateixa: pas endavant, loss, pas enrere, actualització.</p>
   </div>
-  <div class="num">27</div>
+  <div class="num">28</div>
 </section>
 
 <section class="slide dark">
@@ -62517,7 +62561,7 @@ model.loss_curve_</div>
     <p class="lead muted" style="margin-top:24px; max-width:9in">Portem l'MLP de les llunes a MNIST.
       Canviar d'escala obliga a introduir tres idees noves, i ens deixa veure què aprenen de debò les neurones.</p>
   </div>
-  <div class="num">28</div>
+  <div class="num">29</div>
 </section>
 
 <section class="slide">
@@ -63037,7 +63081,7 @@ iVBORw0KGgoAAAANSUhEUgAAAEwAAABMCAYAAADHl1ErAAAKMElEQVR4nO2c14/TShTGx96UXZYWei9L
     </div>
   </div>
   </div>
-  <div class="num">29</div>
+  <div class="num">30</div>
 </section>
 
 <section class="slide">
@@ -63383,17 +63427,17 @@ L 394.072187 195.696
       <div class="card hi" style="margin-top:20px">
         <p class="small"><b>MLPClassifier ho fa sol.</b> Amb més de dues classes posa la softmax a la sortida
           i fa el one-hot per dins; ho diu l'atribut <code>out_activation_</code>.
-          La retropropagació és la mateixa.</p>
+          La backpropagation és la mateixa.</p>
       </div>
     </div>
   </div>
   </div>
-  <div class="num">30</div>
+  <div class="num">31</div>
 </section>
 
 <section class="slide">
   <div class="eyebrow">3 &middot; Novetat 2</div>
-  <h2>Mini-lots: moltes passes per època</h2>
+  <h2>Mini-batches: moltes passes per epoch</h2>
   <div class="body">
   <div class="two">
     <div style="flex:0 0 6.3in"><div class="chartbox"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="100%"  viewBox="0 0 389.587969 245.409" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -63491,7 +63535,7 @@ L 0 3.5
      </g>
     </g>
     <g id="text_6">
-     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="216.900469" y="239.04" transform="rotate(-0 216.900469 239.04)">època</text>
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="216.900469" y="239.04" transform="rotate(-0 216.900469 239.04)">epoch</text>
     </g>
    </g>
    <g id="matplotlib.axis_2">
@@ -63699,7 +63743,7 @@ L 85.512969 49.43042
      </g>
     </g>
     <g id="text_14">
-     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="95.912969" y="53.98042" transform="rotate(-0 95.912969 53.98042)">lot complet · 5 passes</text>
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="95.912969" y="53.98042" transform="rotate(-0 95.912969 53.98042)">batch complet · 5 passes</text>
     </g>
     <g id="line2d_22">
      <path d="M 59.512969 71.07542 
@@ -63711,7 +63755,7 @@ L 85.512969 71.07542
      </g>
     </g>
     <g id="text_15">
-     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="95.912969" y="75.62542" transform="rotate(-0 95.912969 75.62542)">lots de 1.024 · 245 passes</text>
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="95.912969" y="75.62542" transform="rotate(-0 95.912969 75.62542)">batches de 1.024 · 245 passes</text>
     </g>
     <g id="line2d_23">
      <path d="M 59.512969 92.72042 
@@ -63723,7 +63767,7 @@ L 85.512969 92.72042
      </g>
     </g>
     <g id="text_16">
-     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="95.912969" y="97.27042" transform="rotate(-0 95.912969 97.27042)">lots de 64 · 3.910 passes</text>
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="95.912969" y="97.27042" transform="rotate(-0 95.912969 97.27042)">batches de 64 · 3.910 passes</text>
     </g>
    </g>
   </g>
@@ -63736,17 +63780,17 @@ L 85.512969 92.72042
 </svg>
 </div></div>
     <div>
-      <p class="lead">Barrejar, partir en lots de 64 i fer <b>una passa per lot</b>.</p>
-      <p style="margin-top:14px">Mateixes dades i mateixes 5 èpoques. Amb lots de 64 es fan quasi 800 vegades més passes,
+      <p class="lead">Barrejar, partir en batches de 64 i fer <b>una passa per batch</b>.</p>
+      <p style="margin-top:14px">Mateixes dades i mateixes 5 epochs. Amb batches de 64 es fan quasi 800 vegades més passes,
         però el temps només es multiplica per tres o quatre. A scikit-learn, <span class="chip">batch_size</span>.</p>
       <table class="vals" style="margin-top:16px; width:100%">
-        <tr><td><b>Iteració</b></td><td>un lot processat i una actualització</td></tr>
-        <tr><td><b>Època</b></td><td>totes les dades: 782 iteracions</td></tr>
+        <tr><td><b>Iteració</b></td><td>un batch processat i una actualització</td></tr>
+        <tr><td><b>Epoch</b></td><td>totes les dades: 782 iteracions</td></tr>
       </table>
     </div>
   </div>
   </div>
-  <div class="num">31</div>
+  <div class="num">32</div>
 </section>
 
 <section class="slide">
@@ -63849,7 +63893,7 @@ L 0 3.5
      </g>
     </g>
     <g id="text_6">
-     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="220.527656" y="224.64" transform="rotate(-0 220.527656 224.64)">època</text>
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="220.527656" y="224.64" transform="rotate(-0 220.527656 224.64)">epoch</text>
     </g>
    </g>
    <g id="matplotlib.axis_2">
@@ -64085,15 +64129,15 @@ L 290.934375 167.1
 </div></div>
     <div>
       <p class="lead">Xarxa <b>784-128-10</b>: més de <b>100.000 pesos</b>. La de la XOR en tenia 13.</p>
-      <p style="margin-top:14px"><span class="chip">MLPClassifier</span> amb tanh i lots de 64, entrenat època a època amb
-        <span class="chip">partial_fit</span>: <b>97,65% a validació</b> en 20 èpoques.</p>
+      <p style="margin-top:14px"><span class="chip">MLPClassifier</span> amb tanh i batches de 64, entrenat epoch a epoch amb
+        <span class="chip">partial_fit</span>: <b>97,65% a validació</b> en 20 epochs.</p>
       <p style="margin-top:14px">Al principi les dues corbes pugen juntes. Cap al final l'entrenament continua millorant i la
-        validació s'atura: comença el <b>sobreajust</b>.</p>
+        validació s'atura: comença l'<b>overfitting</b>.</p>
       <p class="muted small" style="margin-top:14px">Test segellat, obert al final: <b>97,61%</b>. L'estimació de validació era fiable.</p>
     </div>
   </div>
   </div>
-  <div class="num">32</div>
+  <div class="num">33</div>
 </section>
 
 <section class="slide">
@@ -64557,7 +64601,7 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
     </div>
   </div>
   </div>
-  <div class="num">33</div>
+  <div class="num">34</div>
 </section>
 
 <section class="slide">
@@ -64579,7 +64623,7 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
   <div class="quote" style="margin-top:26px; font-size:22px">És la figura de la XOR a gran escala: la capa oculta transforma les dades
     en una representació on un model lineal ja funciona.</div>
   </div>
-  <div class="num">34</div>
+  <div class="num">35</div>
 </section>
 
 <section class="slide">
@@ -64592,11 +64636,11 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
         <tr><th>Model</th><th class="r">Encert a validació</th></tr>
         <tr class="dim"><td>Referència (Dummy)</td><td class="mono r">10,6%</td></tr>
         <tr><td>Regressió logística</td><td class="mono r">92,8%</td></tr>
-        <tr><td>Bosc aleatori (100 arbres)</td><td class="mono r">97,2%</td></tr>
+        <tr><td>Random forest (100 decision trees)</td><td class="mono r">97,2%</td></tr>
         <tr class="best"><td>MLP (128, tanh)</td><td class="mono r">97,65%</td></tr>
         <tr class="best"><td>MLP per defecte (ReLU, Adam)</td><td class="mono r">97,8%</td></tr>
       </table>
-      <p class="muted small" style="margin-top:14px">Un bosc aleatori, sense capes ocultes, queda a menys d'un punt.</p>
+      <p class="muted small" style="margin-top:14px">Un random forest, sense capes ocultes, queda a menys d'un punt.</p>
     </div>
     <div>
       <div class="tag a">El límit: desplaçar 3 píxels</div>
@@ -64930,7 +64974,7 @@ L 425.604375 167.192138
 </div>
       <table class="vals" style="margin-top:12px; width:100%">
         <tr><td>Regressió logística</td><td class="mono r">92,8% &rarr; 42,2%</td></tr>
-        <tr><td>Bosc aleatori</td><td class="mono r">97,2% &rarr; 54,2%</td></tr>
+        <tr><td>Random forest</td><td class="mono r">97,2% &rarr; 54,2%</td></tr>
         <tr><td>MLP (128, tanh)</td><td class="mono r">97,65% &rarr; 53,6%</td></tr>
       </table>
     </div>
@@ -64938,7 +64982,7 @@ L 425.604375 167.192138
   <p style="margin-top:18px">Per a l'MLP la imatge és una taula: <b>no sap quins píxels són veïns</b>. Les xarxes
     <b>convolucionals</b> reutilitzen el mateix detector a totes les posicions, i llavors la distància es fa enorme. Són la <b>UT6</b>.</p>
   </div>
-  <div class="num">35</div>
+  <div class="num">36</div>
 </section>
 
 <section class="slide">
@@ -64949,13 +64993,13 @@ L 425.604375 167.192138
     <li>Una <b>neurona</b> fa una suma ponderada, hi suma un biaix i aplica una activació. Separa l'espai amb una recta.</li>
     <li>El <b>perceptró</b> aprèn corregint els pesos quan s'equivoca, però només resol problemes <b>linealment separables</b>.</li>
     <li>Les <b>capes ocultes</b> transformen les dades en una representació on el problema sí que és separable.</li>
-    <li>Per entrenar capes calen <b>activacions suaus</b>, una <b>pèrdua</b> i el <b>descens del gradient</b>.</li>
-    <li>La <b>retropropagació</b> reparteix la culpa de l'error cap enrere per saber com moure cada pes.</li>
-    <li>Amb dades reals calen <b>softmax</b>, <b>mini-lots</b> i <b>validació</b>. La capa oculta aprèn característiques, i
+    <li>Per entrenar capes calen <b>funcions d'activació sense salts</b>, una <b>loss</b> i el <b>gradient descent</b>.</li>
+    <li>La <b>backpropagation</b> reparteix la culpa de l'error cap enrere per saber com moure cada pes.</li>
+    <li>Amb dades reals calen <b>softmax</b>, <b>mini-batches</b> i <b>validació</b>. La capa oculta aprèn característiques, i
       <b>l'arquitectura decideix quines</b> pot aprendre.</li>
   </ol>
   </div>
-  <div class="num">36</div>
+  <div class="num">37</div>
 </section>
 
 <section class="slide dark">
@@ -64965,13 +65009,13 @@ L 425.604375 167.192138
   <ol class="keys">
     <li>Si una regressió logística és una neurona, per què diem que les xarxes són una <b>família diferent</b>?</li>
     <li>El 1958 es va prometre massa i va venir un hivern. Hi veieu <b>paral·lelismes amb avui</b>?</li>
-    <li>Una xarxa encerta el 98% però no s'explica; un arbre encerta el 94% i es llegeix. Quin triaríeu per
+    <li>Una xarxa encerta el 98% però no s'explica; un decision tree encerta el 94% i es llegeix. Quin triaríeu per
       <b>concedir un crèdit</b>? I per <b>trobar pingüins en fotos aèries</b>?</li>
-    <li>La retropropagació és de 1986 i les xarxes no dominen fins al 2012. <b>Què faltava?</b></li>
-    <li>A MNIST, un bosc aleatori gairebé iguala l'MLP. Per què, doncs, les xarxes <b>han guanyat en imatges</b>?</li>
+    <li>La backpropagation és de 1986 i les xarxes no dominen fins al 2012. <b>Què faltava?</b></li>
+    <li>A MNIST, un random forest gairebé iguala l'MLP. Per què, doncs, les xarxes <b>han guanyat en imatges</b>?</li>
   </ol>
   </div>
-  <div class="num">37</div>
+  <div class="num">38</div>
 </section>
 
 </body></html>

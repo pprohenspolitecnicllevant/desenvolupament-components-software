@@ -66,6 +66,11 @@ reanomena, perquè les URL raw de MNIST hi apunten.
 ## Regles ràpides
 
 - **Text en català** (markdown dels notebooks i diapositives).
+- **Termes tècnics d'ML en anglès**, sense traduir: decision tree, random forest,
+  k-nearest neighbors, epoch, batch / mini-batch, learning rate, overfitting, step,
+  loss, gradient descent, backpropagation («una epoch», «el learning rate», «la loss»).
+  Queden en català capa oculta, pesos, biaix, característica, funció d'activació,
+  regressió, perceptró i llavor.
 - **Codi en anglès**: identificadors, comentaris, docstrings, missatges i etiquetes
   dels gràfics dins del notebook.
 - Les **figures de les diapositives** van amb etiquetes en català.
