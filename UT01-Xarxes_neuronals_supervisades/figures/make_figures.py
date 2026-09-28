@@ -69,6 +69,58 @@ def gradient_descent_valley():
     plt.close(fig)
 
 
+def perceptron_plane():
+    """The AND perceptron (w = (1, 1), b = -1.5): the line in 2D and the tilted plane z in 3D."""
+    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=float)
+    z_points = X @ np.array([1.0, 1.0]) - 1.5
+    point_colors = np.where(z_points >= 0, "tab:red", "tab:blue")
+
+    fig = plt.figure(figsize=(13, 5))
+
+    # Left: the plane seen from above, coloured by the perceptron's answer
+    ax = fig.add_subplot(1, 2, 1)
+    g = np.linspace(-0.5, 1.5, 300)
+    G1, G2 = np.meshgrid(g, g)
+    ax.contourf(G1, G2, (G1 + G2 - 1.5 >= 0).astype(int), levels=[-0.5, 0.5, 1.5],
+                colors=["#9ecae1", "#fdae6b"], alpha=0.5)
+    ax.plot(g, 1.5 - g, color="black", linewidth=2.5, label="boundary: z = 0")
+    ax.scatter(X[:, 0], X[:, 1], c=point_colors, edgecolor="k", s=60, zorder=3)
+    for (x1, x2), zz in zip(X, z_points):
+        ax.annotate(f"z = {zz:+.1f}", (x1, x2), textcoords="offset points", xytext=(8, 8))
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(-0.5, 1.5)
+    ax.set_xlabel("x1")
+    ax.set_ylabel("x2")
+    ax.grid(False)
+    ax.legend(loc="lower left")
+    ax.set_title("In 2D: a line splits the plane")
+
+    # Right: z as the height of each point, a tilted plane that crosses the floor z = 0
+    ax = fig.add_subplot(1, 2, 2, projection="3d", computed_zorder=False)
+    g = np.linspace(-0.25, 1.25, 31)
+    G1, G2 = np.meshgrid(g, g)
+    Z = G1 + G2 - 1.5
+    colors = np.where(Z[..., None] >= 0, (1.0, 0.5, 0.1, 0.6), (0.1, 0.45, 0.6, 0.4))
+    ax.plot_surface(G1, G2, np.zeros_like(Z), color="lightgray", alpha=0.4, shade=False)
+    ax.plot_surface(G1, G2, Z, facecolors=colors, shade=False, linewidth=0)
+    edge = np.linspace(0.25, 1.25, 20)
+    ax.plot(edge, 1.5 - edge, 0 * edge, color="black", linewidth=2.5, label="boundary: z = 0")
+    for (x1, x2), zz, color in zip(X, z_points, point_colors):
+        ax.plot([x1, x1], [x2, x2], [0, zz], color="gray", linestyle=":")
+        ax.scatter(x1, x2, zz, color=color, s=50, edgecolor="k", depthshade=False)
+    ax.set_xlabel("x1")
+    ax.set_ylabel("x2")
+    ax.set_zlabel("z")
+    ax.view_init(elev=20, azim=-62)
+    ax.legend(loc="upper left")
+    ax.set_title("In 3D: z is a tilted plane, cut by the floor z = 0")
+
+    plt.tight_layout()
+    fig.savefig("perceptron_plane.png", dpi=100)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
+    perceptron_plane()
     activation_functions()
     gradient_descent_valley()
