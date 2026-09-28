@@ -37,6 +37,17 @@ L'alumnat no té la base matemàtica per programar les xarxes per dins. Per aix�
   - la retropropagació com a repartiment de l'error cap enrere;
   - la convolució com una lupa que recorre la imatge.
 - On aporti, es fan servir fronteres de decisió, corbes de pèrdua i animacions.
+- **Res de codi que simuli neurones a mà** (la neurona de McCulloch i Pitts, la suma
+  ponderada i la funció step amb NumPy, xarxes amb pesos triats a mà…). Aquests
+  conceptes s'expliquen a les diapositives i, al notebook, amb text i taules. El
+  codi del notebook fa servir les biblioteques.
+- **Els notebooks van de pressa fins al problema que motiva la unitat** (a la UT5,
+  la XOR) i s'hi estenen a partir d'aquí. La història i els precedents, a les
+  diapositives.
+- **Pauses «Ara tu» intercalades** (CONVENCIONS §4): exercicis curts just després
+  de la secció que practiquen, perquè l'explicació no s'allargui sense que
+  l'alumnat hi posi les mans. Al final, només els exercicis que demanen el
+  notebook sencer.
 - **Conjunts de dades públics** a les UT5–UT9 (pingüins, `make_moons`, California
   Housing, MNIST, Fashion-MNIST, CIFAR-10, Mall Customers, SMS Spam Collection…),
   sense cas conductor. Cal revisar-ne la llicència.
@@ -54,7 +65,7 @@ La UT10 és la FEMPO.
 
 | UT | Títol | h | Eines | Criteris d'avaluació | Estat |
 |---|---|---|---|---|---|
-| 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT01-...`: NB 1.1 (XOR, pingüins, llunes), NB 1.2 (MNIST) i diapositives, adaptats a scikit-learn |
+| 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT01-...`: NB 1.1 (XOR, pingüins, llunes; 5 pauses «Ara tu» + 2 finals), NB 1.2 (MNIST; 4 pauses «Ara tu» + 4 finals) i diapositives, adaptats a scikit-learn |
 | 6 | Xarxes neuronals convolucionals i introducció a la visió per computador | 24 | PyTorch, torchvision | 3.a | pendent |
 | 7 | Xarxes neuronals no supervisades: k-means, SOM i xarxes de Hopfield | 24 | scikit-learn, MiniSom, classe Hopfield | 3.b–3.e | pendent |
 | 8 | Llibreries de tercers, accés a dades, anàlisi amb NumPy, pandas, Matplotlib i Seaborn, KDD i **inferència amb el model entrenat** | 24 | pandas, requests, joblib, pytest | 4.a–4.f, 2.h–2.k | pendent |
@@ -105,4 +116,6 @@ UTnn-Nom_de_la_unitat/
   UTn_titol.html      font de les diapositives
   UTn_titol.pdf
   <dataset>/          dades que carreguen els notebooks per URL raw
+  figures/            figures estàtiques (PNG) que els notebooks mostren per URL raw,
+                      en lloc de codi que les dibuixi; make_figures.py les regenera
 ```
