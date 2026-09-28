@@ -2,6 +2,15 @@
 __pycache__/
 .DS_Store
 
+# Configuració dels editors (JetBrains: PyCharm, DataSpell...; VS Code)
+.idea/
+*.iml
+.vscode/
+
+# Entorns virtuals locals (el curs treballa a Colab)
+.venv/
+venv/
+
 # Els solucionaris viuen al repositori privat bessó, mai aquí
 *_solucions*.ipynb
 *solucionari*
