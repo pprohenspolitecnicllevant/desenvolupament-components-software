@@ -30394,12 +30394,1011 @@ z
 
 <section class="slide">
   <div class="eyebrow">2 &middot; Peça 1</div>
+  <h2>Què fa la funció d'activació?</h2>
+  <div class="body">
+  <div class="two" style="align-items:flex-start; gap:48px">
+    <div style="flex:0 0 5.4in">
+      <svg viewBox="0 0 540 170" width="100%" role="img">
+        <defs><marker id="aact" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7C8AA0"/></marker></defs>
+        <g font-size="20">
+          <circle cx="36" cy="40" r="24" fill="#EAF2F8" stroke="#1C7293" stroke-width="2"/><text x="36" y="47" text-anchor="middle">x₁</text>
+          <circle cx="36" cy="130" r="24" fill="#EAF2F8" stroke="#1C7293" stroke-width="2"/><text x="36" y="137" text-anchor="middle">x₂</text>
+          <line x1="60" y1="47" x2="150" y2="76" stroke="#7C8AA0" stroke-width="2" marker-end="url(#aact)"/>
+          <line x1="60" y1="123" x2="150" y2="94" stroke="#7C8AA0" stroke-width="2" marker-end="url(#aact)"/>
+          <text x="98" y="48" fill="#C9700F" font-weight="700" font-size="17">w₁</text>
+          <text x="98" y="136" fill="#C9700F" font-weight="700" font-size="17">w₂</text>
+          <circle cx="188" cy="85" r="34" fill="#0F1B33"/><text x="188" y="95" text-anchor="middle" fill="#fff" font-size="28">Σ</text>
+          <text x="188" y="146" text-anchor="middle" font-size="15" fill="#5C6B85">suma + biaix</text>
+          <line x1="222" y1="85" x2="296" y2="85" stroke="#7C8AA0" stroke-width="2" marker-end="url(#aact)"/>
+          <text x="258" y="74" text-anchor="middle" font-weight="700" font-size="22">z</text>
+          <rect x="299" y="50" width="96" height="70" rx="10" fill="#FBE3C8"/>
+          <path d="M313,107 C345,107 349,63 381,63" fill="none" stroke="#7A430A" stroke-width="3"/>
+          <text x="347" y="146" text-anchor="middle" font-size="15" fill="#5C6B85">funció d'activació</text>
+          <line x1="395" y1="85" x2="458" y2="85" stroke="#7C8AA0" stroke-width="2" marker-end="url(#aact)"/>
+          <text x="466" y="92" font-weight="700" font-size="19">sortida</text>
+        </g>
+      </svg>
+      <p class="small" style="margin-top:10px">Cada neurona fa dues passes: calcula <b>z</b>, la suma ponderada més el
+        biaix, i la passa per la <b>funció d'activació</b>, que decideix què treu la neurona.</p>
+      <div class="cards" style="margin-top:18px; gap:18px">
+        <div class="card warm" style="padding:16px 20px"><h3 style="font-size:18px">Un interruptor</h3>
+          <p class="small">La <b>step</b>: apagat o encès, res entremig.</p></div>
+        <div class="card hi" style="padding:16px 20px"><h3 style="font-size:18px">Un regulador de llum</h3>
+          <p class="small">La <b>sigmoide</b>: com més z, més llum, de mica en mica.</p></div>
+      </div>
+    </div>
+    <div>
+      <table class="vals" style="width:100%">
+        <tr><th>z &rarr;</th><th class="r">−2</th><th class="r">−1</th><th class="r">0</th><th class="r">1</th><th class="r">2</th></tr>
+        <tr><td><b>step</b></td><td class="r">0</td><td class="r">0</td><td class="r">1</td><td class="r">1</td><td class="r">1</td></tr>
+        <tr><td><b>sigmoide</b></td><td class="r">0,12</td><td class="r">0,27</td><td class="r">0,50</td><td class="r">0,73</td><td class="r">0,88</td></tr>
+        <tr><td><b>tanh</b></td><td class="r">−0,96</td><td class="r">−0,76</td><td class="r">0</td><td class="r">0,76</td><td class="r">0,96</td></tr>
+        <tr><td><b>ReLU</b></td><td class="r">0</td><td class="r">0</td><td class="r">0</td><td class="r">1</td><td class="r">2</td></tr>
+        <tr class="dim"><td><b>identitat <span style="font-weight:400">(cap)</span></b></td><td class="r">−2</td><td class="r">−1</td><td class="r">0</td><td class="r">1</td><td class="r">2</td></tr>
+      </table>
+      <p class="small muted" style="margin-top:16px">La step salta de cop entre −1 i 0. La sigmoide fa el mateix camí, de prop de 0
+        a prop de 1, però <b>passant per tots els valors del mig</b>. La identitat no fa res: és com no posar-hi activació.</p>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:26px">Una funció d'activació té <b>dues feines</b>:
+    <b class="teal">doblegar</b> la recta i <b class="amber">no fer salts</b>.</p>
+  </div>
+  <div class="num">22</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">2 &middot; Peça 1 &middot; Primera feina: doblegar</div>
+  <h2>Sense activació, les capes no serveixen</h2>
+  <div class="body">
+  <div class="two" style="align-items:center; gap:34px">
+    <div style="flex:0 0 6.9in">
+      <div class="chartbox"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" viewBox="0 0 590.4 367.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 367.2 
+L 590.4 367.2 
+L 590.4 0 
+L 0 0 
+L 0 367.2 
+z
+" style="fill: none"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 36.16 150.805 
+L 275.015934 150.805 
+L 275.015934 33.69 
+L 36.16 33.69 
+L 36.16 150.805 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 68.731264 150.805 
+L 68.731264 33.69 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="m7fb1a10a3c" d="M 0 0 
+L 0 3.5 
+" style="stroke: #7c8aa0; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="68.731264" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 112.159615 150.805 
+L 112.159615 33.69 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="112.159615" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 155.587967 150.805 
+L 155.587967 33.69 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="155.587967" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 199.016319 150.805 
+L 199.016319 33.69 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="199.016319" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_9">
+      <path d="M 242.44467 150.805 
+L 242.44467 33.69 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="242.44467" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_11">
+      <path d="M 36.16 136.165625 
+L 275.015934 136.165625 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <defs>
+       <path id="m827007360b" d="M 0 0 
+L -3.5 0 
+" style="stroke: #7c8aa0; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="136.165625" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="142.353625" transform="rotate(-0 29.16 142.353625)">−5</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_13">
+      <path d="M 36.16 111.766667 
+L 275.015934 111.766667 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="111.766667" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="117.954667" transform="rotate(-0 29.16 117.954667)">0</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_15">
+      <path d="M 36.16 87.367708 
+L 275.015934 87.367708 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="87.367708" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="93.555708" transform="rotate(-0 29.16 93.555708)">5</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_17">
+      <path d="M 36.16 62.96875 
+L 275.015934 62.96875 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="62.96875" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="69.15675" transform="rotate(-0 29.16 69.15675)">10</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_19">
+      <path d="M 36.16 38.569792 
+L 275.015934 38.569792 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="38.569792" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="44.757792" transform="rotate(-0 29.16 44.757792)">15</text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_21">
+    <path d="M 47.017088 141.045417 
+L 264.158846 43.449583 
+L 264.158846 43.449583 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke: #17233d; stroke-width: 2.5; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 47.017088 60.528854 
+L 264.158846 133.725729 
+L 264.158846 133.725729 
+" clip-path="url(#p29f245c14f)" style="fill: none; stroke-dasharray: 12.5,6.25; stroke-dashoffset: 0; stroke: #17233d; stroke-width: 2.5"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 36.16 150.805 
+L 36.16 33.69 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 36.16 150.805 
+L 275.015934 150.805 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="269.370248" y="48.755583" transform="rotate(-0 269.370248 48.755583)">A</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="269.370248" y="139.031729" transform="rotate(-0 269.370248 139.031729)">B</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="155.587967" y="27.69" transform="rotate(-0 155.587967 27.69)">Sense activació · capa oculta: A i B</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_5">
+    <path d="M 333.06 150.805 
+L 571.915934 150.805 
+L 571.915934 33.69 
+L 333.06 33.69 
+L 333.06 150.805 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_6">
+     <g id="line2d_23">
+      <path d="M 365.631264 150.805 
+L 365.631264 33.69 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="365.631264" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_25">
+      <path d="M 409.059615 150.805 
+L 409.059615 33.69 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="409.059615" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_27">
+      <path d="M 452.487967 150.805 
+L 452.487967 33.69 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_28">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="452.487967" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_29">
+      <path d="M 495.916319 150.805 
+L 495.916319 33.69 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="495.916319" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_10">
+     <g id="line2d_31">
+      <path d="M 539.34467 150.805 
+L 539.34467 33.69 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="539.34467" y="150.805" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_6">
+     <g id="line2d_33">
+      <path d="M 333.06 128.845937 
+L 571.915934 128.845937 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m827007360b" x="333.06" y="128.845937" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="326.06" y="135.033937" transform="rotate(-0 326.06 135.033937)">0.0</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_35">
+      <path d="M 333.06 92.2475 
+L 571.915934 92.2475 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_36">
+      <g>
+       <use xlink:href="#m827007360b" x="333.06" y="92.2475" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="326.06" y="98.4355" transform="rotate(-0 326.06 98.4355)">0.5</text>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_37">
+      <path d="M 333.06 55.649062 
+L 571.915934 55.649062 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_38">
+      <g>
+       <use xlink:href="#m827007360b" x="333.06" y="55.649062" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="326.06" y="61.837063" transform="rotate(-0 326.06 61.837063)">1.0</text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_39">
+    <path d="M 343.917088 128.664949 
+L 354.257172 128.378678 
+L 360.787751 127.99772 
+L 366.2299 127.456191 
+L 370.58362 126.789857 
+L 374.393124 125.959736 
+L 377.658414 125.000249 
+L 380.379488 123.977732 
+L 383.100563 122.707406 
+L 385.821638 121.142966 
+L 387.998497 119.647698 
+L 390.175357 117.910637 
+L 392.352217 115.911835 
+L 394.529077 113.636929 
+L 396.705936 111.079862 
+L 399.427011 107.495561 
+L 402.148086 103.518542 
+L 405.413375 98.335984 
+L 416.841889 79.664943 
+L 419.562964 75.807141 
+L 422.284038 72.358493 
+L 424.460898 69.91437 
+L 426.637758 67.75116 
+L 428.814617 65.859149 
+L 430.991477 64.221427 
+L 433.168337 62.816507 
+L 435.889412 61.351361 
+L 438.610486 60.16523 
+L 441.331561 59.212799 
+L 444.59685 58.320947 
+L 448.406355 57.5508 
+L 452.760074 56.933583 
+L 457.658009 56.472432 
+L 464.188588 56.102564 
+L 472.896027 55.853123 
+L 487.045615 55.704607 
+L 519.698511 55.651809 
+L 561.058846 55.649123 
+L 561.058846 55.649123 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke: #17233d; stroke-width: 2.5; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_40">
+    <path d="M 343.917088 55.651078 
+L 403.236516 55.770208 
+L 419.018749 56.008291 
+L 429.358832 56.379132 
+L 436.977841 56.87636 
+L 442.964206 57.489122 
+L 447.86214 58.204117 
+L 452.215859 59.058857 
+L 456.025364 60.023964 
+L 459.290654 61.049272 
+L 462.555943 62.291681 
+L 465.821233 63.785622 
+L 469.086522 65.565492 
+L 471.807597 67.290047 
+L 474.528672 69.250056 
+L 477.249746 71.455335 
+L 479.970821 73.908626 
+L 483.236111 77.170397 
+L 486.5014 80.748624 
+L 490.310905 85.24894 
+L 496.297269 92.729031 
+L 502.827848 100.822078 
+L 506.637353 105.21267 
+L 509.902642 108.66955 
+L 513.167932 111.794741 
+L 516.433222 114.566232 
+L 519.154296 116.603958 
+L 521.875371 118.402442 
+L 524.596446 119.97516 
+L 527.861735 121.588873 
+L 531.127025 122.936 
+L 534.392314 124.051243 
+L 538.201819 125.103922 
+L 542.011323 125.935319 
+L 546.365043 126.668833 
+L 551.807192 127.336979 
+L 557.793556 127.841033 
+L 561.058846 128.041728 
+L 561.058846 128.041728 
+" clip-path="url(#pb89ae38724)" style="fill: none; stroke-dasharray: 12.5,6.25; stroke-dashoffset: 0; stroke: #17233d; stroke-width: 2.5"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 333.06 150.805 
+L 333.06 33.69 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 333.06 150.805 
+L 571.915934 150.805 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="566.270248" y="60.955123" transform="rotate(-0 566.270248 60.955123)">A</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: start; fill: #17233d" x="566.270248" y="133.347728" transform="rotate(-0 566.270248 133.347728)">B</text>
+   </g>
+   <g id="text_14">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="452.487967" y="27.69" transform="rotate(-0 452.487967 27.69)">Amb sigmoide · capa oculta: A i B</text>
+   </g>
+  </g>
+  <g id="axes_3">
+   <g id="patch_8">
+    <path d="M 36.16 311.87 
+L 275.015934 311.87 
+L 275.015934 194.755 
+L 36.16 194.755 
+L 36.16 311.87 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_5">
+    <g id="xtick_11">
+     <g id="line2d_41">
+      <path d="M 68.731264 311.87 
+L 68.731264 194.755 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_42">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="68.731264" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="68.731264" y="331.246" transform="rotate(-0 68.731264 331.246)">0</text>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_43">
+      <path d="M 112.159615 311.87 
+L 112.159615 194.755 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_44">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="112.159615" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_16">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="112.159615" y="331.246" transform="rotate(-0 112.159615 331.246)">1</text>
+     </g>
+    </g>
+    <g id="xtick_13">
+     <g id="line2d_45">
+      <path d="M 155.587967 311.87 
+L 155.587967 194.755 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_46">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="155.587967" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_17">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="155.587967" y="331.246" transform="rotate(-0 155.587967 331.246)">2</text>
+     </g>
+    </g>
+    <g id="xtick_14">
+     <g id="line2d_47">
+      <path d="M 199.016319 311.87 
+L 199.016319 194.755 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_48">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="199.016319" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_18">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="199.016319" y="331.246" transform="rotate(-0 199.016319 331.246)">3</text>
+     </g>
+    </g>
+    <g id="xtick_15">
+     <g id="line2d_49">
+      <path d="M 242.44467 311.87 
+L 242.44467 194.755 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_50">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="242.44467" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_19">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="242.44467" y="331.246" transform="rotate(-0 242.44467 331.246)">4</text>
+     </g>
+    </g>
+    <g id="text_20">
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="155.587967" y="350.391" transform="rotate(-0 155.587967 350.391)">x</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_6">
+    <g id="ytick_9">
+     <g id="line2d_51">
+      <path d="M 36.16 297.230625 
+L 275.015934 297.230625 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_52">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="297.230625" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_21">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="303.418625" transform="rotate(-0 29.16 303.418625)">−5</text>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_53">
+      <path d="M 36.16 272.831667 
+L 275.015934 272.831667 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_54">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="272.831667" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_22">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="279.019667" transform="rotate(-0 29.16 279.019667)">0</text>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_55">
+      <path d="M 36.16 248.432708 
+L 275.015934 248.432708 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_56">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="248.432708" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_23">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="254.620708" transform="rotate(-0 29.16 254.620708)">5</text>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_57">
+      <path d="M 36.16 224.03375 
+L 275.015934 224.03375 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_58">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="224.03375" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_24">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="230.22175" transform="rotate(-0 29.16 230.22175)">10</text>
+     </g>
+    </g>
+    <g id="ytick_13">
+     <g id="line2d_59">
+      <path d="M 36.16 199.634792 
+L 275.015934 199.634792 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_60">
+      <g>
+       <use xlink:href="#m827007360b" x="36.16" y="199.634792" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_25">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="29.16" y="205.822792" transform="rotate(-0 29.16 205.822792)">15</text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_61">
+    <path d="M 47.017088 255.752396 
+L 264.158846 231.353438 
+L 264.158846 231.353438 
+" clip-path="url(#pdab16a7a9f)" style="fill: none; stroke: #17233d; stroke-width: 3.5; stroke-linecap: square"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 36.16 311.87 
+L 36.16 194.755 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 36.16 311.87 
+L 275.015934 311.87 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="C0_0_aa0ebf1fc0" d="M 0 4.472136 
+C 1.186024 4.472136 2.323632 4.000923 3.162278 3.162278 
+C 4.000923 2.323632 4.472136 1.186024 4.472136 -0 
+C 4.472136 -1.186024 4.000923 -2.323632 3.162278 -3.162278 
+C 2.323632 -4.000923 1.186024 -4.472136 0 -4.472136 
+C -1.186024 -4.472136 -2.323632 -4.000923 -3.162278 -3.162278 
+C -4.000923 -2.323632 -4.472136 -1.186024 -4.472136 0 
+C -4.472136 1.186024 -4.000923 2.323632 -3.162278 3.162278 
+C -2.323632 4.000923 -1.186024 4.472136 0 4.472136 
+z
+"/>
+    </defs>
+    <g clip-path="url(#pdab16a7a9f)">
+     <use xlink:href="#C0_0_aa0ebf1fc0" x="68.731264" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pdab16a7a9f)">
+     <use xlink:href="#C0_0_aa0ebf1fc0" x="86.102604" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pdab16a7a9f)">
+     <use xlink:href="#C0_0_aa0ebf1fc0" x="138.216626" y="301.32965" style="fill: #e8871e; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pdab16a7a9f)">
+     <use xlink:href="#C0_0_aa0ebf1fc0" x="155.587967" y="301.32965" style="fill: #e8871e; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pdab16a7a9f)">
+     <use xlink:href="#C0_0_aa0ebf1fc0" x="172.959308" y="301.32965" style="fill: #e8871e; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pdab16a7a9f)">
+     <use xlink:href="#C0_0_aa0ebf1fc0" x="225.07333" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pdab16a7a9f)">
+     <use xlink:href="#C0_0_aa0ebf1fc0" x="242.44467" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="text_26">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="155.587967" y="188.755" transform="rotate(-0 155.587967 188.755)">Sense activació · sortida = A + B − 1</text>
+   </g>
+  </g>
+  <g id="axes_4">
+   <g id="patch_11">
+    <path d="M 333.06 311.87 
+L 571.915934 311.87 
+L 571.915934 194.755 
+L 333.06 194.755 
+L 333.06 311.87 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_7">
+    <g id="xtick_16">
+     <g id="line2d_62">
+      <path d="M 365.631264 311.87 
+L 365.631264 194.755 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_63">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="365.631264" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_27">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="365.631264" y="331.246" transform="rotate(-0 365.631264 331.246)">0</text>
+     </g>
+    </g>
+    <g id="xtick_17">
+     <g id="line2d_64">
+      <path d="M 409.059615 311.87 
+L 409.059615 194.755 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_65">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="409.059615" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_28">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="409.059615" y="331.246" transform="rotate(-0 409.059615 331.246)">1</text>
+     </g>
+    </g>
+    <g id="xtick_18">
+     <g id="line2d_66">
+      <path d="M 452.487967 311.87 
+L 452.487967 194.755 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_67">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="452.487967" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_29">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="452.487967" y="331.246" transform="rotate(-0 452.487967 331.246)">2</text>
+     </g>
+    </g>
+    <g id="xtick_19">
+     <g id="line2d_68">
+      <path d="M 495.916319 311.87 
+L 495.916319 194.755 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_69">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="495.916319" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_30">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="495.916319" y="331.246" transform="rotate(-0 495.916319 331.246)">3</text>
+     </g>
+    </g>
+    <g id="xtick_20">
+     <g id="line2d_70">
+      <path d="M 539.34467 311.87 
+L 539.34467 194.755 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_71">
+      <g>
+       <use xlink:href="#m7fb1a10a3c" x="539.34467" y="311.87" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_31">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="539.34467" y="331.246" transform="rotate(-0 539.34467 331.246)">4</text>
+     </g>
+    </g>
+    <g id="text_32">
+     <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #7c8aa0" x="452.487967" y="350.391" transform="rotate(-0 452.487967 350.391)">x</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_8">
+    <g id="ytick_14">
+     <g id="line2d_72">
+      <path d="M 333.06 289.910937 
+L 571.915934 289.910937 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_73">
+      <g>
+       <use xlink:href="#m827007360b" x="333.06" y="289.910937" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_33">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="326.06" y="296.098937" transform="rotate(-0 326.06 296.098937)">0.0</text>
+     </g>
+    </g>
+    <g id="ytick_15">
+     <g id="line2d_74">
+      <path d="M 333.06 253.3125 
+L 571.915934 253.3125 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_75">
+      <g>
+       <use xlink:href="#m827007360b" x="333.06" y="253.3125" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_34">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="326.06" y="259.5005" transform="rotate(-0 326.06 259.5005)">0.5</text>
+     </g>
+    </g>
+    <g id="ytick_16">
+     <g id="line2d_76">
+      <path d="M 333.06 216.714062 
+L 571.915934 216.714062 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #dde4ee; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_77">
+      <g>
+       <use xlink:href="#m827007360b" x="333.06" y="216.714062" style="fill: #7c8aa0; stroke: #7c8aa0; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_35">
+      <text style="font-size: 13px; font-family: 'Helvetica Neue'; text-anchor: end; fill: #7c8aa0" x="326.06" y="222.902062" transform="rotate(-0 326.06 222.902062)">1.0</text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_78">
+    <path d="M 343.917088 289.731965 
+L 354.257172 289.447795 
+L 360.787751 289.069184 
+L 366.2299 288.530604 
+L 370.58362 287.867573 
+L 374.393124 287.041279 
+L 377.658414 286.085976 
+L 380.379488 285.067744 
+L 383.100563 283.802588 
+L 385.821638 282.244387 
+L 387.998497 280.755025 
+L 390.175357 279.024829 
+L 392.352217 277.034003 
+L 394.529077 274.768365 
+L 396.705936 272.222067 
+L 399.427011 268.653712 
+L 402.148086 264.695926 
+L 405.413375 259.54175 
+L 416.841889 241.039229 
+L 419.562964 237.245061 
+L 422.284038 233.873059 
+L 424.460898 231.501366 
+L 426.637758 229.42216 
+L 428.814617 227.627541 
+L 430.991477 226.102686 
+L 433.168337 224.828507 
+L 435.345197 223.783928 
+L 437.522056 222.947677 
+L 440.243131 222.164809 
+L 442.964206 221.641291 
+L 445.68528 221.348618 
+L 448.406355 221.265194 
+L 451.12743 221.376312 
+L 454.392719 221.75533 
+L 457.658009 222.399946 
+L 460.379083 223.145051 
+L 463.100158 224.088257 
+L 465.821233 225.241145 
+L 468.542307 226.616902 
+L 471.263382 228.228782 
+L 473.984457 230.088302 
+L 476.705531 232.2032 
+L 479.426606 234.575248 
+L 482.691896 237.751578 
+L 485.957185 241.258704 
+L 489.76669 245.696846 
+L 495.208839 252.444554 
+L 502.827848 261.900067 
+L 506.637353 266.286816 
+L 509.902642 269.741321 
+L 513.167932 272.864753 
+L 516.433222 275.634943 
+L 519.154296 277.671846 
+L 521.875371 279.46969 
+L 524.596446 281.04191 
+L 527.861735 282.655168 
+L 531.127025 284.001958 
+L 534.392314 285.116953 
+L 538.201819 286.169422 
+L 542.011323 287.00067 
+L 546.365043 287.734068 
+L 551.807192 288.402121 
+L 557.793556 288.906115 
+L 561.058846 289.106788 
+L 561.058846 289.106788 
+" clip-path="url(#pc66f0215f9)" style="fill: none; stroke: #17233d; stroke-width: 3.5; stroke-linecap: square"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 333.06 311.87 
+L 333.06 194.755 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 333.06 311.87 
+L 571.915934 311.87 
+" style="fill: none; stroke: #b9c4d4; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_2">
+    <defs>
+     <path id="C1_0_aa0ebf1fc0" d="M 0 4.472136 
+C 1.186024 4.472136 2.323632 4.000923 3.162278 3.162278 
+C 4.000923 2.323632 4.472136 1.186024 4.472136 -0 
+C 4.472136 -1.186024 4.000923 -2.323632 3.162278 -3.162278 
+C 2.323632 -4.000923 1.186024 -4.472136 0 -4.472136 
+C -1.186024 -4.472136 -2.323632 -4.000923 -3.162278 -3.162278 
+C -4.000923 -2.323632 -4.472136 -1.186024 -4.472136 0 
+C -4.472136 1.186024 -4.000923 2.323632 -3.162278 3.162278 
+C -2.323632 4.000923 -1.186024 4.472136 0 4.472136 
+z
+"/>
+    </defs>
+    <g clip-path="url(#pc66f0215f9)">
+     <use xlink:href="#C1_0_aa0ebf1fc0" x="365.631264" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pc66f0215f9)">
+     <use xlink:href="#C1_0_aa0ebf1fc0" x="383.002604" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pc66f0215f9)">
+     <use xlink:href="#C1_0_aa0ebf1fc0" x="435.116626" y="301.32965" style="fill: #e8871e; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pc66f0215f9)">
+     <use xlink:href="#C1_0_aa0ebf1fc0" x="452.487967" y="301.32965" style="fill: #e8871e; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pc66f0215f9)">
+     <use xlink:href="#C1_0_aa0ebf1fc0" x="469.859308" y="301.32965" style="fill: #e8871e; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pc66f0215f9)">
+     <use xlink:href="#C1_0_aa0ebf1fc0" x="521.97333" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+    <g clip-path="url(#pc66f0215f9)">
+     <use xlink:href="#C1_0_aa0ebf1fc0" x="539.34467" y="301.32965" style="fill: #1c7293; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="text_36">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue'; text-anchor: middle; fill: #17233d" x="452.487967" y="188.755" transform="rotate(-0 452.487967 188.755)">Amb sigmoide · sortida = A + B − 1</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p29f245c14f">
+   <rect x="36.16" y="33.69" width="238.855934" height="117.115"/>
+  </clipPath>
+  <clipPath id="pb89ae38724">
+   <rect x="333.06" y="33.69" width="238.855934" height="117.115"/>
+  </clipPath>
+  <clipPath id="pdab16a7a9f">
+   <rect x="36.16" y="194.755" width="238.855934" height="117.115"/>
+  </clipPath>
+  <clipPath id="pc66f0215f9">
+   <rect x="333.06" y="194.755" width="238.855934" height="117.115"/>
+  </clipPath>
+ </defs>
+</svg></div>
+    </div>
+    <div>
+      <p class="small">La mateixa xarxa i <b>els mateixos pesos</b>: una entrada x, dues neurones ocultes (A i B) i una
+        sortida que les suma. Només canvia l'activació.</p>
+      <p class="small" style="margin-top:12px"><b>Sense activació</b>, A i B són rectes, i sumar rectes dona una altra
+        recta. Només talla una vegada: no pot aïllar els punts taronja del mig. Amb cent capes, igual.</p>
+      <p class="small" style="margin-top:12px"><b>Amb sigmoide</b>, A s'encén a x = 1 i B s'apaga a x = 3. La suma fa una
+        <b>muntanyeta</b> just on hi ha els taronja: la franja de la XOR, en una dimensió.</p>
+      <div class="card hi" style="margin-top:16px; padding:14px 18px">
+        <p class="small">Amb moltes muntanyetes, una xarxa pot dibuixar <b>qualsevol corba</b>.</p></div>
+      <p class="muted small" style="margin-top:12px">Per al 5134: una neurona amb sigmoide és exactament una
+        <b>regressió logística</b>. I una xarxa sense activació també, per moltes capes que tingui.</p>
+    </div>
+  </div>
+  </div>
+  <div class="num">23</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">2 &middot; Peça 1 &middot; Segona feina: no fer salts</div>
   <h2>Funcions d'activació sense salts</h2>
   <div class="body">
-  <p class="small" style="margin-bottom:12px">La funció step salta de cop de 0 a 1. Les altres tres fan una
-    <b>corba sense salts</b>: si un pes canvia una mica, la sortida també canvia una mica, i això ens diu cap a on
-    moure'l per equivocar-nos menys.</p>
-  <div class="chartbox"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="100%"  viewBox="0 0 922.267969 216.304219" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <p class="small" style="margin-bottom:10px">La step salta de cop: el seu <b>pendent</b> és zero a tot arreu i no dona
+    cap pista. Les altres tres pugen de mica en mica.</p>
+  <div class="chartbox"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" style="height:228px; display:block" viewBox="0 0 922.267969 216.304219" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
   <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
@@ -31154,16 +32153,30 @@ L 915.067969 190.26
  </defs>
 </svg>
 </div>
-  <div class="cards" style="margin-top:14px; gap:18px">
-    <div class="card" style="padding:12px 18px"><p class="small"><b>Step.</b> Plana, amb un salt al 0: no dona cap pista. No serveix per entrenar capes.</p></div>
-    <div class="card" style="padding:12px 18px"><p class="small"><b>Sigmoide.</b> De 0 a 1, es llegeix com una probabilitat. A la sortida.</p></div>
-    <div class="card" style="padding:12px 18px"><p class="small"><b>tanh.</b> De −1 a 1, centrada. La farem servir a la capa oculta.</p></div>
-    <div class="card" style="padding:12px 18px"><p class="small"><b>ReLU.</b> L'opció per defecte de les xarxes profundes actuals.</p></div>
+  <div class="two" style="margin-top:14px; gap:30px; align-items:stretch">
+    <div class="card warm" style="flex:0 0 4.9in; padding:14px 22px">
+      <p class="small"><b>Fred o calent.</b> Una neurona hauria de dir 1 i té z&nbsp;=&nbsp;−2. Movem una mica un
+        pes i z passa a −1,5. Hem millorat?</p>
+      <table class="vals tight" style="margin-top:6px; font-size:15px">
+        <tr><td><b>step</b></td><td>0 &rarr; 0</td><td class="muted">cap pista</td></tr>
+        <tr><td><b>sigmoide</b></td><td>0,12 &rarr; 0,18</td><td><b style="color:#C9700F">«calent»: per aquí</b></td></tr>
+      </table>
+      <p class="small muted" style="margin-top:10px">Aquesta pista és el <b>pendent</b>. El gradient descent el farà servir
+        per decidir cap a on moure cada pes.</p>
+    </div>
+    <div>
+      <table class="vals tight" style="width:100%; font-size:15px; line-height:1.3">
+        <tr><th></th><th>Doblega</th><th>Sense salts</th><th>On la trobarem</th></tr>
+        <tr class="dim"><td><b>identitat</b></td><td><b style="color:#C9700F">no</b></td><td>sí</td><td>a la sortida d'una regressió</td></tr>
+        <tr class="dim"><td><b>step</b></td><td>sí</td><td><b style="color:#C9700F">no</b></td><td>al perceptró</td></tr>
+        <tr><td><b>sigmoide</b></td><td>sí</td><td>sí</td><td>a la sortida: es llegeix com una probabilitat</td></tr>
+        <tr><td><b>tanh</b></td><td>sí</td><td>sí</td><td>a la capa oculta, al NB 1.1</td></tr>
+        <tr><td><b>ReLU</b></td><td>sí</td><td>sí</td><td>per defecte a les xarxes profundes</td></tr>
+      </table>
+    </div>
   </div>
-  <p class="muted small" style="margin-top:10px">Per al 5134: <b>una neurona amb sigmoide és exactament una regressió logística</b>.
-    El que la converteix en xarxa és apilar-ne moltes.</p>
   </div>
-  <div class="num">22</div>
+  <div class="num">24</div>
 </section>
 
 <section class="slide">
@@ -31969,7 +32982,7 @@ L 914.038594 166.982188
 </svg>
 </div>
   </div>
-  <div class="num">23</div>
+  <div class="num">25</div>
 </section>
 
 <section class="slide">
@@ -32014,7 +33027,7 @@ L 914.038594 166.982188
     </div>
   </div>
   </div>
-  <div class="num">24</div>
+  <div class="num">26</div>
 </section>
 
 <section class="slide">
@@ -32049,7 +33062,7 @@ L 914.038594 166.982188
     </div>
   </div>
   </div>
-  <div class="num">25</div>
+  <div class="num">27</div>
 </section>
 
 <section class="slide">
@@ -36375,7 +37388,7 @@ z
       s'aplana a prop de zero. I la frontera <b>ja no és una recta</b>: en són dues, que formen una franja.</p></div>
   </div>
   </div>
-  <div class="num">26</div>
+  <div class="num">28</div>
 </section>
 
 <section class="slide">
@@ -44180,7 +45193,7 @@ z
     </div>
   </div>
   </div>
-  <div class="num">27</div>
+  <div class="num">29</div>
 </section>
 
 <section class="slide">
@@ -66515,7 +67528,7 @@ z
       s'encalla o no segons els pesos inicials: un <b>mínim local</b>. Una regressió lineal sempre dóna el mateix.</p></div>
   </div>
   </div>
-  <div class="num">28</div>
+  <div class="num">30</div>
 </section>
 
 <section class="slide">
@@ -66555,7 +67568,7 @@ model.loss_curve_</div>
     que ajusta la passa de cada pes. La recepta de fons és la mateixa: pas endavant, loss, pas enrere, actualització.
     Per predir un número en lloc d'una classe hi ha <b>MLPRegressor</b>, amb els mateixos paràmetres.</p>
   </div>
-  <div class="num">29</div>
+  <div class="num">31</div>
 </section>
 
 <section class="slide dark">
@@ -66565,7 +67578,7 @@ model.loss_curve_</div>
     <p class="lead muted" style="margin-top:24px; max-width:9in">Portem l'MLP de les llunes a MNIST.
       Canviar d'escala obliga a introduir tres idees noves, i ens deixa veure què aprenen de debò les neurones.</p>
   </div>
-  <div class="num">30</div>
+  <div class="num">32</div>
 </section>
 
 <section class="slide">
@@ -67086,7 +68099,7 @@ iVBORw0KGgoAAAANSUhEUgAAAEwAAABMCAYAAADHl1ErAAAKMElEQVR4nO2c14/TShTGx96UXZYWei9L
     </div>
   </div>
   </div>
-  <div class="num">31</div>
+  <div class="num">33</div>
 </section>
 
 <section class="slide">
@@ -67438,7 +68451,7 @@ L 394.072187 195.696
     </div>
   </div>
   </div>
-  <div class="num">32</div>
+  <div class="num">34</div>
 </section>
 
 <section class="slide">
@@ -67797,7 +68810,7 @@ L 85.512969 92.72042
     </div>
   </div>
   </div>
-  <div class="num">33</div>
+  <div class="num">35</div>
 </section>
 
 <section class="slide">
@@ -68145,7 +69158,7 @@ L 290.934375 167.1
     </div>
   </div>
   </div>
-  <div class="num">34</div>
+  <div class="num">36</div>
 </section>
 
 <section class="slide">
@@ -68610,7 +69623,7 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
     </div>
   </div>
   </div>
-  <div class="num">35</div>
+  <div class="num">37</div>
 </section>
 
 <section class="slide">
@@ -68633,7 +69646,7 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
   <div class="quote" style="margin-top:26px; font-size:22px">És la figura de la XOR a gran escala: la capa oculta transforma les dades
     en una representació on un model lineal ja funciona.</div>
   </div>
-  <div class="num">36</div>
+  <div class="num">38</div>
 </section>
 
 <section class="slide">
@@ -68993,7 +70006,7 @@ L 425.604375 167.192138
   <p style="margin-top:18px">Per a l'MLP la imatge és una taula: <b>no sap quins píxels són veïns</b>. Les xarxes
     <b>convolucionals</b> reutilitzen el mateix detector a totes les posicions, i llavors la distància es fa enorme. Són la <b>UT6</b>.</p>
   </div>
-  <div class="num">37</div>
+  <div class="num">39</div>
 </section>
 
 <section class="slide">
@@ -69004,13 +70017,13 @@ L 425.604375 167.192138
     <li>Una <b>neurona</b> fa una suma ponderada, hi suma un biaix i aplica una activació. Separa l'espai amb una recta.</li>
     <li>El <b>perceptró</b> aprèn corregint els pesos quan s'equivoca, però només resol problemes <b>linealment separables</b>.</li>
     <li>Les <b>capes ocultes</b> transformen les dades en una representació on el problema sí que és separable.</li>
-    <li>Per entrenar capes calen <b>funcions d'activació sense salts</b>, una <b>loss</b> i el <b>gradient descent</b>.</li>
+    <li>Calen <b>funcions d'activació</b> que <b>doblegin sense salts</b>, una <b>loss</b> i el <b>gradient descent</b>.</li>
     <li>La <b>backpropagation</b> reparteix la culpa de l'error cap enrere per saber com moure cada pes.</li>
     <li>Amb dades reals calen <b>softmax</b>, <b>mini-batches</b> i <b>validació</b>. La capa oculta aprèn característiques, i
       <b>l'arquitectura decideix quines</b> pot aprendre.</li>
   </ol>
   </div>
-  <div class="num">38</div>
+  <div class="num">40</div>
 </section>
 
 <section class="slide dark">
@@ -69026,7 +70039,7 @@ L 425.604375 167.192138
     <li>A MNIST, un random forest gairebé iguala l'MLP. Per què, doncs, les xarxes <b>han guanyat en imatges</b>?</li>
   </ol>
   </div>
-  <div class="num">39</div>
+  <div class="num">41</div>
 </section>
 
 </body></html>

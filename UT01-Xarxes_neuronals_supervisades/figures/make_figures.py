@@ -39,6 +39,44 @@ def activation_functions():
     plt.close(fig)
 
 
+def activation_bends():
+    """Two hidden neurons and an output that adds them, with the same weights: without activation
+    and with sigmoid. Lines add up to a line; two soft steps add up to a bump around the middle points."""
+    x = np.linspace(-0.5, 4.5, 400)
+    z_a = 4 * (x - 1)                 # neuron A: switches on at x = 1
+    z_b = -3 * (x - 3)                # neuron B: switches off at x = 3
+    x_points = np.array([0.0, 0.4, 1.6, 2.0, 2.4, 3.6, 4.0])
+    y_points = np.array([0, 0, 1, 1, 1, 0, 0])
+
+    def sigmoid(z):
+        return 1 / (1 + np.exp(-z))
+
+    # Columns: the activation. Rows: the hidden neurons (top) and the output that adds them (bottom)
+    columns = [
+        ("No activation", z_a, z_b, "line + line = line", (-8, 16), "upper center"),
+        ("Sigmoid", sigmoid(z_a), sigmoid(z_b), "two soft steps = a bump", (-0.25, 1.3), "center"),
+    ]
+    fig, axes = plt.subplots(2, 2, figsize=(13, 7.5), sharex=True)
+    for col, (name, a, b, result, ylim, legend_loc) in enumerate(columns):
+        ax = axes[0, col]
+        ax.plot(x, a, linewidth=2.5, color="tab:green", label="neuron A")
+        ax.plot(x, b, linewidth=2.5, color="tab:purple", label="neuron B")
+        ax.set_ylim(ylim)
+        ax.set_title(f"{name}: hidden neurons")
+        ax.legend(loc=legend_loc, framealpha=1)
+
+        ax = axes[1, col]
+        ax.plot(x, a + b - 1, linewidth=3, color="black")
+        ax.scatter(x_points, np.full(len(x_points), 0.08), c=y_points, cmap="coolwarm",
+                   edgecolor="k", s=70, zorder=3, transform=ax.get_xaxis_transform())
+        ax.set_ylim(ylim)
+        ax.set_title(f"{name}: output = A + B - 1  ->  {result}")
+        ax.set_xlabel("x")
+    plt.tight_layout()
+    fig.savefig("activation_bends.png", dpi=100)
+    plt.close(fig)
+
+
 def gradient_descent_valley():
     """Gradient descent on the loss of y = w·x, from w = -0.5, with four learning rates."""
     rng = np.random.default_rng(0)
@@ -123,4 +161,5 @@ def perceptron_plane():
 if __name__ == "__main__":
     perceptron_plane()
     activation_functions()
+    activation_bends()
     gradient_descent_valley()
