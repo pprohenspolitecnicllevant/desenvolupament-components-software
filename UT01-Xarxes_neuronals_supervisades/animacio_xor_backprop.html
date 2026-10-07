@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XOR amb backpropagation</title>
+<style>
+  :root {
+    --navy: #0F1B33; --ink: #17233D; --teal: #1C7293; --orange: #E8871E; --amber: #C9700F;
+    --pos: #3D5A80; --neg: #B23A48; --muted: #5C6B85; --faint: #A8B4C6; --label: #7C8AA0;
+    --line: #E4EAF2; --soft: #F4F7FB; --tealsoft: #EAF2F8; --orangesoft: #FBE3C8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #E9EEF4; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); }
+  svg text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+  #stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; background: #FFFFFF;
+           padding: 28px 48px 24px; display: flex; flex-direction: column; transform-origin: center; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-end; }
+  .eyebrow { font-size: 14px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--teal);
+             font-weight: 700; margin-bottom: 8px; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-size: 34px; font-weight: 400; margin: 0;
+       letter-spacing: -0.2px; }
+  .counters { display: flex; gap: 8px; }
+  .counters span { font-size: 15px; background: var(--soft); border-radius: 999px; padding: 6px 14px; color: var(--muted); }
+  .counters b { color: var(--ink); }
+
+  main { display: grid; grid-template-columns: 940px 1fr; gap: 28px; height: 600px; margin-top: 12px; }
+  #net { width: 940px; height: 600px; display: block; }
+  aside { display: flex; flex-direction: column; gap: 18px; padding-top: 18px; }
+
+  table.rows { border-collapse: collapse; width: 100%; }
+  .rows th { font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--label);
+             font-weight: 700; padding: 0 10px 8px; text-align: center; }
+  .rows td { font-family: "Courier New", monospace; font-size: 22px; text-align: center; padding: 7px 10px;
+             border-top: 1px solid var(--line); }
+  .rows td.sep, .rows th.sep { border-left: 2px solid #D5DDE8; }
+  .rows tr.cur td { background: var(--tealsoft); }
+  .rows tr.cur td:first-child { box-shadow: inset 4px 0 0 var(--teal); }
+  .rows .c0 { color: var(--teal); font-weight: 700; }
+  .rows .c1 { color: var(--amber); font-weight: 700; }
+  .rows .ok { color: var(--teal); font-family: "Helvetica Neue", Arial, sans-serif; font-size: 18px; }
+  .rows .ko { color: var(--neg); font-family: "Helvetica Neue", Arial, sans-serif; font-size: 18px; }
+
+  .panels { display: flex; gap: 22px; }
+  .panel h3 { font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--label);
+              margin: 0 0 6px; font-weight: 700; }
+  .plot { position: relative; width: 262px; height: 262px; background: #F7F9FC; border-radius: 10px; overflow: hidden; }
+  .plot canvas, .plot svg { position: absolute; left: 0; top: 0; width: 262px; height: 262px; }
+  #planePlot { cursor: crosshair; }
+
+  #narration { margin-top: 10px; min-height: 84px; font-size: 20px; line-height: 1.45; background: var(--soft);
+               border-left: 5px solid var(--navy); border-radius: 12px; padding: 12px 22px; }
+  #narration.fwd { border-left-color: var(--teal); }
+  #narration.bwd { border-left-color: var(--orange); }
+
+  footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+  #phases { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0; }
+  #phases li { --p: 0; font-size: 14px; font-weight: 700; padding: 9px 13px; border-radius: 999px; white-space: nowrap;
+               background: var(--soft); color: var(--muted); }
+  #phases li.done { color: var(--ink); }
+  #phases li.on { color: #FFFFFF;
+                  background: linear-gradient(90deg, var(--navy) calc(var(--p) * 100%), #4A5A78 calc(var(--p) * 100%)); }
+  #phases li.fast { background: var(--tealsoft); color: var(--teal); }
+  #phases li.off { opacity: 0.35; }
+
+  .controls { display: flex; gap: 7px; align-items: center; }
+  button { font: 700 14px "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); background: #FFFFFF;
+           border: 1px solid #C9D3E0; border-radius: 10px; padding: 9px 13px; cursor: pointer; white-space: nowrap; }
+  button:hover { background: var(--soft); }
+  button.primary { background: var(--teal); border-color: var(--teal); color: #FFFFFF; min-width: 124px; }
+  button.primary:hover { background: #17607C; }
+  button.active { background: var(--orangesoft); border-color: var(--orange); color: #7A430A; }
+  .speed { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin: 0 4px; white-space: nowrap; }
+  .speed input { width: 90px; }
+  .speed b { color: var(--ink); min-width: 30px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <div>
+      <div class="eyebrow">UT5 &middot; Perceptró multicapa &middot; Animació</div>
+      <h1>Com aprèn la XOR una xarxa amb dues neurones ocultes</h1>
+    </div>
+    <div class="counters">
+      <span>epoch <b id="cEpoch">1</b></span>
+      <span>fila <b id="cRow">1</b> de 4</span>
+      <span>llavor <b id="cSeed">578</b></span>
+      <span>learning rate <b>0,5</b></span>
+    </div>
+  </header>
+
+  <main>
+    <svg id="net" viewBox="0 0 940 600" role="img" aria-label="Xarxa 2-2-1: entrades x1 i x2, neurones ocultes h1 i h2, sortida"></svg>
+    <aside>
+      <table class="rows">
+        <thead><tr><th>x₁</th><th>x₂</th><th class="sep">y</th><th class="sep">ŷ</th><th>classe</th><th class="sep">loss</th></tr></thead>
+        <tbody id="rowsBody"></tbody>
+      </table>
+      <div class="panels">
+        <div class="panel">
+          <h3>Espai d'entrada · clica-hi</h3>
+          <div class="plot" id="planePlot"><canvas id="planeCanvas" width="524" height="524"></canvas><svg id="planeSvg" viewBox="0 0 262 262"></svg></div>
+        </div>
+        <div class="panel">
+          <h3>Corba de loss</h3>
+          <div class="plot"><svg id="lossSvg" viewBox="0 0 262 262"></svg></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="narration"></div>
+
+  <footer>
+    <ol id="phases">
+      <li>Entrada</li><li>1 · Pas endavant</li><li>2 · Loss</li><li>3 · Pas enrere</li><li>4 · Actualització</li>
+    </ol>
+    <div class="controls">
+      <button id="bPlay" class="primary" title="Barra d'espai">▶ Reprodueix</button>
+      <button id="bNext" title="Fletxa dreta">Fase →</button>
+      <button id="bFast">⏩ Entrena ràpid</button>
+      <label class="speed">velocitat <input id="speed" type="range" min="0" max="4" step="1" value="1"> <b id="speedLabel">×1</b></label>
+      <button id="bReset" title="Torna a començar amb la mateixa llavor">↺ Reinicia</button>
+      <button id="bSeed">Nova llavor</button>
+      <button id="bFull" title="Pantalla completa">⛶</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+// --- model ---
+// 2-2-1 network for XOR: tanh hidden layer, sigmoid output, log-loss, plain gradient descent.
+const XOR = [
+  { x: [0, 0], y: 0 },
+  { x: [0, 1], y: 1 },
+  { x: [1, 0], y: 1 },
+  { x: [1, 1], y: 0 },
+];
+
+// Small seeded random generator (mulberry32), so every seed always gives the same start.
+function makeRng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Random start in the same range MLPClassifier uses (Glorot uniform, factor 6).
+// W[i][j]: weight from input i to hidden neuron j. v[j]: weight from hidden j to the output.
+function initParams(seed) {
+  const rnd = makeRng(seed);
+  const u = (bound) => (2 * rnd() - 1) * bound;
+  const hidden = Math.sqrt(6 / (2 + 2));
+  const output = Math.sqrt(6 / (2 + 1));
+  return {
+    W: [[u(hidden), u(hidden)], [u(hidden), u(hidden)]],
+    b: [u(hidden), u(hidden)],
+    v: [u(output), u(output)],
+    c: u(output),
+  };
+}
+
+const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+
+// Forward pass: weighted sums z, activations h, output probability yhat.
+function forward(p, x) {
+  const z = [0, 1].map((j) => p.W[0][j] * x[0] + p.W[1][j] * x[1] + p.b[j]);
+  const h = z.map(Math.tanh);
+  const zo = p.v[0] * h[0] + p.v[1] * h[1] + p.c;
+  return { z, h, zo, yhat: sigmoid(zo) };
+}
+
+// Log-loss of one row, clipped so a perfect wrong answer does not give Infinity.
+function lossOf(yhat, y) {
+  const q = Math.min(Math.max(yhat, 1e-12), 1 - 1e-12);
+  return -(y * Math.log(q) + (1 - y) * Math.log(1 - q));
+}
+
+// Backward pass. dout: blame of the output (yhat - y).
+// dh[j]: blame of hidden neuron j = dout * its weight to the output * slope of tanh.
+function backward(p, x, y, f) {
+  const dout = f.yhat - y;
+  const slope = f.h.map((h) => 1 - h * h);
+  const dh = [0, 1].map((j) => dout * p.v[j] * slope[j]);
+  return {
+    dout,
+    slope,
+    dh,
+    gW: [[dh[0] * x[0], dh[1] * x[0]], [dh[0] * x[1], dh[1] * x[1]]],
+    gb: dh.slice(),
+    gv: [dout * f.h[0], dout * f.h[1]],
+    gc: dout,
+  };
+}
+
+// One gradient descent step: every weight moves against its slope.
+function update(p, g, lr) {
+  return {
+    W: p.W.map((row, i) => row.map((w, j) => w - lr * g.gW[i][j])),
+    b: p.b.map((b, j) => b - lr * g.gb[j]),
+    v: p.v.map((v, j) => v - lr * g.gv[j]),
+    c: p.c - lr * g.gc,
+  };
+}
+
+function meanLoss(p) {
+  return XOR.reduce((s, { x, y }) => s + lossOf(forward(p, x).yhat, y), 0) / XOR.length;
+}
+
+// One epoch = the four rows in order, one update per row.
+function train(p, epochs, lr) {
+  for (let e = 0; e < epochs; e++) {
+    for (const { x, y } of XOR) p = update(p, backward(p, x, y, forward(p, x)), lr);
+  }
+  return p;
+}
+// --- end model ---
+
+// --- animation ---
+const LR = 0.5;
+const DEFAULT_SEED = 578;           // learns OR in h1 and NAND in h2, like the slides
+const FAST_EPOCHS_PER_SEC = 12;
+const SPEEDS = [0.5, 1, 2, 4, 8];
+const PHASES = [
+  { key: "entrada", dur: 1600 },
+  { key: "endavant", dur: 3000 },
+  { key: "loss", dur: 2000 },
+  { key: "enrere", dur: 3200 },
+  { key: "update", dur: 2400 },
+];
+
+const COLORS = { pos: "#3D5A80", neg: "#B23A48", teal: "#1C7293", orange: "#E8871E", amber: "#C9700F",
+                 ink: "#17233D", muted: "#5C6B85", faint: "#A8B4C6", line: "#C9D3E0", navy: "#0F1B33" };
+const CLASS_COLOR = [COLORS.teal, COLORS.orange];
+
+// ---------- small helpers ----------
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sub = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+const lerp = (a, b, t) => a + (b - a) * t;
+const lerpP = (a, b, t) => ({
+  W: a.W.map((row, i) => row.map((w, j) => lerp(w, b.W[i][j], t))),
+  b: a.b.map((v, j) => lerp(v, b.b[j], t)),
+  v: a.v.map((v, j) => lerp(v, b.v[j], t)),
+  c: lerp(a.c, b.c, t),
+});
+// Catalan number format: decimal comma, real minus sign
+function num(v, d = 2, sign = false) {
+  if (Math.abs(v) < 0.5 * Math.pow(10, -d)) v = 0;
+  const s = Math.abs(v).toFixed(d).replace(".", ",");
+  return v < 0 ? "−" + s : (sign && v > 0 ? "+" + s : s);
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const setText = (e, s) => { if (e.textContent !== s) e.textContent = s; };
+const show = (e, o) => e.setAttribute("opacity", o);
+
+// ---------- network drawing ----------
+const IN = [{ x: 110, y: 205, r: 34 }, { x: 110, y: 365, r: 34 }];
+const HID = [{ x: 430, y: 165, r: 60 }, { x: 430, y: 405, r: 60 }];
+const OUT = { x: 720, y: 285, r: 60 };
+const GAUGE = { x: 872, top: 170, bottom: 400 };
+const gy = (v) => lerp(GAUGE.bottom, GAUGE.top, v);
+
+const EDGES = [
+  { kind: "W", i: 0, j: 0, from: IN[0], to: HID[0], f: 0.7, off: 0 },
+  { kind: "W", i: 1, j: 0, from: IN[1], to: HID[0], f: 0.7, off: 0 },
+  { kind: "W", i: 0, j: 1, from: IN[0], to: HID[1], f: 0.7, off: 0 },
+  { kind: "W", i: 1, j: 1, from: IN[1], to: HID[1], f: 0.7, off: 0 },
+  { kind: "v", j: 0, from: HID[0], to: OUT, f: 0.45, off: -16 },
+  { kind: "v", j: 1, from: HID[1], to: OUT, f: 0.45, off: 16 },
+];
+const weightOf = (p, e) => (e.kind === "W" ? p.W[e.i][e.j] : p.v[e.j]);
+
+const svg = document.getElementById("net");
+const N = {};   // references to the SVG elements that change
+
+function buildNetwork() {
+  const defs = el("defs", {}, svg);
+  for (const [id, color] of [["arF", COLORS.teal], ["arB", COLORS.orange]]) {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: color }, m);
+  }
+
+  // phase arrows, as in the backpropagation slide
+  N.arrowF = el("g", {}, svg);
+  el("line", { x1: 70, y1: 44, x2: 800, y2: 44, stroke: COLORS.teal, "stroke-width": 3, "marker-end": "url(#arF)" }, N.arrowF);
+  el("text", { x: 435, y: 30, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: COLORS.teal }, N.arrowF)
+    .textContent = "1 · PAS ENDAVANT: calcular la predicció";
+  N.arrowB = el("g", {}, svg);
+  el("line", { x1: 800, y1: 562, x2: 70, y2: 562, stroke: COLORS.orange, "stroke-width": 3, "marker-end": "url(#arB)" }, N.arrowB);
+  el("text", { x: 435, y: 590, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: COLORS.amber }, N.arrowB)
+    .textContent = "3 · PAS ENRERE: repartir la culpa de l'error";
+
+  // edges
+  N.edges = EDGES.map((e) => {
+    const dx = e.to.x - e.from.x, dy = e.to.y - e.from.y, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const a = { x: e.from.x + ux * e.from.r, y: e.from.y + uy * e.from.r };
+    const b = { x: e.to.x - ux * e.to.r, y: e.to.y - uy * e.to.r };
+    const lx = e.from.x + dx * e.f - uy * e.off, ly = e.from.y + dy * e.f + ux * e.off;
+    const line = el("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, "stroke-linecap": "round" }, svg);
+    return { e, a, b, lx, ly, line };
+  });
+  // labels go on top of every line, and pulses on top of the labels
+  for (const E of N.edges) {
+    E.label = el("g", {}, svg);
+    E.rect = el("rect", { x: E.lx - 31, y: E.ly - 12, width: 62, height: 24, rx: 6, fill: "#FFFFFF", stroke: "#D5DDE8" }, E.label);
+    E.text = el("text", { x: E.lx, y: E.ly + 5, "text-anchor": "middle", "font-size": 15, "font-weight": 700 }, E.label);
+    E.delta = el("text", { x: E.lx + 30, y: E.ly + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: COLORS.amber, opacity: 0 }, E.label);
+  }
+  for (const E of N.edges) {
+    E.fwd = el("circle", { r: 6, fill: COLORS.teal, opacity: 0 }, svg);
+    E.bwd = el("circle", { r: 6, fill: COLORS.orange, opacity: 0 }, svg);
+  }
+
+  // inputs
+  N.inputs = IN.map((c, i) => {
+    el("text", { x: c.x - c.r - 14, y: c.y + 7, "text-anchor": "end", "font-size": 20, "font-weight": 700 }, svg)
+      .textContent = i === 0 ? "x₁" : "x₂";
+    const circle = el("circle", { cx: c.x, cy: c.y, r: c.r, fill: "#FFFFFF", stroke: COLORS.teal, "stroke-width": 2 }, svg);
+    const fill = el("circle", { cx: c.x, cy: c.y, r: c.r - 1, fill: COLORS.teal, opacity: 0 }, svg);
+    const value = el("text", { x: c.x, y: c.y + 9, "text-anchor": "middle", "font-size": 26, "font-weight": 700 }, svg);
+    return { circle, fill, value };
+  });
+
+  // hidden neurons and output, each with a small activation curve inside
+  N.hidden = HID.map((c, j) => neuron(c, "h" + (j === 0 ? "₁" : "₂"), Math.tanh, -1, 1));
+  N.out = neuron(OUT, "ŷ", sigmoid, 0, 1);
+  N.out.chip = el("g", {}, svg);
+  N.out.chipRect = el("rect", { x: OUT.x - 50, y: OUT.y + OUT.r + 56, width: 100, height: 26, rx: 13 }, N.out.chip);
+  N.out.chipText = el("text", { x: OUT.x, y: OUT.y + OUT.r + 74, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#FFFFFF" }, N.out.chip);
+  N.out.culpa.setAttribute("y", OUT.y + OUT.r + 106);
+
+  // loss gauge: correct answer y vs prediction ŷ
+  const G = (N.gauge = {});
+  G.title = el("text", { x: GAUGE.x, y: 112, "text-anchor": "middle", "font-size": 16, "font-weight": 700 }, svg);
+  G.title.textContent = "2 · LOSS";
+  G.target = el("text", { x: GAUGE.x, y: 142, "text-anchor": "middle", "font-size": 17, "font-weight": 700 }, svg);
+  el("line", { x1: GAUGE.x, y1: GAUGE.top, x2: GAUGE.x, y2: GAUGE.bottom, stroke: "#DCE3EC", "stroke-width": 8, "stroke-linecap": "round" }, svg);
+  el("line", { x1: GAUGE.x - 12, y1: gy(0.5), x2: GAUGE.x + 12, y2: gy(0.5), stroke: COLORS.faint, "stroke-dasharray": "3 3" }, svg);
+  for (const [v, s] of [[1, "1"], [0.5, "0,5"], [0, "0"]]) {
+    el("text", { x: GAUGE.x + 22, y: gy(v) + 5, "font-size": 13, fill: COLORS.muted }, svg).textContent = s;
+  }
+  G.bar = el("rect", { x: GAUGE.x - 6, width: 12, rx: 4, fill: COLORS.orange, opacity: 0 }, svg);
+  G.yDot = el("circle", { cx: GAUGE.x, r: 11, stroke: "#FFFFFF", "stroke-width": 3, opacity: 0 }, svg);
+  G.yhat = el("g", { opacity: 0 }, svg);
+  G.yhatMark = el("path", { d: "M0,-9 L13,0 L0,9 z", fill: COLORS.navy }, G.yhat);
+  el("text", { x: -6, y: 6, "text-anchor": "end", "font-size": 17, "font-weight": 700 }, G.yhat).textContent = "ŷ";
+  G.loss = el("text", { x: GAUGE.x, y: 442, "text-anchor": "middle", "font-size": 20, "font-weight": 700, opacity: 0 }, svg);
+  G.lossSub = el("text", { x: GAUGE.x, y: 463, "text-anchor": "middle", "font-size": 13, fill: COLORS.muted, opacity: 0 }, svg);
+  G.lossSub.textContent = "distància a l'encert";
+
+  // the row entering the network
+  N.token = el("g", { opacity: 0 }, svg);
+  el("rect", { x: IN[0].x - 80, y: 106, width: 160, height: 32, rx: 16, fill: COLORS.navy }, N.token);
+  N.tokenText = el("text", { x: IN[0].x, y: 128, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: "#FFFFFF" }, N.token);
+
+  // legend
+  const lg = el("g", { "font-size": 13, fill: COLORS.muted }, svg);
+  el("line", { x1: 40, y1: 462, x2: 76, y2: 462, stroke: COLORS.pos, "stroke-width": 5, "stroke-linecap": "round" }, lg);
+  el("text", { x: 86, y: 467 }, lg).textContent = "pes positiu";
+  el("line", { x1: 40, y1: 486, x2: 76, y2: 486, stroke: COLORS.neg, "stroke-width": 5, "stroke-linecap": "round" }, lg);
+  el("text", { x: 86, y: 491 }, lg).textContent = "pes negatiu";
+  el("text", { x: 40, y: 515 }, lg).textContent = "gruix = mida del pes";
+}
+
+// A neuron with its activation curve drawn inside (z from -6 to 6).
+function neuron(c, name, act, lo, hi) {
+  const n = { c, act, lo, hi };
+  n.ring = el("circle", { cx: c.x, cy: c.y, r: c.r + 7, fill: "none", stroke: COLORS.orange, opacity: 0 }, svg);
+  n.circle = el("circle", { cx: c.x, cy: c.y, r: c.r, fill: "#EAF2F8", stroke: COLORS.teal, "stroke-width": 2 }, svg);
+  const W = 84, H = 52;
+  n.px = (z) => c.x - W / 2 + ((clamp(z, -6, 6) + 6) / 12) * W;
+  n.py = (a) => c.y + H / 2 - ((a - lo) / (hi - lo)) * H;
+  el("line", { x1: c.x - W / 2, y1: n.py((lo + hi) / 2), x2: c.x + W / 2, y2: n.py((lo + hi) / 2), stroke: COLORS.faint, "stroke-dasharray": "3 3" }, svg);
+  el("line", { x1: c.x, y1: c.y - H / 2 - 4, x2: c.x, y2: c.y + H / 2 + 4, stroke: "#D5DDE8" }, svg);
+  let d = "";
+  for (let z = -6; z <= 6.001; z += 0.25) d += (d ? " L" : "M") + n.px(z).toFixed(1) + "," + n.py(act(z)).toFixed(1);
+  el("path", { d, fill: "none", stroke: COLORS.navy, "stroke-width": 2 }, svg);
+  n.tangent = el("line", { stroke: COLORS.orange, "stroke-width": 4, "stroke-linecap": "round", opacity: 0 }, svg);
+  n.dot = el("circle", { r: 6, fill: COLORS.teal, stroke: "#FFFFFF", "stroke-width": 2, opacity: 0 }, svg);
+  // name and bias on one line, above the blame ring
+  n.label = name;
+  n.title = el("text", { x: c.x, y: c.y - c.r - 18, "text-anchor": "middle" }, svg);
+  el("tspan", { "font-size": 21, "font-weight": 700 }, n.title).textContent = name;
+  n.bias = el("tspan", { "font-size": 13, fill: COLORS.muted, dx: 8 }, n.title);
+  n.z = el("text", { x: c.x, y: c.y + c.r + 22, "text-anchor": "middle", "font-size": 14, fill: COLORS.muted }, svg);
+  n.val = el("text", { x: c.x, y: c.y + c.r + 45, "text-anchor": "middle", "font-size": 19, "font-weight": 700 }, svg);
+  n.culpa = el("text", { x: c.x, y: c.y + c.r + 68, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: COLORS.amber }, svg);
+  return n;
+}
+
+// ---------- state ----------
+const S = {
+  seed: DEFAULT_SEED, p: null, step: 0, k: 0, t: 0, snap: {},
+  playing: false, stepMode: false, fast: false, started: false,
+  speed: 1, acc: 0, fastFrom: 0, history: [], message: null,
+};
+
+function reset(seed) {
+  S.seed = seed;
+  S.p = initParams(seed);
+  S.step = 0;
+  S.history = [{ epoch: 0, loss: meanLoss(S.p) }];
+  S.fast = S.playing = S.stepMode = S.started = false;
+  enterPhase(0);
+  planeKey = "";
+}
+
+function enterPhase(k) {
+  S.k = k;
+  S.t = 0;
+  S.message = null;
+  const sn = S.snap;
+  if (k === 0) {
+    const i = S.step % 4;
+    S.snap = { i, x: XOR[i].x, y: XOR[i].y };
+  }
+  if (k === 1) sn.f = forward(S.p, sn.x);
+  if (k === 2) sn.loss = lossOf(sn.f.yhat, sn.y);
+  if (k === 3) sn.g = backward(S.p, sn.x, sn.y, sn.f);
+  if (k === 4) {
+    sn.pNew = update(S.p, sn.g, LR);
+    sn.before = meanLoss(S.p);
+    sn.after = meanLoss(sn.pNew);
+  }
+}
+
+function commitUpdate() {
+  S.p = S.snap.pNew;
+  S.step++;
+  S.history.push({ epoch: S.step / 4, loss: meanLoss(S.p) });
+}
+
+function finishPhase() {
+  if (S.snap.probe) {               // an invented point only goes forward
+    if (S.k === 0) { S.k = 1; S.t = 0; S.snap.f = forward(S.p, S.snap.x); }
+    return;
+  }
+  if (S.k === 4) {
+    commitUpdate();
+    enterPhase(0);
+  } else {
+    enterPhase(S.k + 1);
+  }
+}
+
+// ---------- invented point (click on the plot) ----------
+function startProbe(x) {
+  if (S.fast) stopFast("paused");
+  if (S.k === 4 && S.t > 0 && !S.snap.probe) commitUpdate();
+  S.started = true;
+  S.k = 0;
+  S.t = 0;
+  S.message = null;
+  S.snap = { probe: true, x, y: null };
+  S.stepMode = false;
+  S.playing = true;
+}
+function leaveProbe() {
+  if (S.snap.probe) enterPhase(0);
+}
+
+// ---------- controls ----------
+function togglePlay() {
+  S.started = true;
+  if (S.fast) stopFast("paused");
+  if (S.snap.probe) { leaveProbe(); S.stepMode = false; S.playing = true; return; }
+  if (S.playing && !S.stepMode) {
+    S.playing = false;
+  } else {
+    if (S.t >= 1) finishPhase();
+    S.stepMode = false;
+    S.playing = true;
+  }
+}
+
+function nextPhase() {
+  S.started = true;
+  if (S.fast) stopFast("paused");
+  if (S.snap.probe) { leaveProbe(); S.stepMode = true; S.playing = true; return; }
+  if (S.t >= 1) finishPhase();
+  S.stepMode = true;
+  S.playing = true;
+}
+
+function startFast() {
+  S.started = true;
+  leaveProbe();
+  if (S.k === 4 && S.t > 0) commitUpdate();
+  S.fast = true;
+  S.playing = false;
+  S.acc = 0;
+  S.fastFrom = S.step / 4;
+}
+
+function stopFast(reason) {
+  S.fast = false;
+  S.playing = false;
+  enterPhase(0);
+  S.message = reason;
+}
+
+// Stuck in a local minimum: after 150 epochs, the loss is still high and has not
+// gone down 0.005 in the last 100 epochs (catches every stuck seed of 1..1000, ~200 epochs)
+function isStuck(L) {
+  const E = S.step / 4;
+  if (E - S.fastFrom < 150 || L < 0.1) return false;
+  for (let i = S.history.length - 1; i >= 0; i--) {
+    if (S.history[i].epoch <= E - 100) return S.history[i].loss - L < 0.005;
+  }
+  return false;
+}
+
+function fastStep(dt) {
+  S.acc += (dt / 1000) * 4 * FAST_EPOCHS_PER_SEC * S.speed;
+  while (S.acc >= 1) {
+    S.acc -= 1;
+    const { x, y } = XOR[S.step % 4];
+    S.p = update(S.p, backward(S.p, x, y, forward(S.p, x)), LR);
+    S.step++;
+    if (S.step % 4 === 0) {
+      const L = meanLoss(S.p);
+      S.history.push({ epoch: S.step / 4, loss: L });
+      if (L < 0.02) return stopFast("done");
+      if (isStuck(L)) return stopFast("stuck");
+    }
+  }
+}
+
+// ---------- rendering ----------
+// same scale for every neuron, so the rings can be compared
+const ringWidth = (blame) => (2 + 14 * Math.min(1, Math.sqrt(Math.abs(blame)))).toFixed(1);
+function render() {
+  const fast = S.fast, k = S.k, t = S.t, sn = S.snap, probe = !!sn.probe;
+  const updating = !fast && !probe && k === 4;
+  const e4 = updating ? ease(sub(t, 0.1, 0.8)) : 0;
+  const pv = updating ? lerpP(S.p, sn.pNew, e4) : S.p;
+
+  // counters
+  setText(document.getElementById("cEpoch"), String(Math.floor(S.step / 4) + 1));
+  setText(document.getElementById("cRow"), String((S.step % 4) + 1));
+  setText(document.getElementById("cSeed"), String(S.seed));
+
+  // phase arrows
+  show(N.arrowF, !fast && k === 1 ? 1 : 0.22);
+  show(N.arrowB, !fast && k === 3 ? 1 : 0.22);
+  N.gauge.title.setAttribute("fill", !fast && k === 2 ? COLORS.amber : COLORS.faint);
+
+  // edges and weight labels
+  for (const E of N.edges) {
+    const w = weightOf(pv, E.e);
+    E.line.setAttribute("stroke", w >= 0 ? COLORS.pos : COLORS.neg);
+    E.line.setAttribute("stroke-width", (1.5 + 2.2 * Math.min(Math.abs(w), 5)).toFixed(2));
+    E.line.setAttribute("opacity", 0.85);
+    setText(E.text, num(w, 2, true));
+    E.text.setAttribute("fill", w >= 0 ? COLORS.pos : COLORS.neg);
+    const dw = updating ? weightOf(sn.pNew, E.e) - weightOf(S.p, E.e) : 0;
+    const showDelta = updating && Math.abs(dw) >= 0.005;
+    E.rect.setAttribute("width", showDelta ? 116 : 62);
+    E.rect.setAttribute("x", E.lx - 31);
+    E.text.setAttribute("x", E.lx);
+    E.rect.setAttribute("stroke", showDelta ? COLORS.orange : "#D5DDE8");
+    setText(E.delta, showDelta ? (dw > 0 ? "▲ " : "▼ ") + num(Math.abs(dw)) : "");
+    E.delta.setAttribute("x", E.lx + 56);
+    show(E.delta, showDelta ? sub(t, 0, 0.12) : 0);
+    // the label of a changing weight grows to the right, so shift it to stay centred
+    if (showDelta) {
+      E.rect.setAttribute("x", E.lx - 58);
+      E.text.setAttribute("x", E.lx - 27);
+      E.delta.setAttribute("x", E.lx + 29);
+    }
+  }
+
+  // pulses
+  for (const E of N.edges) {
+    let fo = 0, fpos = 0, fr = 6, hollow = false;
+    let bo = 0, bpos = 0, br = 6;
+    if (!fast && k === 1 && sn.f) {
+      if (E.e.kind === "W") {
+        const u = sub(t, 0, 0.4);
+        if (u > 0 && u < 1) {
+          const xi = sn.x[E.e.i];
+          fo = xi === 0 ? 0.5 : 1;
+          hollow = xi === 0;
+          fpos = ease(u);
+          fr = xi === 0 ? 6 : 5 + 6 * Math.min(1, Math.abs(xi * weightOf(S.p, E.e)) / 2);
+        }
+      } else {
+        const u = sub(t, 0.5, 0.9);
+        if (u > 0 && u < 1) {
+          fo = 1;
+          fpos = ease(u);
+          fr = 5 + 6 * Math.min(1, Math.abs(sn.f.h[E.e.j] * weightOf(S.p, E.e)) / 3);
+        }
+      }
+    }
+    if (!fast && k === 3 && sn.g) {
+      if (E.e.kind === "v") {
+        const u = sub(t, 0.15, 0.5);
+        if (u > 0 && u < 1) {
+          bo = 1;
+          bpos = 1 - ease(u);
+          br = 5 + 8 * Math.min(1, Math.sqrt(Math.abs(sn.g.dout * weightOf(S.p, E.e)) / 2));
+        }
+      } else {
+        const u = sub(t, 0.62, 0.95);
+        if (u > 0 && u < 1) {
+          const xi = sn.x[E.e.i];
+          bo = xi === 0 ? 0.5 : 1;
+          bpos = 1 - ease(u);
+          br = xi === 0 ? 5 : 5 + 8 * Math.min(1, Math.sqrt(Math.abs(sn.g.dh[E.e.j]) / 0.5));
+        }
+      }
+    }
+    E.fwd.setAttribute("cx", lerp(E.a.x, E.b.x, fpos));
+    E.fwd.setAttribute("cy", lerp(E.a.y, E.b.y, fpos));
+    E.fwd.setAttribute("r", fr.toFixed(1));
+    E.fwd.setAttribute("fill", hollow ? "#FFFFFF" : COLORS.teal);
+    E.fwd.setAttribute("stroke", hollow ? COLORS.teal : "none");
+    E.fwd.setAttribute("stroke-dasharray", hollow ? "3 2" : "none");
+    show(E.fwd, fo);
+    E.bwd.setAttribute("cx", lerp(E.a.x, E.b.x, bpos));
+    E.bwd.setAttribute("cy", lerp(E.a.y, E.b.y, bpos));
+    E.bwd.setAttribute("r", br.toFixed(1));
+    E.bwd.setAttribute("fill", bo < 1 ? "#FFFFFF" : COLORS.orange);
+    E.bwd.setAttribute("stroke", COLORS.orange);
+    E.bwd.setAttribute("stroke-dasharray", bo < 1 ? "3 2" : "none");
+    show(E.bwd, bo);
+  }
+
+  // the row entering
+  const seen = S.started && !fast;
+  const inAlpha = !seen ? 0 : k === 0 ? sub(t, 0.35, 0.75) : 1;
+  setText(N.tokenText, probe ? "punt inventat" : `fila ${sn.i + 1} · (${sn.x[0]}, ${sn.x[1]})`);
+  show(N.token, !seen ? 0 : k === 0 ? sub(t, 0, 0.3) : 0.9);
+  N.inputs.forEach((n, i) => {
+    const xi = sn.x[i];
+    show(n.fill, clamp(xi, 0, 1) * inAlpha);
+    setText(n.value, inAlpha > 0 ? (Number.isInteger(xi) ? String(xi) : num(xi)) : "");
+    n.value.setAttribute("font-size", Number.isInteger(xi) ? 26 : 20);
+    n.value.setAttribute("fill", xi > 0.5 ? "#FFFFFF" : COLORS.ink);
+    show(n.value, inAlpha);
+  });
+
+  // hidden neurons
+  const hAlpha = !seen || !sn.f ? 0 : k === 1 ? sub(t, 0.38, 0.5) : k > 1 ? 1 : 0;
+  N.hidden.forEach((n, j) => {
+    setText(n.bias, "biaix " + num(pv.b[j], 2, true));
+    n.bias.setAttribute("fill", updating && Math.abs(sn.pNew.b[j] - S.p.b[j]) >= 0.005 ? COLORS.amber : COLORS.muted);
+    if (hAlpha > 0) {
+      const z = sn.f.z[j], h = sn.f.h[j];
+      const zShown = k === 1 ? lerp(-6, z, ease(sub(t, 0.38, 0.5))) : z;
+      n.dot.setAttribute("cx", n.px(zShown));
+      n.dot.setAttribute("cy", n.py(Math.tanh(zShown)));
+      setText(n.z, "z = " + num(z, 2, true));
+      setText(n.val, n.label + " = " + num(h, 2, true));
+    }
+    show(n.dot, hAlpha);
+    show(n.z, hAlpha);
+    show(n.val, hAlpha);
+    // blame: ring, slope of tanh and number
+    const bAlpha = !seen || !sn.g ? 0 : k === 3 ? sub(t, 0.5, 0.6) : k === 4 ? 1 : 0;
+    if (bAlpha > 0) {
+      const dh = sn.g.dh[j], slope = sn.g.slope[j];
+      n.ring.setAttribute("stroke-width", ringWidth(dh));
+      setText(n.culpa, "culpa " + num(dh, 2, true));
+      const zc = clamp(sn.f.z[j], -6, 6), cx = n.px(zc), cy = n.py(Math.tanh(zc));
+      const sx = 84 / 12, sy = 52 / 2;        // pixels per unit of z and of h
+      const ang = Math.atan2(slope * sy, sx), L = 20;
+      n.tangent.setAttribute("x1", cx - L * Math.cos(ang));
+      n.tangent.setAttribute("y1", cy + L * Math.sin(ang));
+      n.tangent.setAttribute("x2", cx + L * Math.cos(ang));
+      n.tangent.setAttribute("y2", cy - L * Math.sin(ang));
+    }
+    show(n.ring, bAlpha * 0.85);
+    show(n.culpa, bAlpha);
+    show(n.tangent, bAlpha);
+  });
+
+  // output neuron
+  const o = N.out;
+  setText(o.bias, "biaix " + num(pv.c, 2, true));
+  o.bias.setAttribute("fill", updating && Math.abs(sn.pNew.c - S.p.c) >= 0.005 ? COLORS.amber : COLORS.muted);
+  const oAlpha = !seen || !sn.f ? 0 : k === 1 ? sub(t, 0.88, 1) : k > 1 ? 1 : 0;
+  if (oAlpha > 0) {
+    const zo = sn.f.zo, yh = sn.f.yhat, cls = yh >= 0.5 ? 1 : 0;
+    const zShown = k === 1 ? lerp(-6, zo, ease(sub(t, 0.88, 1))) : zo;
+    o.dot.setAttribute("cx", o.px(zShown));
+    o.dot.setAttribute("cy", o.py(sigmoid(zShown)));
+    setText(o.z, "z = " + num(zo, 2, true));
+    setText(o.val, "ŷ = " + num(yh));
+    setText(o.chipText, "classe " + cls);
+    o.chipRect.setAttribute("fill", CLASS_COLOR[cls]);
+    o.circle.setAttribute("fill", cls ? "#FBE3C8" : "#D8EBF3");
+  } else {
+    o.circle.setAttribute("fill", "#EAF2F8");
+  }
+  for (const e of [o.dot, o.z, o.val, o.chip]) show(e, oAlpha);
+  const obAlpha = !seen || !sn.g ? 0 : k === 3 ? sub(t, 0, 0.12) : k === 4 ? 1 : 0;
+  if (obAlpha > 0) {
+    o.ring.setAttribute("stroke-width", ringWidth(sn.g.dout));
+    setText(o.culpa, "culpa ŷ − y = " + num(sn.g.dout, 2, true));
+  }
+  show(o.ring, obAlpha * 0.85);
+  show(o.culpa, obAlpha);
+  show(o.tangent, 0);
+
+  // loss gauge (an invented point has no correct answer)
+  const G = N.gauge;
+  const tAlpha = !seen || probe ? 0 : k === 0 ? sub(t, 0.75, 1) : 1;
+  if (!probe) {
+    setText(G.target, "y = " + sn.y);
+    G.target.setAttribute("fill", CLASS_COLOR[sn.y]);
+    G.yDot.setAttribute("cy", gy(sn.y));
+    G.yDot.setAttribute("fill", CLASS_COLOR[sn.y]);
+  }
+  show(G.target, tAlpha);
+  show(G.yDot, tAlpha);
+  const lAlpha = !seen || !sn.f ? 0 : k === 1 ? sub(t, 0.9, 1) : k > 1 ? 1 : 0;
+  if (lAlpha > 0) {
+    const yh = sn.f.yhat;
+    G.yhat.setAttribute("transform", `translate(${GAUGE.x - 26},${gy(yh)})`);
+    if (!probe) {
+      const grow = k === 2 ? ease(sub(t, 0, 0.6)) : k > 2 ? 1 : 0;
+      const end = lerp(sn.y, yh, grow);
+      G.bar.setAttribute("y", Math.min(gy(sn.y), gy(end)));
+      G.bar.setAttribute("height", Math.abs(gy(sn.y) - gy(end)));
+    }
+    if (sn.loss !== undefined) setText(G.loss, "loss = " + num(sn.loss));
+  }
+  show(G.yhat, lAlpha);
+  show(G.bar, k >= 2 && seen && !probe ? 0.5 : 0);
+  const lossTextAlpha = !seen || sn.loss === undefined ? 0 : k === 2 ? sub(t, 0.45, 0.75) : k > 2 ? 1 : 0;
+  show(G.loss, lossTextAlpha);
+  show(G.lossSub, lossTextAlpha);
+
+  renderTable(pv);
+  renderPlane(pv);
+  renderLoss(updating ? lerp(sn.before, sn.after, e4) : null);
+  renderPhases();
+  renderNarration();
+  document.getElementById("bPlay").textContent = S.playing && !S.stepMode ? "⏸ Pausa" : "▶ Reprodueix";
+  const bf = document.getElementById("bFast");
+  bf.textContent = S.fast ? "⏹ Atura" : "⏩ Entrena ràpid";
+  bf.classList.toggle("active", S.fast);
+}
+
+// table of the four rows, recomputed with the current weights
+const rowsBody = document.getElementById("rowsBody");
+const rowCells = XOR.map(({ x, y }) => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td>${x[0]}</td><td>${x[1]}</td><td class="sep c${y}">${y}</td><td class="sep"></td><td></td><td class="sep"></td>`;
+  rowsBody.appendChild(tr);
+  return { tr, yhat: tr.children[3], cls: tr.children[4], loss: tr.children[5] };
+});
+function renderTable(p) {
+  XOR.forEach(({ x, y }, i) => {
+    const yh = forward(p, x).yhat, cls = yh >= 0.5 ? 1 : 0, R = rowCells[i];
+    setText(R.yhat, num(yh));
+    const html = `<span class="c${cls}">${cls}</span> <span class="${cls === y ? "ok" : "ko"}">${cls === y ? "✓" : "✗"}</span>`;
+    if (R.cls.innerHTML !== html) R.cls.innerHTML = html;
+    setText(R.loss, num(lossOf(yh, y)));
+    R.tr.classList.toggle("cur", S.started && !S.fast && i === S.snap.i);
+  });
+}
+
+// input space: background coloured by the network's answer, the two hidden lines and the four rows
+const planeCanvas = document.getElementById("planeCanvas");
+const planeCtx = planeCanvas.getContext("2d");
+const planeSvg = document.getElementById("planeSvg");
+const PS = 262, toPx = (v) => ((v + 0.5) / 2) * PS, toPy = (v) => PS - ((v + 0.5) / 2) * PS;
+const P = {};
+(function buildPlane() {
+  for (const v of [0, 1]) {
+    el("line", { x1: toPx(v), y1: 0, x2: toPx(v), y2: PS, stroke: "#FFFFFF", "stroke-opacity": 0.7 }, planeSvg);
+    el("line", { x1: 0, y1: toPy(v), x2: PS, y2: toPy(v), stroke: "#FFFFFF", "stroke-opacity": 0.7 }, planeSvg);
+    el("text", { x: toPx(v), y: PS - 6, "text-anchor": "middle", "font-size": 12, fill: COLORS.muted }, planeSvg).textContent = v;
+    el("text", { x: 6, y: toPy(v) + 4, "font-size": 12, fill: COLORS.muted }, planeSvg).textContent = v;
+  }
+  el("text", { x: PS - 8, y: PS - 6, "text-anchor": "end", "font-size": 13, "font-weight": 700, fill: COLORS.muted }, planeSvg).textContent = "x₁";
+  el("text", { x: 8, y: 16, "font-size": 13, "font-weight": 700, fill: COLORS.muted }, planeSvg).textContent = "x₂";
+  P.lines = [0, 1].map((j) => ({
+    line: el("line", { stroke: COLORS.navy, "stroke-width": 2, "stroke-dasharray": "6 4" }, planeSvg),
+    label: el("text", { "font-size": 14, "font-weight": 700, fill: COLORS.navy, "text-anchor": "middle",
+                        stroke: "#FFFFFF", "stroke-width": 4, "paint-order": "stroke" }, planeSvg),
+    name: j === 0 ? "h₁" : "h₂",
+  }));
+  P.cur = el("circle", { r: 15, fill: "none", stroke: COLORS.navy, "stroke-width": 3, opacity: 0 }, planeSvg);
+  P.probe = el("g", { opacity: 0 }, planeSvg);
+  el("circle", { r: 11, fill: "#FFFFFF", stroke: COLORS.navy, "stroke-width": 3 }, P.probe);
+  el("text", { y: 5, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: COLORS.navy }, P.probe).textContent = "?";
+  P.points = XOR.map(({ x, y }) =>
+    el("circle", { cx: toPx(x[0]), cy: toPy(x[1]), r: 9, fill: CLASS_COLOR[y], stroke: "#FFFFFF", "stroke-width": 2.5 }, planeSvg));
+})();
+
+let planeKey = "";
+function renderPlane(p) {
+  const key = JSON.stringify(p, (k, v) => (typeof v === "number" ? Math.round(v * 1000) : v));
+  if (key !== planeKey) {
+    planeKey = key;
+    const n = 88, cell = planeCanvas.width / n;
+    for (let a = 0; a < n; a++) {
+      for (let b = 0; b < n; b++) {
+        const x1 = -0.5 + ((a + 0.5) / n) * 2, x2 = 1.5 - ((b + 0.5) / n) * 2;
+        const yh = forward(p, [x1, x2]).yhat;
+        const conf = Math.abs(2 * yh - 1);
+        planeCtx.fillStyle = yh >= 0.5
+          ? `rgba(232,135,30,${(0.14 + 0.42 * conf).toFixed(3)})`
+          : `rgba(28,114,147,${(0.10 + 0.32 * conf).toFixed(3)})`;
+        // whole-pixel cells that touch but never overlap, so no grid shows through
+        const xa = Math.round(a * cell), ya = Math.round(b * cell);
+        const w = Math.round((a + 1) * cell) - xa, h = Math.round((b + 1) * cell) - ya;
+        planeCtx.clearRect(xa, ya, w, h);
+        planeCtx.fillRect(xa, ya, w, h);
+      }
+    }
+    // hidden lines z_j = 0, clipped to the visible square
+    P.lines.forEach((L, j) => {
+      const A = p.W[0][j], B = p.W[1][j], C = p.b[j], pts = [];
+      for (const xb of [-0.5, 1.5]) if (Math.abs(B) > 1e-9) { const yb = -(A * xb + C) / B; if (yb >= -0.5 && yb <= 1.5) pts.push([xb, yb]); }
+      for (const yb of [-0.5, 1.5]) if (Math.abs(A) > 1e-9) { const xb = -(B * yb + C) / A; if (xb >= -0.5 && xb <= 1.5) pts.push([xb, yb]); }
+      const ok = pts.length >= 2;
+      show(L.line, ok ? 0.9 : 0);
+      show(L.label, ok ? 1 : 0);
+      if (!ok) return;
+      const [a, b] = pts;
+      L.line.setAttribute("x1", toPx(a[0])); L.line.setAttribute("y1", toPy(a[1]));
+      L.line.setAttribute("x2", toPx(b[0])); L.line.setAttribute("y2", toPy(b[1]));
+      const mx = (toPx(a[0]) + toPx(b[0])) / 2, my = (toPy(a[1]) + toPy(b[1])) / 2;
+      const dx = toPx(b[0]) - toPx(a[0]), dy = toPy(b[1]) - toPy(a[1]), len = Math.hypot(dx, dy) || 1;
+      L.label.setAttribute("x", clamp(mx - (dy / len) * 14 + (dx / len) * 50, 14, PS - 14));
+      L.label.setAttribute("y", clamp(my + (dx / len) * 14 + (dy / len) * 50 + 5, 18, PS - 22));
+      setText(L.label, L.name);
+    });
+  }
+  const on = S.started && !S.fast, probe = !!S.snap.probe;
+  const cx = toPx(S.snap.x[0]), cy = toPy(S.snap.x[1]);
+  P.cur.setAttribute("cx", cx); P.cur.setAttribute("cy", cy);
+  show(P.cur, on && !probe ? 1 : 0);
+  P.probe.setAttribute("transform", `translate(${cx},${cy})`);
+  show(P.probe, on && probe ? 1 : 0);
+}
+
+// loss curve: mean loss of the four rows after every update
+const lossSvg = document.getElementById("lossSvg");
+const LP = { l: 44, r: 12, t: 30, b: 34 };
+const LQ = {};
+(function buildLoss() {
+  LQ.grid = el("g", {}, lossSvg);
+  LQ.path = el("polyline", { fill: "none", stroke: COLORS.navy, "stroke-width": 2.2, "stroke-linejoin": "round" }, lossSvg);
+  LQ.dot = el("circle", { r: 5, fill: COLORS.orange, stroke: "#FFFFFF", "stroke-width": 2 }, lossSvg);
+  LQ.value = el("text", { x: PS - LP.r, y: 18, "text-anchor": "end", "font-size": 14, "font-weight": 700 }, lossSvg);
+  el("text", { x: LP.l + (PS - LP.l - LP.r) / 2, y: PS - 6, "text-anchor": "middle", "font-size": 12, fill: COLORS.muted }, lossSvg).textContent = "epoch";
+  el("text", { x: 8, y: 18, "font-size": 12, fill: COLORS.muted }, lossSvg).textContent = "loss mitjana";
+})();
+const NICE = [4, 8, 16, 24, 40, 60, 80, 100, 150, 200, 300, 400, 600, 800, 1000, 1500, 2000, 3000, 5000, 10000];
+let lossKey = "";
+function renderLoss(provisional) {
+  const h = S.history.slice();
+  if (provisional !== null) h.push({ epoch: (S.step + 1) / 4, loss: provisional });
+  const last = h[h.length - 1];
+  const xMax = NICE.find((v) => v >= last.epoch) || last.epoch;
+  const yMax = Math.max(0.8, Math.ceil(Math.max(...h.map((d) => d.loss)) * 5) / 5);
+  const W = PS - LP.l - LP.r, H = PS - LP.t - LP.b;
+  const X = (e) => LP.l + (e / xMax) * W, Y = (l) => LP.t + H - (l / yMax) * H;
+  const key = xMax + "|" + yMax;
+  if (key !== lossKey) {
+    lossKey = key;
+    LQ.grid.innerHTML = "";
+    const step = yMax > 2 ? 0.5 : 0.2;
+    for (let v = 0; v <= yMax + 1e-9; v += step) {
+      el("line", { x1: LP.l, y1: Y(v), x2: PS - LP.r, y2: Y(v), stroke: "#E4EAF2" }, LQ.grid);
+      el("text", { x: LP.l - 6, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: COLORS.muted }, LQ.grid).textContent = num(v, 1);
+    }
+    for (const e of [0, xMax / 2, xMax]) {
+      el("text", { x: X(e), y: PS - LP.b + 16, "text-anchor": "middle", "font-size": 11, fill: COLORS.muted }, LQ.grid).textContent = num(e, 0);
+    }
+  }
+  // keep the polyline light: at most ~400 points
+  const every = Math.max(1, Math.ceil(h.length / 400));
+  let pts = "";
+  for (let i = 0; i < h.length; i += every) pts += X(h[i].epoch).toFixed(1) + "," + Y(h[i].loss).toFixed(1) + " ";
+  pts += X(last.epoch).toFixed(1) + "," + Y(last.loss).toFixed(1);
+  LQ.path.setAttribute("points", pts);
+  LQ.dot.setAttribute("cx", X(last.epoch));
+  LQ.dot.setAttribute("cy", Y(last.loss));
+  setText(LQ.value, num(last.loss));
+}
+
+const phaseItems = [...document.querySelectorAll("#phases li")];
+function renderPhases() {
+  phaseItems.forEach((li, i) => {
+    const on = S.started && !S.fast && i === S.k;
+    li.classList.toggle("on", on);
+    li.classList.toggle("done", S.started && !S.fast && i < S.k);
+    li.classList.toggle("fast", S.fast);
+    li.classList.toggle("off", !!S.snap.probe && i > 1);
+    li.style.setProperty("--p", on ? S.t.toFixed(3) : 0);
+  });
+}
+
+// ---------- narration ----------
+const GATES = { "0111": "OR", "1110": "NAND", "0001": "AND", "1000": "NOR" };
+const POINTS = ["(0, 0)", "(0, 1)", "(1, 0)", "(1, 1)"];
+function describeHidden(p) {
+  const pats = [0, 1].map((j) => XOR.map(({ x }) => (forward(p, x).h[j] > 0 ? "1" : "0")).join(""));
+  const part = (j) => {
+    const name = j === 0 ? "h₁" : "h₂", g = GATES[pats[j]];
+    if (g) return `${name} s'activa com una porta <b>${g}</b>`;
+    const on = POINTS.filter((_, i) => pats[j][i] === "1");
+    if (!on.length) return `${name} no s'activa mai`;
+    return `${name} s'activa ${on.length === 1 ? "només a " : "a "}${on.join(", ").replace(/, ([^,]*)$/, " i $1")}`;
+  };
+  const orNand = (pats[0] === "0111" && pats[1] === "1110") || (pats[0] === "1110" && pats[1] === "0111");
+  return part(0) + " i " + part(1).replace(/^h₂ s'activa com una/, "h₂ com una") +
+    (orNand ? ": la mateixa solució que vam fer a mà, però ara l'ha trobada l'entrenament." : ". La sortida en combina les respostes.");
+}
+
+function narrationHTML() {
+  const sn = S.snap, epoch = Math.floor(S.step / 4) + 1, L = meanLoss(S.p);
+  if (S.fast) return [`<b>Entrenament ràpid.</b> Els quatre passos, fila rere fila, sense pausa: epoch ${Math.floor(S.step / 4)}, loss mitjana <b>${num(L)}</b>.`, "fwd"];
+  if (S.message === "done") return [`<b>Resolt en ${S.step / 4} epochs.</b> Les quatre files tenen la classe correcta i la loss mitjana és ${num(L)}. ${describeHidden(S.p)}`, ""];
+  if (S.message === "stuck") return [`<b>S'ha encallat.</b> Després de ${S.step / 4} epochs la loss mitjana s'ha quedat a ${num(L)} i ja no baixa: la xarxa ha caigut en un <b>mínim local</b>. Amb només dues neurones ocultes passa sovint. Pots seguir entrenant, però el més probable és que no en surti: prova una <b>nova llavor</b>.`, ""];
+  if (S.message === "paused") return [`Entrenament ràpid aturat a l'epoch ${Math.floor(S.step / 4)} (loss mitjana ${num(L)}). Prem <b>▶</b> per seguir fila a fila.`, ""];
+  if (!S.started) return [`La xarxa comença amb <b>pesos a l'atzar</b> (llavor ${S.seed}) i encara no sap fer la XOR: mira la columna <i>classe</i>. Prem <b>▶</b> (o la barra d'espai) per veure-la aprendre fila a fila, o <b>→</b> per avançar fase a fase. Clica al gràfic per provar qualsevol punt.`, ""];
+  const [x1, x2] = sn.x;
+  if (sn.probe) {
+    if (S.k === 0) return [`<b>Punt inventat:</b> x₁ = ${num(x1)} i x₂ = ${num(x2)}. No és cap de les quatre files: la xarxa accepta <b>qualsevol parella de números</b>. Les quatre files de la taula només són els exemples amb què l'entrenem.`, ""];
+    const yh = sn.f.yhat, cls = yh >= 0.5 ? 1 : 0;
+    return [`<b>Pas endavant</b> del punt inventat: ŷ = ${num(yh)} → <b>classe ${cls}</b>. Com que no té resposta correcta, no hi ha loss ni pas enrere: la xarxa no aprèn res. Això és el que fa <b>predict</b>. Clica un altre punt, o prem <b>▶</b> per tornar a l'entrenament.`, "fwd"];
+  }
+  switch (S.k) {
+    case 0:
+      return [`<b>Epoch ${epoch}, fila ${sn.i + 1} de 4.</b> Entren x₁ = ${x1} i x₂ = ${x2}. La resposta correcta és <b>y = ${sn.y}</b>.`, ""];
+    case 1: {
+      const f = sn.f, cls = f.yhat >= 0.5 ? 1 : 0;
+      return [`<b>Pas endavant.</b> Cada neurona oculta suma les entrades multiplicades pels seus pesos, més el biaix (z), i ho passa per tanh: <b>h₁ = ${num(f.h[0])}</b>, <b>h₂ = ${num(f.h[1])}</b>. La sortida fa el mateix amb h₁ i h₂ i una sigmoide: <b>ŷ = ${num(f.yhat)}</b>, ${cls ? "0,5 o més: classe 1" : "menys de 0,5: classe 0"}.`, "fwd"];
+    }
+    case 2: {
+      const cls = sn.f.yhat >= 0.5 ? 1 : 0;
+      const tail = cls === sn.y
+        ? `la classe ja és correcta, però la xarxa encara no n'està del tot segura. La loss només seria 0 amb ŷ = ${sn.y} exacte.`
+        : `la classe és incorrecta. Com més lluny de l'encert, més gran és la loss.`;
+      return [`<b>Loss.</b> La resposta era ${sn.y} i la xarxa diu ${num(sn.f.yhat)}. La loss d'aquesta fila és <b>${num(sn.loss)}</b>: ${tail}`, ""];
+    }
+    case 3: {
+      const g = sn.g;
+      const j = g.slope[0] < g.slope[1] ? 0 : 1;
+      const sat = g.slope[j] < 0.3 ? ` ${j ? "h₂" : "h₁"} està gairebé saturada (pendent ${num(g.slope[j])}): en rep poca.` : "";
+      return [`<b>Pas enrere.</b> La sortida s'ha equivocat en ŷ − y = <b>${num(g.dout, 2, true)}</b> (${g.dout < 0 ? "s'ha quedat curta" : "s'ha passat"}). La culpa es reparteix cap enrere: h₁ en rep <b>${num(g.dh[0], 2, true)}</b> i h₂ <b>${num(g.dh[1], 2, true)}</b>, segons el pes que les uneix amb la sortida i el pendent de la seva tanh.${sat}`, "bwd"];
+    }
+    case 4: {
+      const zeros = sn.x.map((v, i) => (v === 0 ? (i ? "x₂" : "x₁") : null)).filter(Boolean);
+      const zeroNote = zeros.length ? ` Els pesos que surten de ${zeros.join(" i ")} no es mouen: ${zeros.length > 1 ? "valien" : "valia"} 0 i no han contribuït a l'error.` : "";
+      const up = sn.after > sn.before ? ": puja una mica, perquè el que ajuda aquesta fila pot empitjorar-ne una altra" : "";
+      return [`<b>Actualització.</b> Cada pes fa una passa petita en contra de la seva culpa (learning rate = 0,5).${zeroNote} La loss mitjana de les quatre files passa de ${num(sn.before)} a <b>${num(sn.after)}</b>${up}.`, ""];
+    }
+  }
+}
+const narration = document.getElementById("narration");
+function renderNarration() {
+  const [html, cls] = narrationHTML();
+  if (narration.innerHTML !== html) narration.innerHTML = html;
+  narration.className = cls;
+}
+
+// ---------- wiring ----------
+// click on the plot: send any pair of numbers through the network
+document.getElementById("planePlot").addEventListener("click", (ev) => {
+  const r = ev.currentTarget.getBoundingClientRect();
+  const fx = (ev.clientX - r.left) / r.width, fy = (ev.clientY - r.top) / r.height;
+  startProbe([-0.5 + 2 * fx, 1.5 - 2 * fy].map((v) => Math.round(v * 100) / 100));
+});
+
+function fit() {
+  const s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+  document.getElementById("stage").style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+window.addEventListener("resize", fit);
+
+function onClick(id, fn) {
+  document.getElementById(id).addEventListener("click", (ev) => { fn(); ev.currentTarget.blur(); });
+}
+onClick("bPlay", togglePlay);
+onClick("bNext", nextPhase);
+onClick("bFast", () => (S.fast ? stopFast("paused") : startFast()));
+onClick("bReset", () => reset(S.seed));
+onClick("bSeed", () => {
+  let s;
+  do s = 1 + Math.floor(Math.random() * 9999); while (s === S.seed);
+  reset(s);
+});
+onClick("bFull", () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen();
+});
+const speedInput = document.getElementById("speed");
+speedInput.addEventListener("input", () => {
+  S.speed = SPEEDS[+speedInput.value];
+  setText(document.getElementById("speedLabel"), "×" + String(S.speed).replace(".", ","));
+});
+// give the keyboard back to the animation, so → does not move the slider
+speedInput.addEventListener("change", () => speedInput.blur());
+document.addEventListener("keydown", (ev) => {
+  if (ev.code === "Space") { ev.preventDefault(); togglePlay(); }
+  else if (ev.key === "ArrowRight" || ev.key === "PageDown") { ev.preventDefault(); nextPhase(); }
+});
+
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(100, now - last);
+  last = now;
+  if (S.fast) fastStep(dt);
+  else if (S.playing) {
+    S.t += (dt * S.speed) / PHASES[S.k].dur;
+    if (S.t >= 1) {
+      if ((S.snap.probe && S.k === 1) || S.stepMode) { S.t = 1; S.playing = false; }
+      else finishPhase();
+    }
+  }
+  render();
+  requestAnimationFrame(tick);
+}
+
+buildNetwork();
+reset(DEFAULT_SEED);
+fit();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingüins amb backpropagation</title>
+<style>
+  :root {
+    --navy: #0F1B33; --ink: #17233D; --teal: #1C7293; --orange: #E8871E; --amber: #C9700F;
+    --pos: #3D5A80; --neg: #B23A48; --muted: #5C6B85; --faint: #A8B4C6; --label: #7C8AA0;
+    --line: #E4EAF2; --soft: #F4F7FB; --tealsoft: #EAF2F8; --orangesoft: #FBE3C8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #E9EEF4; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); }
+  svg text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+  #stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; background: #FFFFFF;
+           padding: 28px 48px 24px; display: flex; flex-direction: column; transform-origin: center; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-end; }
+  .eyebrow { font-size: 14px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--teal);
+             font-weight: 700; margin-bottom: 8px; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-size: 34px; font-weight: 400; margin: 0;
+       letter-spacing: -0.2px; }
+  .counters { display: flex; gap: 8px; }
+  .counters span { font-size: 15px; background: var(--soft); border-radius: 999px; padding: 6px 14px; color: var(--muted); }
+  .counters b { color: var(--ink); }
+
+  main { display: grid; grid-template-columns: 940px 1fr; gap: 28px; height: 600px; margin-top: 12px; }
+  #net { width: 940px; height: 600px; display: block; }
+  aside { display: flex; flex-direction: column; gap: 14px; padding-top: 10px; min-width: 0; }
+  .toprow { display: flex; gap: 16px; height: 214px; }
+
+  .card { flex: 1; background: var(--soft); border-radius: 12px; padding: 14px 18px; min-width: 0; }
+  .card .idx { font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--label); font-weight: 700; }
+  .card .who { display: flex; align-items: center; gap: 10px; margin: 6px 0 8px; }
+  .card .name { font-family: Georgia, "Times New Roman", serif; font-size: 27px; white-space: nowrap; }
+  .ychip { font-size: 13px; font-weight: 700; color: #FFFFFF; border-radius: 999px; padding: 4px 10px; margin-left: auto; white-space: nowrap; }
+  .meas { display: flex; gap: 18px; }
+  .meas > div { flex: 1; }
+  .meas .lab { font-size: 13px; color: var(--muted); }
+  .meas .mm { font-size: 19px; }
+  .meas .x { font-family: "Courier New", monospace; font-size: 18px; font-weight: 700; }
+  .card .note { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .recent { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--label);
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 700; min-height: 22px; }
+  .recent span.r { display: inline-flex; align-items: center; gap: 1px; text-transform: none; letter-spacing: 0; font-size: 14px; }
+  .ok { color: var(--teal); }
+  .ko { color: var(--neg); }
+
+  .panel h3 { font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--label);
+              margin: 0 0 6px; font-weight: 700; display: flex; justify-content: space-between; align-items: baseline; }
+  .panel h3 .hint { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 13px; color: var(--muted); }
+  .legend { position: absolute; right: 10px; top: 8px; font-size: 13px; color: var(--muted); display: flex; gap: 12px;
+            background: rgba(255,255,255,0.85); border-radius: 8px; padding: 4px 10px; pointer-events: none; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .lossbox { width: 214px; }
+  .stats { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .stats b { color: var(--ink); font-size: 19px; }
+  .plot { position: relative; background: #F7F9FC; border-radius: 10px; overflow: hidden; }
+  .plot > canvas, .plot > svg { position: absolute; left: 0; top: 0; }
+  #planePlot { width: 532px; height: 346px; cursor: crosshair; }
+  #planeCanvas, #planeSvg { width: 532px; height: 346px; }
+  #lossPlot { width: 214px; height: 160px; }
+  #lossSvg { width: 214px; height: 160px; }
+
+  #narration { margin-top: 10px; min-height: 84px; font-size: 19px; line-height: 1.45; background: var(--soft);
+               border-left: 5px solid var(--navy); border-radius: 12px; padding: 12px 22px; }
+  #narration.fwd { border-left-color: var(--teal); }
+  #narration.bwd { border-left-color: var(--orange); }
+
+  footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+  #phases { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0; }
+  #phases li { --p: 0; font-size: 14px; font-weight: 700; padding: 9px 13px; border-radius: 999px; white-space: nowrap;
+               background: var(--soft); color: var(--muted); }
+  #phases li.done { color: var(--ink); }
+  #phases li.on { color: #FFFFFF;
+                  background: linear-gradient(90deg, var(--navy) calc(var(--p) * 100%), #4A5A78 calc(var(--p) * 100%)); }
+  #phases li.fast { background: var(--tealsoft); color: var(--teal); }
+  #phases li.off { opacity: 0.35; }
+
+  .controls { display: flex; gap: 7px; align-items: center; }
+  button { font: 700 14px "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); background: #FFFFFF;
+           border: 1px solid #C9D3E0; border-radius: 10px; padding: 9px 13px; cursor: pointer; white-space: nowrap; }
+  button:hover { background: var(--soft); }
+  button.primary { background: var(--teal); border-color: var(--teal); color: #FFFFFF; min-width: 124px; }
+  button.primary:hover { background: #17607C; }
+  button.active { background: var(--orangesoft); border-color: var(--orange); color: #7A430A; }
+  .speed { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin: 0 4px; white-space: nowrap; }
+  .speed input { width: 90px; }
+  .speed b { color: var(--ink); min-width: 30px; }
+  .source { position: absolute; left: 48px; bottom: 6px; font-size: 11px; color: var(--faint); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <div>
+      <div class="eyebrow">UT5 &middot; Perceptró multicapa &middot; Animació</div>
+      <h1>Com aprèn una xarxa a reconèixer els pingüins Chinstrap</h1>
+    </div>
+    <div class="counters">
+      <span>epoch <b id="cEpoch">1</b></span>
+      <span>pingüí <b id="cRow">1</b> de 342</span>
+      <span>llavor <b id="cSeed">165</b></span>
+      <span>learning rate <b>0,05</b></span>
+    </div>
+  </header>
+
+  <main>
+    <svg id="net" viewBox="0 0 940 600" role="img" aria-label="Xarxa 2-2-1: dues mesures del bec, neurones ocultes h1 i h2, sortida"></svg>
+    <aside>
+      <div class="toprow">
+        <div class="card">
+          <div class="idx" id="pIdx"></div>
+          <div class="who"><span id="pShape"></span><span class="name" id="pName"></span><span class="ychip" id="pY"></span></div>
+          <div class="meas">
+            <div><div class="lab">llargada del bec</div><div class="mm" id="mL"></div><div class="x" id="xL"></div></div>
+            <div><div class="lab">fondària del bec</div><div class="mm" id="mD"></div><div class="x" id="xD"></div></div>
+          </div>
+          <div class="note">escalades com StandardScaler: (mesura − mitjana) / desviació típica</div>
+          <div class="recent">darrers <span id="recent"></span></div>
+        </div>
+        <div class="panel lossbox">
+          <h3>Loss i encert</h3>
+          <div class="plot" id="lossPlot"><svg id="lossSvg" viewBox="0 0 214 160"></svg></div>
+          <div class="stats"><span>loss <b id="sLoss"></b></span><span>encert <b id="sAcc"></b></span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3><span>Espai d'entrada</span><span class="hint">clica per inventar un pingüí</span></h3>
+        <div class="plot" id="planePlot"><canvas id="planeCanvas" width="1064" height="692"></canvas><svg id="planeSvg" viewBox="0 0 532 346"></svg><div class="legend" id="legend"></div></div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="narration"></div>
+
+  <footer>
+    <ol id="phases">
+      <li>Entrada</li><li>1 · Pas endavant</li><li>2 · Loss</li><li>3 · Pas enrere</li><li>4 · Actualització</li>
+    </ol>
+    <div class="controls">
+      <button id="bPlay" class="primary" title="Barra d'espai">▶ Reprodueix</button>
+      <button id="bNext" title="Fletxa dreta">Fase →</button>
+      <button id="bFast">⏩ Entrena ràpid</button>
+      <label class="speed">velocitat <input id="speed" type="range" min="0" max="4" step="1" value="1"> <b id="speedLabel">×1</b></label>
+      <button id="bReset" title="Torna a començar amb la mateixa llavor">↺ Reinicia</button>
+      <button id="bSeed">Nova llavor</button>
+      <button id="bFull" title="Pantalla completa">⛶</button>
+    </div>
+  </footer>
+  <div class="source">Dades: palmerpenguins (Gorman, Williams i Fraser, 2014), domini públic CC0.</div>
+</div>
+
+<script>
+// --- model ---
+// Palmer penguins (Gorman, Williams & Fraser, 2014; CC0): species letter + bill length,depth in mm
+const RAW = "A39.1,18.7 A39.5,17.4 A40.3,18 A36.7,19.3 A39.3,20.6 A38.9,17.8 A39.2,19.6 A34.1,18.1 A42,20.2 A37.8,17.1 A37.8,17.3 A41.1,17.6 A38.6,21.2 A34.6,21.1 A36.6,17.8 A38.7,19 A42.5,20.7 A34.4,18.4 A46,21.5 A37.8,18.3 A37.7,18.7 A35.9,19.2 A38.2,18.1 A38.8,17.2 A35.3,18.9 A40.6,18.6 A40.5,17.9 A37.9,18.6 A40.5,18.9 A39.5,16.7 A37.2,18.1 A39.5,17.8 A40.9,18.9 A36.4,17 A39.2,21.1 A38.8,20 A42.2,18.5 A37.6,19.3 A39.8,19.1 A36.5,18 A40.8,18.4 A36,18.5 A44.1,19.7 A37,16.9 A39.6,18.8 A41.1,19 A37.5,18.9 A36,17.9 A42.3,21.2 A39.6,17.7 A40.1,18.9 A35,17.9 A42,19.5 A34.5,18.1 A41.4,18.6 A39,17.5 A40.6,18.8 A36.5,16.6 A37.6,19.1 A35.7,16.9 A41.3,21.1 A37.6,17 A41.1,18.2 A36.4,17.1 A41.6,18 A35.5,16.2 A41.1,19.1 A35.9,16.6 A41.8,19.4 A33.5,19 A39.7,18.4 A39.6,17.2 A45.8,18.9 A35.5,17.5 A42.8,18.5 A40.9,16.8 A37.2,19.4 A36.2,16.1 A42.1,19.1 A34.6,17.2 A42.9,17.6 A36.7,18.8 A35.1,19.4 A37.3,17.8 A41.3,20.3 A36.3,19.5 A36.9,18.6 A38.3,19.2 A38.9,18.8 A35.7,18 A41.1,18.1 A34,17.1 A39.6,18.1 A36.2,17.3 A40.8,18.9 A38.1,18.6 A40.3,18.5 A33.1,16.1 A43.2,18.5 A35,17.9 A41,20 A37.7,16 A37.8,20 A37.9,18.6 A39.7,18.9 A38.6,17.2 A38.2,20 A38.1,17 A43.2,19 A38.1,16.5 A45.6,20.3 A39.7,17.7 A42.2,19.5 A39.6,20.7 A42.7,18.3 A38.6,17 A37.3,20.5 A35.7,17 A41.1,18.6 A36.2,17.2 A37.7,19.8 A40.2,17 A41.4,18.5 A35.2,15.9 A40.6,19 A38.8,17.6 A41.5,18.3 A39,17.1 A44.1,18 A38.5,17.9 A43.1,19.2 A36.8,18.5 A37.5,18.5 A38.1,17.6 A41.1,17.5 A35.6,17.5 A40.2,20.1 A37,16.5 A39.7,17.9 A40.2,17.1 A40.6,17.2 A32.1,15.5 A40.7,17 A37.3,16.8 A39,18.7 A39.2,18.6 A36.6,18.4 A36,17.8 A37.8,18.1 A36,17.1 A41.5,18.5 G46.1,13.2 G50,16.3 G48.7,14.1 G50,15.2 G47.6,14.5 G46.5,13.5 G45.4,14.6 G46.7,15.3 G43.3,13.4 G46.8,15.4 G40.9,13.7 G49,16.1 G45.5,13.7 G48.4,14.6 G45.8,14.6 G49.3,15.7 G42,13.5 G49.2,15.2 G46.2,14.5 G48.7,15.1 G50.2,14.3 G45.1,14.5 G46.5,14.5 G46.3,15.8 G42.9,13.1 G46.1,15.1 G44.5,14.3 G47.8,15 G48.2,14.3 G50,15.3 G47.3,15.3 G42.8,14.2 G45.1,14.5 G59.6,17 G49.1,14.8 G48.4,16.3 G42.6,13.7 G44.4,17.3 G44,13.6 G48.7,15.7 G42.7,13.7 G49.6,16 G45.3,13.7 G49.6,15 G50.5,15.9 G43.6,13.9 G45.5,13.9 G50.5,15.9 G44.9,13.3 G45.2,15.8 G46.6,14.2 G48.5,14.1 G45.1,14.4 G50.1,15 G46.5,14.4 G45,15.4 G43.8,13.9 G45.5,15 G43.2,14.5 G50.4,15.3 G45.3,13.8 G46.2,14.9 G45.7,13.9 G54.3,15.7 G45.8,14.2 G49.8,16.8 G46.2,14.4 G49.5,16.2 G43.5,14.2 G50.7,15 G47.7,15 G46.4,15.6 G48.2,15.6 G46.5,14.8 G46.4,15 G48.6,16 G47.5,14.2 G51.1,16.3 G45.2,13.8 G45.2,16.4 G49.1,14.5 G52.5,15.6 G47.4,14.6 G50,15.9 G44.9,13.8 G50.8,17.3 G43.4,14.4 G51.3,14.2 G47.5,14 G52.1,17 G47.5,15 G52.2,17.1 G45.5,14.5 G49.5,16.1 G44.5,14.7 G50.8,15.7 G49.4,15.8 G46.9,14.6 G48.4,14.4 G51.1,16.5 G48.5,15 G55.9,17 G47.2,15.5 G49.1,15 G47.3,13.8 G46.8,16.1 G41.7,14.7 G53.4,15.8 G43.3,14 G48.1,15.1 G50.5,15.2 G49.8,15.9 G43.5,15.2 G51.5,16.3 G46.2,14.1 G55.1,16 G44.5,15.7 G48.8,16.2 G47.2,13.7 G46.8,14.3 G50.4,15.7 G45.2,14.8 G49.9,16.1 C46.5,17.9 C50,19.5 C51.3,19.2 C45.4,18.7 C52.7,19.8 C45.2,17.8 C46.1,18.2 C51.3,18.2 C46,18.9 C51.3,19.9 C46.6,17.8 C51.7,20.3 C47,17.3 C52,18.1 C45.9,17.1 C50.5,19.6 C50.3,20 C58,17.8 C46.4,18.6 C49.2,18.2 C42.4,17.3 C48.5,17.5 C43.2,16.6 C50.6,19.4 C46.7,17.9 C52,19 C50.5,18.4 C49.5,19 C46.4,17.8 C52.8,20 C40.9,16.6 C54.2,20.8 C42.5,16.7 C51,18.8 C49.7,18.6 C47.5,16.8 C47.6,18.3 C52,20.7 C46.9,16.6 C53.5,19.9 C49,19.5 C46.2,17.5 C50.9,19.1 C45.5,17 C50.9,17.9 C50.8,18.5 C50.1,17.9 C49,19.6 C51.5,18.7 C49.8,17.3 C48.1,16.4 C51.4,19 C45.7,17.3 C50.7,19.7 C42.5,17.3 C52.2,18.8 C45.2,16.6 C49.3,19.9 C50.2,18.8 C45.6,19.4 C51.9,19.5 C46.8,16.5 C45.7,17 C55.8,19.8 C43.5,18.1 C49.6,18.2 C50.8,19 C50.2,18.7";
+const SPECIES = { A: "Adelie", C: "Chinstrap", G: "Gentoo" };
+const PENGUINS = RAW.split(" ").map((s) => ({
+  species: SPECIES[s[0]],
+  mm: s.slice(1).split(",").map(Number),
+  y: s[0] === "C" ? 1 : 0,                       // 1 = Chinstrap, 0 = another species
+}));
+
+// Same as StandardScaler: subtract the mean and divide by the standard deviation of each measure
+const MEAN = [0, 1].map((k) => PENGUINS.reduce((s, q) => s + q.mm[k], 0) / PENGUINS.length);
+const STD = [0, 1].map((k) => Math.sqrt(PENGUINS.reduce((s, q) => s + (q.mm[k] - MEAN[k]) ** 2, 0) / PENGUINS.length));
+const scale = (mm) => mm.map((v, k) => (v - MEAN[k]) / STD[k]);
+PENGUINS.forEach((q) => { q.x = scale(q.mm); });
+
+// Small seeded random generator (mulberry32), so every seed always gives the same start.
+function makeRng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Random start in the same range MLPClassifier uses (Glorot uniform, factor 6).
+// W[i][j]: weight from input i to hidden neuron j. v[j]: weight from hidden j to the output.
+function initParams(seed) {
+  const rnd = makeRng(seed);
+  const u = (bound) => (2 * rnd() - 1) * bound;
+  const hidden = Math.sqrt(6 / (2 + 2));
+  const output = Math.sqrt(6 / (2 + 1));
+  return {
+    W: [[u(hidden), u(hidden)], [u(hidden), u(hidden)]],
+    b: [u(hidden), u(hidden)],
+    v: [u(output), u(output)],
+    c: u(output),
+  };
+}
+
+// Each epoch visits the penguins in a new random order (shuffle=True in MLPClassifier)
+function shuffledOrder(rnd) {
+  const order = PENGUINS.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+}
+
+const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+
+// Forward pass: weighted sums z, activations h, output probability yhat.
+function forward(p, x) {
+  const z = [0, 1].map((j) => p.W[0][j] * x[0] + p.W[1][j] * x[1] + p.b[j]);
+  const h = z.map(Math.tanh);
+  const zo = p.v[0] * h[0] + p.v[1] * h[1] + p.c;
+  return { z, h, zo, yhat: sigmoid(zo) };
+}
+
+// Log-loss of one penguin, clipped so a perfect wrong answer does not give Infinity.
+function lossOf(yhat, y) {
+  const q = Math.min(Math.max(yhat, 1e-12), 1 - 1e-12);
+  return -(y * Math.log(q) + (1 - y) * Math.log(1 - q));
+}
+
+// Backward pass. dout: blame of the output (yhat - y).
+// dh[j]: blame of hidden neuron j = dout * its weight to the output * slope of tanh.
+function backward(p, x, y, f) {
+  const dout = f.yhat - y;
+  const slope = f.h.map((h) => 1 - h * h);
+  const dh = [0, 1].map((j) => dout * p.v[j] * slope[j]);
+  return {
+    dout,
+    slope,
+    dh,
+    gW: [[dh[0] * x[0], dh[1] * x[0]], [dh[0] * x[1], dh[1] * x[1]]],
+    gb: dh.slice(),
+    gv: [dout * f.h[0], dout * f.h[1]],
+    gc: dout,
+  };
+}
+
+// One gradient descent step: every weight moves against its slope.
+function update(p, g, lr) {
+  return {
+    W: p.W.map((row, i) => row.map((w, j) => w - lr * g.gW[i][j])),
+    b: p.b.map((b, j) => b - lr * g.gb[j]),
+    v: p.v.map((v, j) => v - lr * g.gv[j]),
+    c: p.c - lr * g.gc,
+  };
+}
+
+// Mean loss and accuracy over the 342 penguins
+function evaluate(p) {
+  let loss = 0, hits = 0;
+  for (const q of PENGUINS) {
+    const yhat = forward(p, q.x).yhat;
+    loss += lossOf(yhat, q.y);
+    hits += (yhat >= 0.5 ? 1 : 0) === q.y ? 1 : 0;
+  }
+  return { loss: loss / PENGUINS.length, acc: hits / PENGUINS.length };
+}
+
+// Which species each hidden neuron switches on for (h > 0), as a fraction of each species
+function hiddenBySpecies(p) {
+  return [0, 1].map((j) => {
+    const out = {};
+    for (const s of Object.values(SPECIES)) {
+      const group = PENGUINS.filter((q) => q.species === s);
+      out[s] = group.filter((q) => forward(p, q.x).h[j] > 0).length / group.length;
+    }
+    return out;
+  });
+}
+// --- end model ---
+
+
+// --- animation ---
+const N_PENG = PENGUINS.length;
+const LR = 0.05;
+const DEFAULT_SEED = 165;           // starts saying "Chinstrap" to everyone; h1 learns Adelie, h2 Gentoo
+const FAST_EPOCHS_PER_SEC = 3;
+const SPEEDS = [0.5, 1, 2, 4, 8];
+const PHASES = [
+  { key: "entrada", dur: 1800 },
+  { key: "endavant", dur: 3000 },
+  { key: "loss", dur: 2000 },
+  { key: "enrere", dur: 3200 },
+  { key: "update", dur: 2400 },
+];
+
+const COLORS = { pos: "#3D5A80", neg: "#B23A48", teal: "#1C7293", orange: "#E8871E", amber: "#C9700F",
+                 ink: "#17233D", muted: "#5C6B85", faint: "#A8B4C6", line: "#C9D3E0", navy: "#0F1B33" };
+const CLASS_COLOR = [COLORS.teal, COLORS.orange];
+const CLASS_NAME = ["un altre", "Chinstrap"];
+
+// ---------- small helpers ----------
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sub = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+const lerp = (a, b, t) => a + (b - a) * t;
+const lerpP = (a, b, t) => ({
+  W: a.W.map((row, i) => row.map((w, j) => lerp(w, b.W[i][j], t))),
+  b: a.b.map((v, j) => lerp(v, b.b[j], t)),
+  v: a.v.map((v, j) => lerp(v, b.v[j], t)),
+  c: lerp(a.c, b.c, t),
+});
+// Catalan number format: decimal comma, real minus sign
+function num(v, d = 2, sign = false) {
+  if (Math.abs(v) < 0.5 * Math.pow(10, -d)) v = 0;
+  const s = Math.abs(v).toFixed(d).replace(".", ",");
+  return v < 0 ? "−" + s : (sign && v > 0 ? "+" + s : s);
+}
+const pct = (v) => num(100 * v, 1) + " %";
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const setText = (e, s) => { if (e.textContent !== s) e.textContent = s; };
+const setHTML = (e, s) => { if (e.innerHTML !== s) e.innerHTML = s; };
+const show = (e, o) => e.setAttribute("opacity", o);
+
+// One marker shape per species, the same in the card and in the plot
+function shapeMarkup(species, cx, cy, s, extra = "") {
+  const fill = species === "Chinstrap" ? COLORS.orange : COLORS.teal;
+  if (species === "Adelie") return `<circle cx="${cx}" cy="${cy}" r="${s * 0.55}" fill="${fill}" ${extra}/>`;
+  if (species === "Gentoo") return `<rect x="${cx - s * 0.5}" y="${cy - s * 0.5}" width="${s}" height="${s}" fill="${fill}" ${extra}/>`;
+  if (species === "Chinstrap") return `<path d="M${cx},${cy - s * 0.62} L${cx + s * 0.6},${cy + s * 0.45} L${cx - s * 0.6},${cy + s * 0.45} z" fill="${fill}" ${extra}/>`;
+  return `<text x="${cx}" y="${cy + s * 0.4}" text-anchor="middle" font-size="${s * 1.2}" font-weight="700" fill="${COLORS.navy}">?</text>`;
+}
+const shapeIcon = (species, size = 22) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${shapeMarkup(species, size / 2, size / 2, size * 0.75)}</svg>`;
+
+// ---------- network drawing ----------
+const IN = [{ x: 110, y: 205, r: 34 }, { x: 110, y: 365, r: 34 }];
+const HID = [{ x: 430, y: 165, r: 60 }, { x: 430, y: 405, r: 60 }];
+const OUT = { x: 720, y: 285, r: 60 };
+const GAUGE = { x: 872, top: 170, bottom: 400 };
+const gy = (v) => lerp(GAUGE.bottom, GAUGE.top, v);
+
+const EDGES = [
+  { kind: "W", i: 0, j: 0, from: IN[0], to: HID[0], f: 0.7, off: 0 },
+  { kind: "W", i: 1, j: 0, from: IN[1], to: HID[0], f: 0.7, off: 0 },
+  { kind: "W", i: 0, j: 1, from: IN[0], to: HID[1], f: 0.7, off: 0 },
+  { kind: "W", i: 1, j: 1, from: IN[1], to: HID[1], f: 0.7, off: 0 },
+  { kind: "v", j: 0, from: HID[0], to: OUT, f: 0.45, off: -16 },
+  { kind: "v", j: 1, from: HID[1], to: OUT, f: 0.45, off: 16 },
+];
+const weightOf = (p, e) => (e.kind === "W" ? p.W[e.i][e.j] : p.v[e.j]);
+
+const svg = document.getElementById("net");
+const N = {};   // references to the SVG elements that change
+
+function buildNetwork() {
+  const defs = el("defs", {}, svg);
+  for (const [id, color] of [["arF", COLORS.teal], ["arB", COLORS.orange]]) {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: color }, m);
+  }
+
+  // phase arrows, as in the backpropagation slide
+  N.arrowF = el("g", {}, svg);
+  el("line", { x1: 70, y1: 44, x2: 800, y2: 44, stroke: COLORS.teal, "stroke-width": 3, "marker-end": "url(#arF)" }, N.arrowF);
+  el("text", { x: 435, y: 30, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: COLORS.teal }, N.arrowF)
+    .textContent = "1 · PAS ENDAVANT: calcular la predicció";
+  N.arrowB = el("g", {}, svg);
+  el("line", { x1: 800, y1: 562, x2: 70, y2: 562, stroke: COLORS.orange, "stroke-width": 3, "marker-end": "url(#arB)" }, N.arrowB);
+  el("text", { x: 435, y: 590, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: COLORS.amber }, N.arrowB)
+    .textContent = "3 · PAS ENRERE: repartir la culpa de l'error";
+
+  // edges
+  N.edges = EDGES.map((e) => {
+    const dx = e.to.x - e.from.x, dy = e.to.y - e.from.y, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const a = { x: e.from.x + ux * e.from.r, y: e.from.y + uy * e.from.r };
+    const b = { x: e.to.x - ux * e.to.r, y: e.to.y - uy * e.to.r };
+    const lx = e.from.x + dx * e.f - uy * e.off, ly = e.from.y + dy * e.f + ux * e.off;
+    const line = el("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, "stroke-linecap": "round" }, svg);
+    return { e, a, b, lx, ly, line };
+  });
+  // labels go on top of every line, and pulses on top of the labels
+  for (const E of N.edges) {
+    E.label = el("g", {}, svg);
+    E.rect = el("rect", { x: E.lx - 31, y: E.ly - 12, width: 62, height: 24, rx: 6, fill: "#FFFFFF", stroke: "#D5DDE8" }, E.label);
+    E.text = el("text", { x: E.lx, y: E.ly + 5, "text-anchor": "middle", "font-size": 15, "font-weight": 700 }, E.label);
+    E.delta = el("text", { x: E.lx + 30, y: E.ly + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: COLORS.amber, opacity: 0 }, E.label);
+  }
+  for (const E of N.edges) {
+    E.fwd = el("circle", { r: 6, fill: COLORS.teal, opacity: 0 }, svg);
+    E.bwd = el("circle", { r: 6, fill: COLORS.orange, opacity: 0 }, svg);
+  }
+
+  // inputs: the two scaled measures
+  N.inputs = IN.map((c, i) => {
+    el("text", { x: c.x - c.r - 14, y: c.y + 7, "text-anchor": "end", "font-size": 20, "font-weight": 700 }, svg)
+      .textContent = i === 0 ? "x₁" : "x₂";
+    el("text", { x: c.x, y: c.y + c.r + 20, "text-anchor": "middle", "font-size": 13, fill: COLORS.muted }, svg)
+      .textContent = i === 0 ? "llargada del bec" : "fondària del bec";
+    const circle = el("circle", { cx: c.x, cy: c.y, r: c.r, fill: "#FFFFFF", stroke: COLORS.teal, "stroke-width": 2 }, svg);
+    const fill = el("circle", { cx: c.x, cy: c.y, r: c.r - 1, fill: "#EAF2F8", opacity: 0 }, svg);
+    const value = el("text", { x: c.x, y: c.y + 7, "text-anchor": "middle", "font-size": 20, "font-weight": 700 }, svg);
+    return { circle, fill, value };
+  });
+
+  // hidden neurons and output, each with a small activation curve inside
+  N.hidden = HID.map((c, j) => neuron(c, "h" + (j === 0 ? "₁" : "₂"), Math.tanh, -1, 1));
+  N.out = neuron(OUT, "ŷ", sigmoid, 0, 1);
+  N.out.chip = el("g", {}, svg);
+  N.out.chipRect = el("rect", { x: OUT.x - 52, y: OUT.y + OUT.r + 56, width: 104, height: 26, rx: 13 }, N.out.chip);
+  N.out.chipText = el("text", { x: OUT.x, y: OUT.y + OUT.r + 74, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#FFFFFF" }, N.out.chip);
+  N.out.culpa.setAttribute("y", OUT.y + OUT.r + 106);
+
+  // loss gauge: correct answer y vs prediction ŷ
+  const G = (N.gauge = {});
+  G.title = el("text", { x: GAUGE.x, y: 112, "text-anchor": "middle", "font-size": 16, "font-weight": 700 }, svg);
+  G.title.textContent = "2 · LOSS";
+  G.target = el("text", { x: GAUGE.x, y: 142, "text-anchor": "middle", "font-size": 16, "font-weight": 700 }, svg);
+  el("line", { x1: GAUGE.x, y1: GAUGE.top, x2: GAUGE.x, y2: GAUGE.bottom, stroke: "#DCE3EC", "stroke-width": 8, "stroke-linecap": "round" }, svg);
+  el("line", { x1: GAUGE.x - 12, y1: gy(0.5), x2: GAUGE.x + 12, y2: gy(0.5), stroke: COLORS.faint, "stroke-dasharray": "3 3" }, svg);
+  for (const [v, s] of [[1, "1"], [0.5, "0,5"], [0, "0"]]) {
+    el("text", { x: GAUGE.x + 22, y: gy(v) + 5, "font-size": 13, fill: COLORS.muted }, svg).textContent = s;
+  }
+  G.bar = el("rect", { x: GAUGE.x - 6, width: 12, rx: 4, fill: COLORS.orange, opacity: 0 }, svg);
+  G.yDot = el("circle", { cx: GAUGE.x, r: 11, stroke: "#FFFFFF", "stroke-width": 3, opacity: 0 }, svg);
+  G.yhat = el("g", { opacity: 0 }, svg);
+  G.yhatMark = el("path", { d: "M0,-9 L13,0 L0,9 z", fill: COLORS.navy }, G.yhat);
+  el("text", { x: -6, y: 6, "text-anchor": "end", "font-size": 17, "font-weight": 700 }, G.yhat).textContent = "ŷ";
+  G.loss = el("text", { x: GAUGE.x, y: 442, "text-anchor": "middle", "font-size": 20, "font-weight": 700, opacity: 0 }, svg);
+  G.lossSub = el("text", { x: GAUGE.x, y: 463, "text-anchor": "middle", "font-size": 13, fill: COLORS.muted, opacity: 0 }, svg);
+  G.lossSub.textContent = "distància a l'encert";
+
+  // the penguin entering the network
+  N.token = el("g", { opacity: 0 }, svg);
+  el("rect", { x: IN[0].x - 95, y: 106, width: 190, height: 32, rx: 16, fill: COLORS.navy }, N.token);
+  N.tokenText = el("text", { x: IN[0].x, y: 128, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: "#FFFFFF" }, N.token);
+
+  // legend
+  const lg = el("g", { "font-size": 13, fill: COLORS.muted }, svg);
+  el("line", { x1: 40, y1: 472, x2: 76, y2: 472, stroke: COLORS.pos, "stroke-width": 5, "stroke-linecap": "round" }, lg);
+  el("text", { x: 86, y: 477 }, lg).textContent = "pes positiu";
+  el("line", { x1: 40, y1: 496, x2: 76, y2: 496, stroke: COLORS.neg, "stroke-width": 5, "stroke-linecap": "round" }, lg);
+  el("text", { x: 86, y: 501 }, lg).textContent = "pes negatiu";
+  el("text", { x: 40, y: 525 }, lg).textContent = "gruix = mida del pes";
+}
+
+// A neuron with its activation curve drawn inside (z from -6 to 6).
+function neuron(c, name, act, lo, hi) {
+  const n = { c, act, lo, hi };
+  n.ring = el("circle", { cx: c.x, cy: c.y, r: c.r + 7, fill: "none", stroke: COLORS.orange, opacity: 0 }, svg);
+  n.circle = el("circle", { cx: c.x, cy: c.y, r: c.r, fill: "#EAF2F8", stroke: COLORS.teal, "stroke-width": 2 }, svg);
+  const W = 84, H = 52;
+  n.px = (z) => c.x - W / 2 + ((clamp(z, -6, 6) + 6) / 12) * W;
+  n.py = (a) => c.y + H / 2 - ((a - lo) / (hi - lo)) * H;
+  el("line", { x1: c.x - W / 2, y1: n.py((lo + hi) / 2), x2: c.x + W / 2, y2: n.py((lo + hi) / 2), stroke: COLORS.faint, "stroke-dasharray": "3 3" }, svg);
+  el("line", { x1: c.x, y1: c.y - H / 2 - 4, x2: c.x, y2: c.y + H / 2 + 4, stroke: "#D5DDE8" }, svg);
+  let d = "";
+  for (let z = -6; z <= 6.001; z += 0.25) d += (d ? " L" : "M") + n.px(z).toFixed(1) + "," + n.py(act(z)).toFixed(1);
+  el("path", { d, fill: "none", stroke: COLORS.navy, "stroke-width": 2 }, svg);
+  n.tangent = el("line", { stroke: COLORS.orange, "stroke-width": 4, "stroke-linecap": "round", opacity: 0 }, svg);
+  n.dot = el("circle", { r: 6, fill: COLORS.teal, stroke: "#FFFFFF", "stroke-width": 2, opacity: 0 }, svg);
+  // name and bias on one line, above the blame ring
+  n.label = name;
+  n.title = el("text", { x: c.x, y: c.y - c.r - 18, "text-anchor": "middle" }, svg);
+  el("tspan", { "font-size": 21, "font-weight": 700 }, n.title).textContent = name;
+  n.bias = el("tspan", { "font-size": 13, fill: COLORS.muted, dx: 8 }, n.title);
+  n.z = el("text", { x: c.x, y: c.y + c.r + 22, "text-anchor": "middle", "font-size": 14, fill: COLORS.muted }, svg);
+  n.val = el("text", { x: c.x, y: c.y + c.r + 45, "text-anchor": "middle", "font-size": 19, "font-weight": 700 }, svg);
+  n.culpa = el("text", { x: c.x, y: c.y + c.r + 68, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: COLORS.amber }, svg);
+  return n;
+}
+
+// ---------- state ----------
+const S = {
+  seed: DEFAULT_SEED, p: null, step: 0, order: null, orderRng: null, k: 0, t: 0, snap: {},
+  playing: false, stepMode: false, fast: false, started: false,
+  speed: 1, acc: 0, fastFrom: 0, history: [], recent: [], message: null,
+};
+const current = () => evaluate(S.p);
+
+function reset(seed) {
+  S.seed = seed;
+  S.p = initParams(seed);
+  S.orderRng = makeRng(seed + 100000);
+  S.order = shuffledOrder(S.orderRng);
+  S.step = 0;
+  const ev = current();
+  S.history = [{ epoch: 0, loss: ev.loss, acc: ev.acc }];
+  S.recent = [];
+  S.fast = S.playing = S.stepMode = S.started = false;
+  enterPhase(0);
+  planeKey = "";
+}
+
+function enterPhase(k) {
+  S.k = k;
+  S.t = 0;
+  S.message = null;
+  const sn = S.snap;
+  if (k === 0) {
+    const i = S.order[S.step % N_PENG], q = PENGUINS[i];
+    S.snap = { i, n: (S.step % N_PENG) + 1, species: q.species, mm: q.mm, x: q.x, y: q.y };
+  }
+  if (k === 1) sn.f = forward(S.p, sn.x);
+  if (k === 2) sn.loss = lossOf(sn.f.yhat, sn.y);
+  if (k === 3) sn.g = backward(S.p, sn.x, sn.y, sn.f);
+  if (k === 4) {
+    sn.pNew = update(S.p, sn.g, LR);
+    sn.before = current();
+    sn.after = evaluate(sn.pNew);
+  }
+}
+
+// one penguin done: keep the new weights, and shuffle again at the end of each epoch
+function advance(pNew) {
+  S.p = pNew;
+  S.step++;
+  if (S.step % N_PENG === 0) S.order = shuffledOrder(S.orderRng);
+}
+
+function commitUpdate() {
+  const sn = S.snap;
+  S.recent.push({ species: sn.species, ok: (sn.f.yhat >= 0.5 ? 1 : 0) === sn.y });
+  if (S.recent.length > 6) S.recent.shift();
+  advance(sn.pNew);
+  S.history.push({ epoch: S.step / N_PENG, loss: sn.after.loss, acc: sn.after.acc });
+}
+
+function finishPhase() {
+  if (S.snap.probe) {               // an invented penguin only goes forward
+    if (S.k === 0) { S.k = 1; S.t = 0; S.snap.f = forward(S.p, S.snap.x); }
+    return;
+  }
+  if (S.k === 4) {
+    commitUpdate();
+    enterPhase(0);
+  } else {
+    enterPhase(S.k + 1);
+  }
+}
+
+// ---------- invented penguin (click on the plot) ----------
+function startProbe(mm) {
+  if (S.fast) stopFast("paused");
+  if (S.k === 4 && S.t > 0 && !S.snap.probe) commitUpdate();
+  S.started = true;
+  S.k = 0;
+  S.t = 0;
+  S.message = null;
+  S.snap = { probe: true, mm, x: scale(mm), y: null, species: null };
+  S.stepMode = false;
+  S.playing = true;
+}
+function leaveProbe() {
+  if (S.snap.probe) enterPhase(0);
+}
+
+// ---------- controls ----------
+function togglePlay() {
+  S.started = true;
+  if (S.fast) stopFast("paused");
+  if (S.snap.probe) { leaveProbe(); S.stepMode = false; S.playing = true; return; }
+  if (S.playing && !S.stepMode) {
+    S.playing = false;
+  } else {
+    if (S.t >= 1) finishPhase();
+    S.stepMode = false;
+    S.playing = true;
+  }
+}
+
+function nextPhase() {
+  S.started = true;
+  if (S.fast) stopFast("paused");
+  if (S.snap.probe) { leaveProbe(); S.stepMode = true; S.playing = true; return; }
+  if (S.t >= 1) finishPhase();
+  S.stepMode = true;
+  S.playing = true;
+}
+
+function startFast() {
+  S.started = true;
+  leaveProbe();
+  if (S.k === 4 && S.t > 0) commitUpdate();
+  S.fast = true;
+  S.playing = false;
+  S.acc = 0;
+  S.fastFrom = S.step / N_PENG;
+}
+
+function stopFast(reason) {
+  S.fast = false;
+  S.playing = false;
+  enterPhase(0);
+  S.message = reason;
+}
+
+// The mean loss has gone down less than 0.002 in the last 5 epochs
+function lossIsFlat(L) {
+  const E = S.step / N_PENG;
+  for (let i = S.history.length - 1; i >= 0; i--) {
+    if (S.history[i].epoch <= E - 5) return S.history[i].loss - L < 0.002;
+  }
+  return false;
+}
+// Seeds 1..400: 98 % reach 93 % (half by epoch 7, 90 % by epoch 22); many first sit for a while
+// on a plateau around 88 %. Only 2 % stay at 88,9 % for good: a real local minimum.
+function fastVerdict(ev) {
+  const E = S.step / N_PENG - S.fastFrom;
+  if (ev.acc >= 0.93 && ((E >= 8 && lossIsFlat(ev.loss)) || E >= 60)) return "done";
+  if (ev.acc < 0.93 && E >= 40) return "plateau";
+  return null;
+}
+
+function fastStep(dt) {
+  S.acc += (dt / 1000) * N_PENG * FAST_EPOCHS_PER_SEC * S.speed;
+  while (S.acc >= 1) {
+    S.acc -= 1;
+    const q = PENGUINS[S.order[S.step % N_PENG]];
+    advance(update(S.p, backward(S.p, q.x, q.y, forward(S.p, q.x)), LR));
+    if (S.step % N_PENG === 0) {
+      const ev = current();
+      S.history.push({ epoch: S.step / N_PENG, loss: ev.loss, acc: ev.acc });
+      const verdict = fastVerdict(ev);
+      if (verdict) return stopFast(verdict);
+    }
+  }
+}
+
+// ---------- rendering ----------
+// same scale for every neuron, so the rings can be compared
+const ringWidth = (blame) => (2 + 14 * Math.min(1, Math.sqrt(Math.abs(blame)))).toFixed(1);
+
+function render() {
+  const fast = S.fast, k = S.k, t = S.t, sn = S.snap, probe = !!sn.probe;
+  const updating = !fast && !probe && k === 4;
+  const e4 = updating ? ease(sub(t, 0.1, 0.8)) : 0;
+  const pv = updating ? lerpP(S.p, sn.pNew, e4) : S.p;
+
+  // counters
+  setText(document.getElementById("cEpoch"), String(Math.floor(S.step / N_PENG) + 1));
+  setText(document.getElementById("cRow"), String((S.step % N_PENG) + 1));
+  setText(document.getElementById("cSeed"), String(S.seed));
+
+  // phase arrows
+  show(N.arrowF, !fast && k === 1 ? 1 : 0.22);
+  show(N.arrowB, !fast && k === 3 ? 1 : 0.22);
+  N.gauge.title.setAttribute("fill", !fast && k === 2 ? COLORS.amber : COLORS.faint);
+
+  // edges and weight labels
+  for (const E of N.edges) {
+    const w = weightOf(pv, E.e);
+    E.line.setAttribute("stroke", w >= 0 ? COLORS.pos : COLORS.neg);
+    E.line.setAttribute("stroke-width", (1.5 + 2.2 * Math.min(Math.abs(w), 5)).toFixed(2));
+    E.line.setAttribute("opacity", 0.85);
+    setText(E.text, num(w, 2, true));
+    E.text.setAttribute("fill", w >= 0 ? COLORS.pos : COLORS.neg);
+    const dw = updating ? weightOf(sn.pNew, E.e) - weightOf(S.p, E.e) : 0;
+    const showDelta = updating && Math.abs(dw) >= 0.005;
+    E.rect.setAttribute("width", showDelta ? 116 : 62);
+    E.rect.setAttribute("x", showDelta ? E.lx - 58 : E.lx - 31);
+    E.text.setAttribute("x", showDelta ? E.lx - 27 : E.lx);
+    E.rect.setAttribute("stroke", showDelta ? COLORS.orange : "#D5DDE8");
+    setText(E.delta, showDelta ? (dw > 0 ? "▲ " : "▼ ") + num(Math.abs(dw)) : "");
+    E.delta.setAttribute("x", E.lx + 29);
+    show(E.delta, showDelta ? sub(t, 0, 0.12) : 0);
+  }
+
+  // pulses
+  for (const E of N.edges) {
+    let fo = 0, fpos = 0, fr = 6;
+    let bo = 0, bpos = 0, br = 6;
+    if (!fast && k === 1 && sn.f) {
+      if (E.e.kind === "W") {
+        const u = sub(t, 0, 0.4);
+        if (u > 0 && u < 1) {
+          fo = 1;
+          fpos = ease(u);
+          fr = 5 + 6 * Math.min(1, Math.abs(sn.x[E.e.i] * weightOf(S.p, E.e)) / 2);
+        }
+      } else {
+        const u = sub(t, 0.5, 0.9);
+        if (u > 0 && u < 1) {
+          fo = 1;
+          fpos = ease(u);
+          fr = 5 + 6 * Math.min(1, Math.abs(sn.f.h[E.e.j] * weightOf(S.p, E.e)) / 3);
+        }
+      }
+    }
+    if (!fast && k === 3 && sn.g) {
+      if (E.e.kind === "v") {
+        const u = sub(t, 0.15, 0.5);
+        if (u > 0 && u < 1) {
+          bo = 1;
+          bpos = 1 - ease(u);
+          br = 5 + 8 * Math.min(1, Math.sqrt(Math.abs(sn.g.dout * weightOf(S.p, E.e)) / 2));
+        }
+      } else {
+        const u = sub(t, 0.62, 0.95);
+        if (u > 0 && u < 1) {
+          bo = 1;
+          bpos = 1 - ease(u);
+          br = 5 + 8 * Math.min(1, Math.sqrt(Math.abs(sn.g.dh[E.e.j] * sn.x[E.e.i]) / 0.5));
+        }
+      }
+    }
+    E.fwd.setAttribute("cx", lerp(E.a.x, E.b.x, fpos));
+    E.fwd.setAttribute("cy", lerp(E.a.y, E.b.y, fpos));
+    E.fwd.setAttribute("r", fr.toFixed(1));
+    show(E.fwd, fo);
+    E.bwd.setAttribute("cx", lerp(E.a.x, E.b.x, bpos));
+    E.bwd.setAttribute("cy", lerp(E.a.y, E.b.y, bpos));
+    E.bwd.setAttribute("r", br.toFixed(1));
+    show(E.bwd, bo);
+  }
+
+  // the penguin entering
+  const seen = S.started && !fast;
+  const inAlpha = !seen ? 0 : k === 0 ? sub(t, 0.35, 0.75) : 1;
+  setText(N.tokenText, probe ? "pingüí inventat" : `pingüí ${sn.n} · ${sn.species}`);
+  show(N.token, !seen ? 0 : k === 0 ? sub(t, 0, 0.3) : 0.9);
+  N.inputs.forEach((n, i) => {
+    show(n.fill, inAlpha);
+    setText(n.value, num(sn.x[i], 2, true));
+    show(n.value, inAlpha);
+  });
+
+  // hidden neurons
+  const hAlpha = !seen || !sn.f ? 0 : k === 1 ? sub(t, 0.38, 0.5) : k > 1 ? 1 : 0;
+  N.hidden.forEach((n, j) => {
+    setText(n.bias, "biaix " + num(pv.b[j], 2, true));
+    n.bias.setAttribute("fill", updating && Math.abs(sn.pNew.b[j] - S.p.b[j]) >= 0.005 ? COLORS.amber : COLORS.muted);
+    if (hAlpha > 0) {
+      const z = sn.f.z[j], h = sn.f.h[j];
+      const zShown = k === 1 ? lerp(-6, z, ease(sub(t, 0.38, 0.5))) : z;
+      n.dot.setAttribute("cx", n.px(zShown));
+      n.dot.setAttribute("cy", n.py(Math.tanh(zShown)));
+      setText(n.z, "z = " + num(z, 2, true));
+      setText(n.val, n.label + " = " + num(h, 2, true));
+    }
+    show(n.dot, hAlpha);
+    show(n.z, hAlpha);
+    show(n.val, hAlpha);
+    // blame: ring, slope of tanh and number
+    const bAlpha = !seen || !sn.g ? 0 : k === 3 ? sub(t, 0.5, 0.6) : k === 4 ? 1 : 0;
+    if (bAlpha > 0) {
+      const dh = sn.g.dh[j], slope = sn.g.slope[j];
+      n.ring.setAttribute("stroke-width", ringWidth(dh));
+      setText(n.culpa, "culpa " + num(dh, 2, true));
+      const zc = clamp(sn.f.z[j], -6, 6), cx = n.px(zc), cy = n.py(Math.tanh(zc));
+      const sx = 84 / 12, sy = 52 / 2;        // pixels per unit of z and of h
+      const ang = Math.atan2(slope * sy, sx), L = 20;
+      n.tangent.setAttribute("x1", cx - L * Math.cos(ang));
+      n.tangent.setAttribute("y1", cy + L * Math.sin(ang));
+      n.tangent.setAttribute("x2", cx + L * Math.cos(ang));
+      n.tangent.setAttribute("y2", cy - L * Math.sin(ang));
+    }
+    show(n.ring, bAlpha * 0.85);
+    show(n.culpa, bAlpha);
+    show(n.tangent, bAlpha);
+  });
+
+  // output neuron
+  const o = N.out;
+  setText(o.bias, "biaix " + num(pv.c, 2, true));
+  o.bias.setAttribute("fill", updating && Math.abs(sn.pNew.c - S.p.c) >= 0.005 ? COLORS.amber : COLORS.muted);
+  const oAlpha = !seen || !sn.f ? 0 : k === 1 ? sub(t, 0.88, 1) : k > 1 ? 1 : 0;
+  if (oAlpha > 0) {
+    const zo = sn.f.zo, yh = sn.f.yhat, cls = yh >= 0.5 ? 1 : 0;
+    const zShown = k === 1 ? lerp(-6, zo, ease(sub(t, 0.88, 1))) : zo;
+    o.dot.setAttribute("cx", o.px(zShown));
+    o.dot.setAttribute("cy", o.py(sigmoid(zShown)));
+    setText(o.z, "z = " + num(zo, 2, true));
+    setText(o.val, "ŷ = " + num(yh));
+    setText(o.chipText, CLASS_NAME[cls]);
+    o.chipRect.setAttribute("fill", CLASS_COLOR[cls]);
+    o.circle.setAttribute("fill", cls ? "#FBE3C8" : "#D8EBF3");
+  } else {
+    o.circle.setAttribute("fill", "#EAF2F8");
+  }
+  for (const e of [o.dot, o.z, o.val, o.chip]) show(e, oAlpha);
+  const obAlpha = !seen || !sn.g ? 0 : k === 3 ? sub(t, 0, 0.12) : k === 4 ? 1 : 0;
+  if (obAlpha > 0) {
+    o.ring.setAttribute("stroke-width", ringWidth(sn.g.dout));
+    setText(o.culpa, "culpa ŷ − y = " + num(sn.g.dout, 2, true));
+  }
+  show(o.ring, obAlpha * 0.85);
+  show(o.culpa, obAlpha);
+  show(o.tangent, 0);
+
+  // loss gauge (an invented penguin has no correct answer)
+  const G = N.gauge;
+  const tAlpha = !seen || probe ? 0 : k === 0 ? sub(t, 0.75, 1) : 1;
+  if (!probe) {
+    setText(G.target, `y = ${sn.y} · ${CLASS_NAME[sn.y]}`);
+    G.target.setAttribute("fill", CLASS_COLOR[sn.y]);
+    G.yDot.setAttribute("cy", gy(sn.y));
+    G.yDot.setAttribute("fill", CLASS_COLOR[sn.y]);
+  }
+  show(G.target, tAlpha);
+  show(G.yDot, tAlpha);
+  const lAlpha = !seen || !sn.f ? 0 : k === 1 ? sub(t, 0.9, 1) : k > 1 ? 1 : 0;
+  if (lAlpha > 0) {
+    const yh = sn.f.yhat;
+    G.yhat.setAttribute("transform", `translate(${GAUGE.x - 26},${gy(yh)})`);
+    if (!probe) {
+      const grow = k === 2 ? ease(sub(t, 0, 0.6)) : k > 2 ? 1 : 0;
+      const end = lerp(sn.y, yh, grow);
+      G.bar.setAttribute("y", Math.min(gy(sn.y), gy(end)));
+      G.bar.setAttribute("height", Math.abs(gy(sn.y) - gy(end)));
+    }
+    if (sn.loss !== undefined) setText(G.loss, "loss = " + num(sn.loss));
+  }
+  show(G.yhat, lAlpha);
+  show(G.bar, k >= 2 && seen && !probe ? 0.5 : 0);
+  const lossTextAlpha = !seen || sn.loss === undefined ? 0 : k === 2 ? sub(t, 0.45, 0.75) : k > 2 ? 1 : 0;
+  show(G.loss, lossTextAlpha);
+  show(G.lossSub, lossTextAlpha);
+
+  const ev = updating ? { loss: lerp(sn.before.loss, sn.after.loss, e4), acc: e4 < 1 ? sn.before.acc : sn.after.acc } : null;
+  renderCard();
+  renderPlane(pv);
+  renderLoss(ev);
+  renderPhases();
+  renderNarration();
+  document.getElementById("bPlay").textContent = S.playing && !S.stepMode ? "⏸ Pausa" : "▶ Reprodueix";
+  const bf = document.getElementById("bFast");
+  bf.textContent = S.fast ? "⏹ Atura" : "⏩ Entrena ràpid";
+  bf.classList.toggle("active", S.fast);
+}
+
+// card of the current penguin
+function fastPenguin() {
+  const q = PENGUINS[S.order[S.step % N_PENG]];
+  return { species: q.species, mm: q.mm, x: q.x, y: q.y };
+}
+const CARD = Object.fromEntries(["pIdx", "pShape", "pName", "pY", "mL", "mD", "xL", "xD", "recent"].map((id) => [id, document.getElementById(id)]));
+function renderCard() {
+  const sn = S.fast ? fastPenguin() : S.snap;
+  if (S.fast) {
+    setText(CARD.pIdx, `Entrenament ràpid · epoch ${Math.floor(S.step / N_PENG) + 1}`);
+  } else {
+    setText(CARD.pIdx, sn.probe ? "Pingüí inventat (clic al gràfic)" : `Pingüí ${sn.n} de ${N_PENG} · epoch ${Math.floor(S.step / N_PENG) + 1}`);
+  }
+  setHTML(CARD.pShape, shapeIcon(sn.species || "?"));
+  setText(CARD.pName, sn.probe ? "Desconeguda" : sn.species);
+  setText(CARD.pY, sn.probe ? "y = ?" : `y = ${sn.y} · ${sn.y ? "és Chinstrap" : "no és Chinstrap"}`);
+  CARD.pY.style.background = sn.probe ? COLORS.faint : CLASS_COLOR[sn.y];
+  setText(CARD.mL, num(sn.mm[0], 1) + " mm");
+  setText(CARD.mD, num(sn.mm[1], 1) + " mm");
+  setText(CARD.xL, "x₁ = " + num(sn.x[0], 2, true));
+  setText(CARD.xD, "x₂ = " + num(sn.x[1], 2, true));
+  setHTML(CARD.recent, S.recent.map((r) => `<span class="r">${shapeIcon(r.species, 16)}<span class="${r.ok ? "ok" : "ko"}">${r.ok ? "✓" : "✗"}</span></span>`).join(""));
+}
+
+// input space in mm: background coloured by the network's answer, the two hidden lines and the 342 penguins
+const planeCanvas = document.getElementById("planeCanvas");
+const planeCtx = planeCanvas.getContext("2d");
+const planeSvg = document.getElementById("planeSvg");
+const PW = 532, PH = 346;
+const DOM = { x0: 30, x1: 62, y0: 12.5, y1: 22.5 };   // bill length and depth shown, in mm
+const toPx = (mm) => ((mm - DOM.x0) / (DOM.x1 - DOM.x0)) * PW;
+const toPy = (mm) => PH - ((mm - DOM.y0) / (DOM.y1 - DOM.y0)) * PH;
+const P = {};
+(function buildPlane() {
+  for (let v = 35; v <= 60; v += 5) {
+    el("line", { x1: toPx(v), y1: 0, x2: toPx(v), y2: PH, stroke: "#FFFFFF", "stroke-opacity": 0.6 }, planeSvg);
+    el("text", { x: toPx(v), y: PH - 6, "text-anchor": "middle", "font-size": 12, fill: COLORS.muted }, planeSvg).textContent = v;
+  }
+  for (let v = 14; v <= 22; v += 2) {
+    el("line", { x1: 0, y1: toPy(v), x2: PW, y2: toPy(v), stroke: "#FFFFFF", "stroke-opacity": 0.6 }, planeSvg);
+    el("text", { x: 6, y: toPy(v) + 4, "font-size": 12, fill: COLORS.muted }, planeSvg).textContent = v;
+  }
+  el("text", { x: PW - 8, y: PH - 22, "text-anchor": "end", "font-size": 13, "font-weight": 700, fill: COLORS.muted }, planeSvg).textContent = "llargada del bec (mm) →";
+  el("text", { x: 28, y: 16, "font-size": 13, "font-weight": 700, fill: COLORS.muted }, planeSvg).textContent = "↑ fondària del bec (mm)";
+  P.lines = [0, 1].map((j) => ({
+    line: el("line", { stroke: COLORS.navy, "stroke-width": 2, "stroke-dasharray": "6 4" }, planeSvg),
+    label: el("text", { "font-size": 16, "font-weight": 700, fill: COLORS.navy, "text-anchor": "middle",
+                        stroke: "#FFFFFF", "stroke-width": 4, "paint-order": "stroke" }, planeSvg),
+    name: j === 0 ? "h₁" : "h₂",
+  }));
+  const pts = el("g", {}, planeSvg);
+  const r1 = (v) => Math.round(v * 10) / 10;
+  pts.innerHTML = PENGUINS.map((q) => shapeMarkup(q.species, r1(toPx(q.mm[0])), r1(toPy(q.mm[1])), 9,
+    'stroke="#FFFFFF" stroke-width="1.2" fill-opacity="0.9"')).join("");
+  P.cur = el("circle", { r: 12, fill: "none", stroke: COLORS.navy, "stroke-width": 3, opacity: 0 }, planeSvg);
+  P.probe = el("g", { opacity: 0 }, planeSvg);
+  el("circle", { r: 12, fill: "#FFFFFF", stroke: COLORS.navy, "stroke-width": 3 }, P.probe);
+  el("text", { y: 6, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: COLORS.navy }, P.probe).textContent = "?";
+  document.getElementById("legend").innerHTML =
+    ["Adelie", "Gentoo", "Chinstrap"].map((s) => `<span>${shapeIcon(s, 18)} ${s}</span>`).join("");
+})();
+
+// click on the plot: invent a penguin with those measures
+document.getElementById("planePlot").addEventListener("click", (ev) => {
+  const r = ev.currentTarget.getBoundingClientRect();
+  const fx = (ev.clientX - r.left) / r.width, fy = (ev.clientY - r.top) / r.height;
+  const mm = [DOM.x0 + fx * (DOM.x1 - DOM.x0), DOM.y1 - fy * (DOM.y1 - DOM.y0)].map((v) => Math.round(v * 10) / 10);
+  startProbe(mm);
+});
+
+let planeKey = "";
+function renderPlane(p) {
+  const key = JSON.stringify(p, (k, v) => (typeof v === "number" ? Math.round(v * 1000) : v));
+  if (key !== planeKey) {
+    planeKey = key;
+    const nx = 110, ny = 72, cw = planeCanvas.width / nx, ch = planeCanvas.height / ny;
+    planeCtx.clearRect(0, 0, planeCanvas.width, planeCanvas.height);
+    for (let a = 0; a < nx; a++) {
+      for (let b = 0; b < ny; b++) {
+        const mm = [DOM.x0 + ((a + 0.5) / nx) * (DOM.x1 - DOM.x0), DOM.y1 - ((b + 0.5) / ny) * (DOM.y1 - DOM.y0)];
+        const yh = forward(p, scale(mm)).yhat;
+        const conf = Math.abs(2 * yh - 1);
+        planeCtx.fillStyle = yh >= 0.5
+          ? `rgba(232,135,30,${(0.12 + 0.36 * conf).toFixed(3)})`
+          : `rgba(28,114,147,${(0.06 + 0.22 * conf).toFixed(3)})`;
+        // whole-pixel cells that touch but never overlap, so no grid shows through
+        const xa = Math.round(a * cw), ya = Math.round(b * ch);
+        planeCtx.fillRect(xa, ya, Math.round((a + 1) * cw) - xa, Math.round((b + 1) * ch) - ya);
+      }
+    }
+    // hidden lines z_j = 0, written in mm and clipped to the visible box
+    P.lines.forEach((L, j) => {
+      const A = p.W[0][j] / STD[0], B = p.W[1][j] / STD[1];
+      const C = p.b[j] - A * MEAN[0] - B * MEAN[1], pts = [];
+      for (const xb of [DOM.x0, DOM.x1]) if (Math.abs(B) > 1e-9) { const yb = -(A * xb + C) / B; if (yb >= DOM.y0 && yb <= DOM.y1) pts.push([xb, yb]); }
+      for (const yb of [DOM.y0, DOM.y1]) if (Math.abs(A) > 1e-9) { const xb = -(B * yb + C) / A; if (xb >= DOM.x0 && xb <= DOM.x1) pts.push([xb, yb]); }
+      const ok = pts.length >= 2;
+      show(L.line, ok ? 0.9 : 0);
+      show(L.label, ok ? 1 : 0);
+      if (!ok) return;
+      const [a, b] = pts;
+      const ax = toPx(a[0]), ay = toPy(a[1]), bx = toPx(b[0]), by = toPy(b[1]);
+      L.line.setAttribute("x1", ax); L.line.setAttribute("y1", ay);
+      L.line.setAttribute("x2", bx); L.line.setAttribute("y2", by);
+      const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+      L.label.setAttribute("x", clamp((ax + bx) / 2 - (dy / len) * 14 + (dx / len) * 70, 14, PW - 14));
+      L.label.setAttribute("y", clamp((ay + by) / 2 + (dx / len) * 14 + (dy / len) * 70 + 5, 30, PH - 30));
+      setText(L.label, L.name);
+    });
+  }
+  const on = S.started && !S.fast, sn = S.snap;
+  const cx = toPx(sn.mm[0]), cy = toPy(sn.mm[1]);
+  P.cur.setAttribute("cx", cx); P.cur.setAttribute("cy", cy);
+  show(P.cur, on && !sn.probe ? 1 : 0);
+  P.probe.setAttribute("transform", `translate(${cx},${cy})`);
+  show(P.probe, on && sn.probe ? 1 : 0);
+}
+
+// loss curve: mean loss of the 342 penguins
+const lossSvg = document.getElementById("lossSvg");
+const LW = 214, LH = 160, LP = { l: 34, r: 8, t: 10, b: 26 };
+const LQ = {};
+(function buildLoss() {
+  LQ.grid = el("g", {}, lossSvg);
+  LQ.path = el("polyline", { fill: "none", stroke: COLORS.navy, "stroke-width": 2.2, "stroke-linejoin": "round" }, lossSvg);
+  LQ.dot = el("circle", { r: 4.5, fill: COLORS.orange, stroke: "#FFFFFF", "stroke-width": 2 }, lossSvg);
+  el("text", { x: LP.l + (LW - LP.l - LP.r) / 2, y: LH - 4, "text-anchor": "middle", "font-size": 11, fill: COLORS.muted }, lossSvg).textContent = "epoch";
+})();
+const NICE = [1, 2, 4, 8, 16, 24, 40, 60, 80, 100, 150, 200, 300, 500, 1000];
+let lossKey = "";
+function renderLoss(provisional) {
+  const h = S.history.slice();
+  if (provisional) h.push({ epoch: (S.step + 1) / N_PENG, ...provisional });
+  const last = h[h.length - 1];
+  const xMax = NICE.find((v) => v >= last.epoch) || last.epoch;
+  const yMax = Math.max(0.8, Math.ceil(Math.max(...h.map((d) => d.loss)) * 5) / 5);
+  const W = LW - LP.l - LP.r, H = LH - LP.t - LP.b;
+  const X = (e) => LP.l + (e / xMax) * W, Y = (l) => LP.t + H - (l / yMax) * H;
+  const key = xMax + "|" + yMax;
+  if (key !== lossKey) {
+    lossKey = key;
+    LQ.grid.innerHTML = "";
+    const step = yMax > 2 ? 0.5 : 0.2;
+    for (let v = 0; v <= yMax + 1e-9; v += step) {
+      el("line", { x1: LP.l, y1: Y(v), x2: LW - LP.r, y2: Y(v), stroke: "#E4EAF2" }, LQ.grid);
+      el("text", { x: LP.l - 5, y: Y(v) + 4, "text-anchor": "end", "font-size": 10, fill: COLORS.muted }, LQ.grid).textContent = num(v, 1);
+    }
+    for (const e of [0, xMax / 2, xMax]) {
+      el("text", { x: X(e), y: LH - LP.b + 13, "text-anchor": "middle", "font-size": 10, fill: COLORS.muted }, LQ.grid).textContent = num(e, e % 1 ? 1 : 0);
+    }
+  }
+  // keep the polyline light: at most ~400 points
+  const every = Math.max(1, Math.ceil(h.length / 400));
+  let pts = "";
+  for (let i = 0; i < h.length; i += every) pts += X(h[i].epoch).toFixed(1) + "," + Y(h[i].loss).toFixed(1) + " ";
+  pts += X(last.epoch).toFixed(1) + "," + Y(last.loss).toFixed(1);
+  LQ.path.setAttribute("points", pts);
+  LQ.dot.setAttribute("cx", X(last.epoch));
+  LQ.dot.setAttribute("cy", Y(last.loss));
+  setText(document.getElementById("sLoss"), num(last.loss));
+  setText(document.getElementById("sAcc"), pct(last.acc));
+}
+
+const phaseItems = [...document.querySelectorAll("#phases li")];
+function renderPhases() {
+  const probe = !!S.snap.probe;
+  phaseItems.forEach((li, i) => {
+    const on = S.started && !S.fast && i === S.k;
+    li.classList.toggle("on", on);
+    li.classList.toggle("done", S.started && !S.fast && i < S.k);
+    li.classList.toggle("fast", S.fast);
+    li.classList.toggle("off", probe && i > 1);
+    li.style.setProperty("--p", on ? S.t.toFixed(3) : 0);
+  });
+}
+
+// ---------- narration ----------
+// Which species a hidden neuron sets apart: one species on one side, the other two on the other
+function separatedSpecies(frac) {
+  const names = Object.keys(frac);
+  for (const s of names) {
+    const others = names.filter((n) => n !== s);
+    if (frac[s] >= 0.85 && others.every((n) => frac[n] <= 0.15)) return s;
+    if (frac[s] <= 0.15 && others.every((n) => frac[n] >= 0.85)) return s;
+  }
+  return null;
+}
+function describeHidden(p) {
+  const seps = hiddenBySpecies(p).map(separatedSpecies);
+  const name = (j) => (j === 0 ? "h₁" : "h₂");
+  if (seps.includes("Adelie") && seps.includes("Gentoo")) {
+    const a = seps.indexOf("Adelie"), g = seps.indexOf("Gentoo");
+    return `${name(a)} separa els <b>Adelie</b> de la resta i ${name(g)}, els <b>Gentoo</b>: la sortida diu Chinstrap quan el pingüí no és ni l'un ni l'altre, la cantonada dels becs llargs i fondos.`;
+  }
+  return [0, 1].map((j) => (seps[j] ? `${name(j)} separa els <b>${seps[j]}</b> de la resta` : `${name(j)} no separa cap espècie sola`)).join("; ") + ".";
+}
+function describeMeasure(v, k) {
+  if (Math.abs(v) < 0.3) return "a prop de la mitjana";
+  if (k === 0) return v > 0 ? "més llarg que la mitjana" : "més curt que la mitjana";
+  return v > 0 ? "més fondo que la mitjana" : "menys fondo que la mitjana";
+}
+
+function narrationHTML() {
+  const sn = S.snap, epoch = Math.floor(S.step / N_PENG) + 1, ev = current();
+  const done = S.step / N_PENG;
+  if (S.fast) {
+    const flat = ev.acc < 0.93 && done - S.fastFrom >= 5 && lossIsFlat(ev.loss)
+      ? " Ara la loss quasi no baixa: és un <b>altiplà</b>, una zona plana on el gradient és petit." : "";
+    return [`<b>Entrenament ràpid.</b> Cada epoch passa els 342 pingüins, en un ordre nou cada vegada, amb els quatre passos i sense pausa: epoch ${Math.floor(done)}, loss mitjana <b>${num(ev.loss)}</b>, encert <b>${pct(ev.acc)}</b>.${flat}`, "fwd"];
+  }
+  if (S.message === "done") return [`<b>Entrenada en ${done} epochs:</b> encerta el ${pct(ev.acc)} dels pingüins (una recta sola es queda al voltant del 88 %). ${describeHidden(S.p)}`, ""];
+  if (S.message === "plateau") return [`<b>Després de ${done} epochs, encara és al ${pct(ev.acc)}.</b> La xarxa fa servir quasi una sola recta, com un perceptró, i la loss gairebé no baixa: és en un <b>altiplà</b>. Sovint en surt si continues entrenant (torna a prémer <b>Entrena ràpid</b>); de vegades és un <b>mínim local</b> i no en surt mai, i llavors cal una <b>nova llavor</b>.`, ""];
+  if (S.message === "paused") return [`Entrenament ràpid aturat a l'epoch ${Math.floor(done)} (loss mitjana ${num(ev.loss)}, encert ${pct(ev.acc)}). Prem <b>▶</b> per seguir pingüí a pingüí.`, ""];
+  if (!S.started) return [`La xarxa ha d'aprendre a reconèixer els <b>Chinstrap</b> a partir de dues mesures del bec. Cada pingüí és una instància: dues mesures i la resposta correcta. Comença amb pesos a l'atzar (llavor ${S.seed}) i ara encerta el <b>${pct(ev.acc)}</b>; dir sempre «no és Chinstrap» ja encertaria el 80,1 %. Prem <b>▶</b> per veure-la aprendre pingüí a pingüí, o clica al gràfic per inventar-ne un.`, ""];
+  const [x1, x2] = sn.x;
+  if (sn.probe) {
+    if (S.k === 0) return [`<b>Pingüí inventat:</b> bec de ${num(sn.mm[0], 1)} mm de llarg i ${num(sn.mm[1], 1)} mm de fondària. Escalades, x₁ = ${num(x1, 2, true)} i x₂ = ${num(x2, 2, true)}. No és a les dades: no en sabem l'espècie.`, ""];
+    const yh = sn.f.yhat, cls = yh >= 0.5 ? 1 : 0;
+    return [`<b>Pas endavant</b> del pingüí inventat: ŷ = ${num(yh)} → <b>${CLASS_NAME[cls]}</b>. Com que no en sabem la resposta correcta, no hi ha loss ni pas enrere: la xarxa no aprèn res. Això és el que fa <b>predict</b>. Clica un altre punt, o prem <b>▶</b> per tornar a l'entrenament.`, "fwd"];
+  }
+  switch (S.k) {
+    case 0:
+      return [`<b>Epoch ${epoch}, pingüí ${sn.n} de ${N_PENG}: un ${sn.species}.</b> Té el bec de ${num(sn.mm[0], 1)} mm de llarg i ${num(sn.mm[1], 1)} mm de fondària. Abans d'entrar a la xarxa, les mesures s'escalen: x₁ = ${num(x1, 2, true)} (${describeMeasure(x1, 0)}) i x₂ = ${num(x2, 2, true)} (${describeMeasure(x2, 1)}). La resposta correcta és <b>y = ${sn.y}</b>: ${sn.y ? "és Chinstrap" : "no és Chinstrap"}.`, ""];
+    case 1: {
+      const f = sn.f, cls = f.yhat >= 0.5 ? 1 : 0;
+      return [`<b>Pas endavant.</b> Cada neurona oculta suma x₁ i x₂ multiplicades pels seus pesos, més el biaix (z), i ho passa per tanh: <b>h₁ = ${num(f.h[0])}</b>, <b>h₂ = ${num(f.h[1])}</b>. La sortida fa el mateix amb h₁ i h₂ i una sigmoide: <b>ŷ = ${num(f.yhat)}</b>, un ${num(100 * f.yhat, 0)} % de probabilitat de ser Chinstrap → <b>${CLASS_NAME[cls]}</b>.`, "fwd"];
+    }
+    case 2: {
+      const cls = sn.f.yhat >= 0.5 ? 1 : 0;
+      const tail = cls === sn.y
+        ? `la classe ja és correcta, però la xarxa encara no n'està del tot segura. La loss només seria 0 amb ŷ = ${sn.y} exacte.`
+        : `la classe és incorrecta. Com més lluny de l'encert, més gran és la loss.`;
+      return [`<b>Loss.</b> La resposta era ${sn.y} i la xarxa diu ${num(sn.f.yhat)}. La loss d'aquest pingüí és <b>${num(sn.loss)}</b>: ${tail}`, ""];
+    }
+    case 3: {
+      const g = sn.g;
+      const j = g.slope[0] < g.slope[1] ? 0 : 1;
+      const sat = g.slope[j] < 0.3 ? ` ${j ? "h₂" : "h₁"} està gairebé saturada (pendent ${num(g.slope[j])}): en rep poca.` : "";
+      return [`<b>Pas enrere.</b> La sortida s'ha equivocat en ŷ − y = <b>${num(g.dout, 2, true)}</b> (${g.dout < 0 ? "s'ha quedat curta" : "s'ha passat"}). La culpa es reparteix cap enrere: h₁ en rep <b>${num(g.dh[0], 2, true)}</b> i h₂ <b>${num(g.dh[1], 2, true)}</b>, segons el pes que les uneix amb la sortida i el pendent de la seva tanh.${sat}`, "bwd"];
+    }
+    case 4:
+      return [`<b>Actualització.</b> Cada pes fa una passa petita en contra de la seva culpa (learning rate = 0,05). Un sol pingüí mou poc la xarxa: la loss mitjana dels 342 passa de ${num(sn.before.loss, 3)} a <b>${num(sn.after.loss, 3)}</b> i l'encert, de ${pct(sn.before.acc)} a <b>${pct(sn.after.acc)}</b>. Per això cal passar-los tots, moltes vegades.`, ""];
+  }
+}
+const narration = document.getElementById("narration");
+function renderNarration() {
+  const [html, cls] = narrationHTML();
+  setHTML(narration, html);
+  narration.className = cls;
+}
+
+// ---------- wiring ----------
+function fit() {
+  const s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+  document.getElementById("stage").style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+window.addEventListener("resize", fit);
+
+function onClick(id, fn) {
+  document.getElementById(id).addEventListener("click", (ev) => { fn(); ev.currentTarget.blur(); });
+}
+onClick("bPlay", togglePlay);
+onClick("bNext", nextPhase);
+onClick("bFast", () => (S.fast ? stopFast("paused") : startFast()));
+onClick("bReset", () => reset(S.seed));
+onClick("bSeed", () => {
+  let s;
+  do s = 1 + Math.floor(Math.random() * 9999); while (s === S.seed);
+  reset(s);
+});
+onClick("bFull", () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen();
+});
+const speedInput = document.getElementById("speed");
+speedInput.addEventListener("input", () => {
+  S.speed = SPEEDS[+speedInput.value];
+  setText(document.getElementById("speedLabel"), "×" + String(S.speed).replace(".", ","));
+});
+// give the keyboard back to the animation, so → does not move the slider
+speedInput.addEventListener("change", () => speedInput.blur());
+document.addEventListener("keydown", (ev) => {
+  if (ev.code === "Space") { ev.preventDefault(); togglePlay(); }
+  else if (ev.key === "ArrowRight" || ev.key === "PageDown") { ev.preventDefault(); nextPhase(); }
+});
+
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(100, now - last);
+  last = now;
+  if (S.fast) fastStep(dt);
+  else if (S.playing) {
+    S.t += (dt * S.speed) / PHASES[S.k].dur;
+    if (S.t >= 1) {
+      if ((S.snap.probe && S.k === 1) || S.stepMode) { S.t = 1; S.playing = false; }
+      else finishPhase();
+    }
+  }
+  render();
+  requestAnimationFrame(tick);
+}
+
+buildNetwork();
+reset(DEFAULT_SEED);
+fit();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
