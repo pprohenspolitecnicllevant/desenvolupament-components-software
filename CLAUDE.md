@@ -82,8 +82,10 @@ reanomena, perquè les URL raw de MNIST hi apunten.
   loss, gradient descent, backpropagation («una epoch», «el learning rate», «la loss»).
   Queden en català capa oculta, pesos, biaix, característica, funció d'activació,
   regressió, perceptró i llavor.
-- **Codi en anglès**: identificadors, comentaris, docstrings, missatges i etiquetes
-  dels gràfics dins del notebook.
+- **Codi dels notebooks**: identificadors en anglès; comentaris, docstrings,
+  missatges (`print`), etiquetes dels gràfics i noms de columnes de les taules en
+  **català**, amb els termes d'ML en anglès com a la prosa (loss, epoch, step,
+  learning rate, batch…). Els exercicis diuen `# El teu codi aquí`.
 - Les **figures de les diapositives** van amb etiquetes en català.
 - Dades per **URL raw de GitHub** (els pingüins es carreguen del repositori del 5134).
   MNIST és una còpia de `fetch_openml("mnist_784")` a `UT01-.../mnist/mnist.npz`
