@@ -116,6 +116,16 @@
           border-radius: 999px; padding: 6px 14px; }
   .task.reg { color: #1C7293; background: #DCEBF3; }
   table.vals.tight td { padding: 5px 14px 5px 0; }
+
+  /* glossari */
+  .gloss { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 34px; align-content: start; }
+  .gloss > div { border-top: 2px solid #E4EAF2; padding-top: 10px; }
+  .gloss .t { font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+  .gloss .t .en { font-weight: 400; color: #5C6B85; font-size: 15px; }
+  .gloss .t .chip, .gloss p .chip { font-size: 13px; padding: 1px 6px; }
+  .gloss p { font-size: 14.5px; line-height: 1.42; }
+  .gloss .on { font-size: 12px; color: #1C7293; font-weight: 700; letter-spacing: 0.3px; margin-top: 5px; }
+  /* fi glossari */
 </style></head><body>
 
 <section class="slide dark">
@@ -70049,4 +70059,111 @@ L 425.604375 167.192138
   <div class="num">41</div>
 </section>
 
+<!-- Glossari: inici -->
+<section class="slide">
+  <div class="eyebrow">Glossari &middot; 1 de 3</div>
+  <h2>Conceptes que surten de passada</h2>
+  <div class="gloss">
+    <div><div class="t">Aturada anticipada <span class="en"><i>early stopping</i></span></div>
+      <p>Reservar una part de l'entrenament com a validació i aturar quan l'encert de validació deixa de millorar. Evita entrenar epochs de més i caure en l'overfitting. A scikit-learn, <span class="chip">early_stopping=True</span>.</p>
+      <div class="on">NB 1.1 ex. 6 · NB 1.2 ex. 5</div></div>
+    <div><div class="t">Augment de dades <span class="en"><i>data augmentation</i></span></div>
+      <p>Crear exemples d'entrenament nous modificant els que ja tens: desplaçar, girar o retallar una imatge. La xarxa aprèn que aquests canvis no canvien la classe.</p>
+      <div class="on">NB 1.2 ex. 7 · UT6</div></div>
+    <div><div class="t">Cerca en graella i validació creuada <span class="en"><span class="chip">GridSearchCV</span></span></div>
+      <p>La cerca en graella entrena totes les combinacions d'hiperparàmetres d'una llista. Cada una s'avalua amb validació creuada: s'entrena k vegades, deixant cada vegada un tros diferent per avaluar, i se'n fa la mitjana.</p>
+      <div class="on">NB 1.1 ex. 7 · 5134 UT7</div></div>
+    <div><div class="t">Dades estructurades i no estructurades</div>
+      <p>Estructurades: una taula on cada columna vol dir alguna cosa (la llargada de l'aleta). No estructurades: imatges, so o text, on una columna sola, un píxel, no diu res. És on destaquen les xarxes.</p>
+      <div class="on">Diap. 4 · NB 1.1 §12</div></div>
+    <div><div class="t">Encert <span class="en"><i>accuracy</i></span></div>
+      <p>La proporció de prediccions correctes. És el que retorna <span class="chip">score</span> d'un classificador. Enganya quan una classe és molt més freqüent que les altres.</p>
+      <div class="on">Tota la unitat · NB 1.2 §2 · 5134 UT4</div></div>
+    <div><div class="t">Error quadràtic mitjà <span class="en"><i>MSE</i></span></div>
+      <p>La mitjana dels errors elevats al quadrat. És la loss habitual en regressió i castiga molt més un error gran que molts de petits. La seva arrel quadrada és el RMSE.</p>
+      <div class="on">NB 1.1 §7 i §11.1 · 5134 UT2</div></div>
+    <div><div class="t">Escalat <span class="en"><span class="chip">StandardScaler</span></span></div>
+      <p>Restar la mitjana i dividir per la desviació típica de cada columna, perquè totes tinguin escales semblants. Sense escalar, la columna amb els números més grans domina l'entrenament.</p>
+      <div class="on">Diap. 14 · NB 1.1 §3.2 · 5134 UT3</div></div>
+    <div><div class="t">GPU</div>
+      <p>El processador de la targeta gràfica. Fa milers de multiplicacions alhora i entrena xarxes moltes vegades més de pressa que la CPU. A Colab és opcional.</p>
+      <div class="on">Diap. 4 · NB 1.1 §11 · UT6</div></div>
+    <div><div class="t">Gradient boosting</div>
+      <p>Algorisme clàssic que encadena decision trees petits, cadascun corregint els errors dels anteriors. Amb dades tabulars sovint iguala o supera les xarxes.</p>
+      <div class="on">Diap. 4 · NB 1.1 §12 · 5134 UT5</div></div>
+  </div>
+  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
+  <div class="num">42</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Glossari &middot; 2 de 3</div>
+  <h2>Conceptes que surten de passada</h2>
+  <div class="gloss">
+    <div><div class="t">Llavor <span class="en"><span class="chip">random_state</span></span></div>
+      <p>El número que fixa els sorteigs: pesos inicials, partició, ordre de les mostres. Amb la mateixa llavor surt sempre el mateix resultat; canviant-la, es veu quant depèn de l'atzar.</p>
+      <div class="on">Diap. 30 i 31 · NB 1.1 §8.2 i §9</div></div>
+    <div><div class="t">Matriu de confusió</div>
+      <p>Taula de la classe real (files) contra la classe predita (columnes). La diagonal són els encerts, i la resta diu quines classes es confonen entre si.</p>
+      <div class="on">NB 1.2 §7.1 · 5134 UT4</div></div>
+    <div><div class="t">Mínim local</div>
+      <p>Una vall que no és la més fonda. El gradient descent s'hi pot quedar encallat, i per això dues llavors diferents poden donar xarxes diferents.</p>
+      <div class="on">Diap. 30 · NB 1.1 §9</div></div>
+    <div><div class="t">Model de referència <span class="en"><span class="chip">DummyClassifier</span></span></div>
+      <p>Un model que no aprèn res: prediu sempre la classe més freqüent. Sense aquest punt de comparació, un percentatge d'encert no vol dir res.</p>
+      <div class="on">Diap. 29 i 39 · NB 1.1 §11 · 5134 UT1</div></div>
+    <div><div class="t">Momentum</div>
+      <p>Una millora del gradient descent: cada passa recorda la direcció de les anteriors, com una bola que agafa embranzida costa avall. Amb <span class="chip">momentum=0</span> es desactiva.</p>
+      <div class="on">NB 1.1 §10.2 · NB 1.2 §4.1</div></div>
+    <div><div class="t">Optimitzador <span class="en"><span class="chip">solver</span></span></div>
+      <p>El mètode que mou els pesos. <span class="chip">sgd</span> és el gradient descent de la unitat; <span class="chip">adam</span>, el de per defecte, ajusta la passa de cada pes; <span class="chip">lbfgs</span> va bé amb conjunts petits.</p>
+      <div class="on">Diap. 31 · NB 1.1 §10 i §11</div></div>
+    <div><div class="t">Overfitting</div>
+      <p>El model memoritza les mostres d'entrenament, soroll inclòs, en lloc d'aprendre'n la forma general. L'encert d'entrenament puja i el de validació o test no l'acompanya.</p>
+      <div class="on">Diap. 30 i 36 · NB 1.1 §10.1 · 5134 UT2</div></div>
+    <div><div class="t">Partició entrenament / test <span class="en"><span class="chip">train_test_split</span></span></div>
+      <p>Separar una part de les dades que el model no veu en entrenar, per mesurar com funciona amb dades noves. <span class="chip">test_size=0.2</span> en reserva el 20%.</p>
+      <div class="on">NB 1.1 §3.2 i §10 · 5134 UT1</div></div>
+    <div><div class="t">Partició estratificada <span class="en"><span class="chip">stratify=y</span></span></div>
+      <p>Una partició que manté la proporció de cada classe a entrenament i a test. Amb els pingüins (45% Gentoo), el test té sempre 25 Gentoo de 55; a l'atzar, en pot tenir entre 14 i 36.</p>
+      <div class="on">NB 1.1 §3.2 · 5134 UT7</div></div>
+  </div>
+  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
+  <div class="num">43</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Glossari &middot; 3 de 3</div>
+  <h2>Conceptes que surten de passada</h2>
+  <div class="gloss">
+    <div><div class="t">Pipeline <span class="en"><span class="chip">make_pipeline</span></span></div>
+      <p>Diversos passos encadenats que es fan servir com un sol model. L'escalador aprèn la mitjana i la desviació només amb l'entrenament i s'aplica sol a les dades noves.</p>
+      <div class="on">Diap. 14 · NB 1.1 §3.2 · 5134 UT9</div></div>
+    <div><div class="t">Precisió i recall</div>
+      <p>Precisió: de les vegades que el model diu «sí», quantes té raó. Recall: dels «sí» reals, quants en troba. Diuen més que l'encert quan una classe és rara.</p>
+      <div class="on">NB 1.2 §2 · 5134 UT4</div></div>
+    <div><div class="t">R2 <span class="en"><i>coeficient de determinació</i></span></div>
+      <p>Mètrica de regressió: 1 vol dir perfecte, i 0, tan bo com predir sempre la mitjana. És el que retorna <span class="chip">score</span> d'un regressor.</p>
+      <div class="on">NB 1.1 §11.1 · 5134 UT2</div></div>
+    <div><div class="t">Regularització <span class="en"><span class="chip">alpha</span> <span class="chip">C</span></span></div>
+      <p>Castigar els pesos grans perquè el model faci servir patrons suaus i no memoritzi. A <span class="chip">MLPClassifier</span>, com més gran és <b>alpha</b>, més càstig; a <span class="chip">LogisticRegression</span>, com més petit és <b>C</b>.</p>
+      <div class="on">NB 1.2 §6.3 · NB 1.1 ex. 7 · 5134 UT4</div></div>
+    <div><div class="t">Saturació</div>
+      <p>Una neurona amb sigmoide o tanh i una z molt gran o molt petita queda a la part plana de la corba: el pendent és gairebé zero i gairebé no aprèn.</p>
+      <div class="on">Diap. 26 · NB 1.1 §6.2</div></div>
+    <div><div class="t">Soroll</div>
+      <p>La part de les dades que és atzar i no segueix cap patró: errors de mesura, punts que cauen dins la classe contrària. Un bon model l'ignora; un que fa overfitting el memoritza.</p>
+      <div class="on">Diap. 30 · NB 1.1 §10</div></div>
+    <div><div class="t">Validació i test segellat</div>
+      <p>La validació és una part de l'entrenament reservada per prendre decisions: neurones, epochs, model. El test no es mira fins al final, perquè la nota no surti massa optimista.</p>
+      <div class="on">Diap. 33 i 36 · NB 1.2 §1.3 i §9 · 5134 UT2 i UT7</div></div>
+    <div><div class="t">Valors que falten <span class="en"><span class="chip">NaN</span> <span class="chip">dropna</span></span></div>
+      <p>Cel·les buides d'una taula, que pandas mostra com a <span class="chip">NaN</span>. La majoria de models no les accepten a <span class="chip">fit</span>, i <span class="chip">dropna()</span> elimina les files on en falta alguna.</p>
+      <div class="on">NB 1.1 §3.2 · 5134 UT2</div></div>
+  </div>
+  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
+  <div class="num">44</div>
+</section>
+
+<!-- Glossari: final -->
 </body></html>

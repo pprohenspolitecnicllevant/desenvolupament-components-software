@@ -48,6 +48,10 @@ L'alumnat no té la base matemàtica per programar les xarxes per dins. Per aix�
   de la secció que practiquen, perquè l'explicació no s'allargui sense que
   l'alumnat hi posi les mans. Al final, només els exercicis que demanen el
   notebook sencer.
+- **Res de conceptes implícits.** Quan el codi fa servir un concepte que la unitat
+  no explica (per exemple, `stratify` a `train_test_split`), el notebook hi fa un
+  **incís** la primera vegada que surt: què és, per què cal i un exemple amb números
+  reals. A les diapositives, tots aquests conceptes van al **glossari** del final.
 - **Conjunts de dades públics** a les UT5–UT9 (pingüins, `make_moons`, California
   Housing, MNIST, Fashion-MNIST, CIFAR-10, Mall Customers, SMS Spam Collection…),
   sense cas conductor. Cal revisar-ne la llicència.
@@ -65,7 +69,7 @@ La UT10 és la FEMPO.
 
 | UT | Títol | h | Eines | Criteris d'avaluació | Estat |
 |---|---|---|---|---|---|
-| 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT01-...`: NB 1.1 (XOR, pingüins, llunes; 5 pauses «Ara tu» + 2 finals), NB 1.2 (MNIST; 4 pauses «Ara tu» + 4 finals), diapositives i tres animacions del bucle d'entrenament (`animacio_xor_backprop.html`; `animacio_pinguins_backprop.html`: Chinstrap o no; `animacio_pinguins_especies.html`: les tres espècies amb softmax, tres mesures fixes d'entrada i un gràfic 3D giratori amb les regions de decisió i els plans de les neurones ocultes, que són configurables), adaptats a scikit-learn |
+| 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT01-...`: NB 1.1 (XOR, pingüins, llunes; 5 pauses «Ara tu» + 2 finals), NB 1.2 (MNIST; 4 pauses «Ara tu» + 4 finals), diapositives (44, amb glossari de 26 conceptes al final) i tres animacions del bucle d'entrenament (`animacio_xor_backprop.html`; `animacio_pinguins_backprop.html`: Chinstrap o no; `animacio_pinguins_especies.html`: les tres espècies amb softmax, tres mesures fixes d'entrada i un gràfic 3D giratori amb les regions de decisió i els plans de les neurones ocultes, que són configurables), adaptats a scikit-learn |
 | 6 | Xarxes neuronals convolucionals i introducció a la visió per computador | 24 | PyTorch, torchvision | 3.a | pendent |
 | 7 | Xarxes neuronals no supervisades: k-means, SOM i xarxes de Hopfield | 24 | scikit-learn, MiniSom, classe Hopfield | 3.b–3.e | pendent |
 | 8 | Llibreries de tercers, accés a dades, anàlisi amb NumPy, pandas, Matplotlib i Seaborn, KDD i **inferència amb el model entrenat** | 24 | pandas, requests, joblib, pytest | 4.a–4.f, 2.h–2.k | pendent |
@@ -109,6 +113,12 @@ inserits. El PDF s'obté imprimint l'HTML amb Chrome:
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=UTn.pdf UTn.html
 ```
+
+Les diapositives acaben amb el debat de classe i, darrere, un **glossari** dels
+conceptes que surten de passada a la unitat (diapositives i notebooks): blocs de la
+classe `.gloss` en tres columnes, ordenats alfabèticament, amb una definició curta de
+què és i per què importa, on surt (diapositiva, secció o exercici del notebook) i on
+es treballa a fons al 5134. Els conceptes centrals de la unitat no hi van.
 
 ## Estructura
 
