@@ -69645,20 +69645,20 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
 
 <section class="slide">
   <div class="task">Classificació &middot; 10 classes</div>
-  <div class="eyebrow">3 &middot; La prova</div>
-  <h2>Les característiques apreses serveixen</h2>
+  <div class="eyebrow">3 &middot; Què hi afegeix la capa oculta</div>
+  <h2>Una plantilla rígida o peces que es combinen</h2>
   <div class="body">
-  <p class="lead" style="max-width:11in">El mateix model lineal, una regressió logística, amb tres entrades diferents:</p>
+  <p class="lead" style="max-width:11in">La mateixa capa de sortida (deu puntuacions i softmax), mirant coses diferents:</p>
   <div class="cards" style="margin-top:22px">
-    <div class="card"><div class="sub" style="min-height:38px">784 píxels originals</div>
-      <div style="font-family:Georgia,serif; font-size:56px; color:#17233D">92,8%</div>
-      <p class="small muted">Una frontera lineal sobre píxels no dona per més.</p></div>
-    <div class="card warm"><div class="sub" style="min-height:38px">128 característiques <b>apreses</b> per la capa oculta</div>
-      <div style="font-family:Georgia,serif; font-size:56px; color:#C9700F">97,9%</div>
-      <p class="small muted">Sis vegades menys columnes i molt més encert.</p></div>
-    <div class="card"><div class="sub" style="min-height:38px">128 característiques d'una xarxa <b>sense entrenar</b></div>
-      <div style="font-family:Georgia,serif; font-size:56px; color:#8A97AB">90,9%</div>
-      <p class="small muted">El control: passar per neurones no fa màgia.</p></div>
+    <div class="card"><div class="sub" style="min-height:38px">Regressió logística: mira els <b>784 píxels</b></div>
+      <div style="font-family:Georgia,serif; font-size:56px; color:#17233D">92,0%</div>
+      <p class="small muted">Una plantilla per dígit. Funciona perquè MNIST ve centrat.</p></div>
+    <div class="card warm"><div class="sub" style="min-height:38px">MLP: mira els <b>128 traços apresos</b> per la capa oculta</div>
+      <div style="font-family:Georgia,serif; font-size:56px; color:#C9700F">97,65%</div>
+      <p class="small muted">Combina peces reutilitzables per formar cada dígit.</p></div>
+    <div class="card"><div class="sub" style="min-height:38px">Errors a validació, de 10.000 imatges</div>
+      <div style="font-family:Georgia,serif; font-size:56px; color:#8A97AB">802 / 235</div>
+      <p class="small muted">Sense capa oculta, més del triple d'errors.</p></div>
   </div>
   <div class="quote" style="margin-top:26px; font-size:22px">És la figura de la XOR a gran escala: la capa oculta transforma les dades
     en una representació on un model lineal ja funciona.</div>
@@ -69676,7 +69676,7 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
       <table class="vals" style="width:100%">
         <tr><th>Model</th><th class="r">Encert a validació</th></tr>
         <tr class="dim"><td>Referència (Dummy)</td><td class="mono r">10,6%</td></tr>
-        <tr><td>Regressió logística</td><td class="mono r">92,8%</td></tr>
+        <tr><td>Regressió logística</td><td class="mono r">92,0%</td></tr>
         <tr><td>Random forest (100 decision trees)</td><td class="mono r">97,2%</td></tr>
         <tr class="best"><td>MLP (128, tanh)</td><td class="mono r">97,65%</td></tr>
         <tr class="best"><td>MLP per defecte (ReLU, Adam)</td><td class="mono r">97,8%</td></tr>
@@ -70014,7 +70014,7 @@ L 425.604375 167.192138
 </svg>
 </div>
       <table class="vals" style="margin-top:12px; width:100%">
-        <tr><td>Regressió logística</td><td class="mono r">92,8% &rarr; 42,2%</td></tr>
+        <tr><td>Regressió logística</td><td class="mono r">92,0% &rarr; 44,0%</td></tr>
         <tr><td>Random forest</td><td class="mono r">97,2% &rarr; 54,2%</td></tr>
         <tr><td>MLP (128, tanh)</td><td class="mono r">97,65% &rarr; 53,6%</td></tr>
       </table>
@@ -70147,7 +70147,7 @@ L 425.604375 167.192138
       <div class="on">NB 1.1 §11.1 · 5134 UT2</div></div>
     <div><div class="t">Regularització <span class="en"><span class="chip">alpha</span> <span class="chip">C</span></span></div>
       <p>Castigar els pesos grans perquè el model faci servir patrons suaus i no memoritzi. A <span class="chip">MLPClassifier</span>, com més gran és <b>alpha</b>, més càstig; a <span class="chip">LogisticRegression</span>, com més petit és <b>C</b>.</p>
-      <div class="on">NB 1.2 §6.3 · NB 1.1 ex. 7 · 5134 UT4</div></div>
+      <div class="on">NB 1.2 §6.2 · NB 1.1 ex. 7 · 5134 UT4</div></div>
     <div><div class="t">Saturació</div>
       <p>Una neurona amb sigmoide o tanh i una z molt gran o molt petita queda a la part plana de la corba: el pendent és gairebé zero i gairebé no aprèn.</p>
       <div class="on">Diap. 26 · NB 1.1 §6.2</div></div>
