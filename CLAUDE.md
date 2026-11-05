@@ -70,13 +70,47 @@ La UT10 és la FEMPO.
 | UT | Títol | h | Eines | Criteris d'avaluació | Estat |
 |---|---|---|---|---|---|
 | 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT01-...`: NB 1.1 (XOR, pingüins, llunes; 5 pauses «Ara tu» + 2 finals), NB 1.2 (MNIST; 4 pauses «Ara tu» + 4 finals), diapositives (47, amb glossari de 32 conceptes al final) i tres animacions del bucle d'entrenament (`animacio_xor_backprop.html`; `animacio_pinguins_backprop.html`: Chinstrap o no; `animacio_pinguins_especies.html`: les tres espècies amb softmax, tres mesures fixes d'entrada i un gràfic 3D giratori amb les regions de decisió i els plans de les neurones ocultes, que són configurables), adaptats a scikit-learn |
-| 6 | Xarxes neuronals convolucionals i introducció a la visió per computador | 24 | PyTorch, torchvision | 3.a | pendent |
+| 6 | Xarxes neuronals convolucionals i introducció a la visió per computador | 24 | PyTorch, torchvision, Ultralytics | 3.a | carpeta `UT06-...`: NB 6.1–6.6 (La lupa, El laboratori, Crash test, A espatlles de gegants, Més enllà de classificar i el projecte; 25 missions «Ara tu» + 9 finals), diapositives (31: 28 + glossari de 22 conceptes en 3) i animació `animacio_lupa_cnn.html`. Solucionaris al repositori privat. Pendent: revisió del docent i prova a Colab |
 | 7 | Xarxes neuronals no supervisades: k-means, SOM i xarxes de Hopfield | 24 | scikit-learn, MiniSom, classe Hopfield | 3.b–3.e | pendent |
 | 8 | Llibreries de tercers, accés a dades, anàlisi amb NumPy, pandas, Matplotlib i Seaborn, KDD i **inferència amb el model entrenat** | 24 | pandas, requests, joblib, pytest | 4.a–4.f, 2.h–2.k | pendent |
 | 9 | Documentació professional del codi, dels components i de les proves | 20 | docstrings, pdoc/Sphinx | 5.a–5.e | pendent |
 
 La carpeta `UT01-...` del repositori correspon a la **UT5** de la programació. No es
 reanomena, perquè les URL raw de MNIST hi apunten.
+
+## La UT6 (`UT06-Xarxes_convolucionals/`)
+
+Vuit sessions per missions: blocs de 10 minuts d'explicació com a màxim i la resta de
+treball guiat. L'alumnat **no programa les xarxes**: les entén, les fa servir i les
+mesura. El BOE parla de programar-les, però es manté el criteri d'aquest mòdul.
+
+Tres excepcions a les convencions, només per a aquesta unitat:
+
+| Convenció | Canvi a la UT6 | Motiu |
+|---|---|---|
+| Unes 3 pauses «Ara tu» per notebook | 4–6 missions per notebook (3 al NB 6.5, que és mitja sessió) | L'aprenentatge recau en els exercicis |
+| Càrrega alta de markdown | Cada cel·la de codi manté l'explicació, però curta | Explicacions breus |
+| Res de `files.upload()` | Permès només per a fotos pròpies: NB 6.4 i 6.5 (opcional) i projecte | El projecte necessita dades pròpies |
+
+- **Peça comuna.** `make_cnn(in_channels, n_classes, image_size=28, filters=(16, 32),
+  pooling=True, global_pool=False, batch_norm=False, dropout=0.0)` crea la xarxa i
+  `train_model` l'entrena. Totes dues, amb `make_loaders`, `accuracy` i `plot_history`,
+  van a la cel·la «No cal modificar-la» de cada notebook, sense dependre de cap fitxer.
+- **Dades.** `prepare_data.py` genera les còpies de `fashion_mnist/`, `quickdraw/`,
+  `pedra_paper_tisora/` i `eurosat/`, i `fotos/` són imatges amb llicència oberta. Cada
+  carpeta porta `ATRIBUCIO.md`. CIFAR-10 es baixa de Hugging Face i MNIST és el de la UT5.
+- **Models.** `train_models.py` entrena `models/cifar_cnn.pt` i `models/cifar_cnn_aug.pt`,
+  que el NB 6.3 carrega amb `weights_only=True`. `--export-json` exporta els pesos de la CNN
+  de l'animació, que porta els pesos incrustats i no s'hi entrena res, a diferència de les
+  altres `animacio_*`. És l'únic lloc de la unitat, amb les diapositives, amb filtres triats a mà.
+- **YOLO11n** (Ultralytics, AGPL-3.0) al NB 6.5, només com a model ja entrenat.
+- **Les diapositives són públiques:** només hi van números del text dels notebooks o de
+  cel·les donades. Els resultats de les missions no. Ho comprova `tests/test_slides.py`
+  del repositori privat.
+- **Fotos:** només objectes. Sense cares, persones, matrícules ni dades privades, tret
+  de les fotos que ja es donen. Les dades del projecte no es pugen a cap repositori.
+- **Temps:** cap entrenament de més de 2 minuts a la CPU de Colab; els notebooks avisen
+  de la durada amb `⏱`. Els temps se suposen 3 vegades els d'un M1 fins que es faci la prova.
 
 ## Regles ràpides
 
