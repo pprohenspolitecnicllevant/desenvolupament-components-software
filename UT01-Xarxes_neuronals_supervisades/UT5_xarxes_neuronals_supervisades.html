@@ -69436,7 +69436,7 @@ iVBORw0KGgoAAAANSUhEUgAAAG8AAABvCAYAAADixZ5gAAAJuElEQVR4nO1dS28b1xWeBx/DN6mHKZGW
  </defs>
 </svg>
 </div>
-      <p style="margin-top:14px">Un model lineal aprèn <b>una plantilla per dígit</b> i hi compara cada imatge.</p>
+      <p style="margin-top:14px">Un model lineal aprèn <b>una plantilla per dígit</b> i hi compara cada imatge. El veureu a la UT4 del 5134.</p>
     </div>
     <div>
       <div class="tag a">Neurones ocultes de l'MLP</div>
@@ -69681,7 +69681,7 @@ iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAOt0lEQVR4nO1daXiTVRbOl6V7utK96UJb
         <tr class="best"><td>MLP (128, tanh)</td><td class="mono r">97,65%</td></tr>
         <tr class="best"><td>MLP per defecte (ReLU, Adam)</td><td class="mono r">97,8%</td></tr>
       </table>
-      <p class="muted small" style="margin-top:14px">Un random forest, sense capes ocultes, queda a menys d'un punt.</p>
+      <p class="muted small" style="margin-top:14px">Un random forest, sense capes ocultes, queda a menys d'un punt. Fa votar molts decision trees: el veureu a la UT5 del 5134.</p>
     </div>
     <div>
       <div class="tag a">El límit: desplaçar 3 píxels</div>
@@ -70027,10 +70027,68 @@ L 425.604375 167.192138
 </section>
 
 <section class="slide">
-  <div class="eyebrow">Resum</div>
-  <h2>Les sis idees que us heu d'endur</h2>
+  <div class="eyebrow">3 &middot; Per a què serveix</div>
+  <h2>Llavors, per a què serveix un MLP?</h2>
   <div class="body">
-  <ol class="keys" style="margin-top:-6px">
+  <p class="lead" style="max-width:11.4in">Sol i sobre píxels, avui gairebé ningú no el triaria. Però no ha desaparegut: <b>s'ha convertit en una peça</b>.</p>
+  <div class="cards" style="margin-top:20px">
+    <div class="card"><h3>Dins dels models grans</h3>
+      <div class="pipe" style="margin:10px 0 12px">
+        <div class="box" style="flex:1; font-size:14px; padding:9px 6px">Capes convolucionals</div>
+        <div class="arr">&rarr;</div>
+        <div class="box learn" style="flex:0 0 70px; font-size:14px; padding:9px 6px">MLP</div>
+        <div class="arr">&rarr;</div>
+        <div class="box" style="flex:0 0 64px; font-size:14px; padding:9px 6px">Dígit</div>
+      </div>
+      <p>Les CNN decideixen al final amb capes com aquestes, i cada bloc d'un <b>transformer</b> porta un MLP petit.</p>
+      <p class="muted">Softmax, loss, backpropagation i mini-batches hi funcionen igual.</p></div>
+    <div class="card"><h3>Sobre embeddings</h3>
+      <div class="pipe" style="margin:10px 0 12px">
+        <div class="box" style="flex:1; font-size:14px; padding:9px 6px">Model ja entrenat</div>
+        <div class="arr">&rarr;</div>
+        <div class="box" style="flex:0 0 70px; font-size:14px; padding:9px 4px">1.024 números</div>
+        <div class="arr">&rarr;</div>
+        <div class="box learn" style="flex:0 0 64px; font-size:14px; padding:9px 6px">MLP</div>
+      </div>
+      <p>Un altre model ja ha «mirat» el text o la foto. Un MLP petit només ha de decidir.</p>
+      <p class="muted">Exemple: classificar 2.000 correus etiquetats, en minuts i sense GPU.</p></div>
+    <div class="card warm"><h3>En producció</h3>
+      <table class="vals tight" style="width:100%; margin-top:8px; font-size:15px; white-space:nowrap">
+        <tr><th></th><th class="r">MLP</th><th class="r">Forest</th></tr>
+        <tr><td>Encert</td><td class="mono r">97,65%</td><td class="mono r">97,2%</td></tr>
+        <tr class="best"><td>Mida</td><td class="mono r">1,2 MB</td><td class="mono r">126 MB</td></tr>
+        <tr><td>Predir 10.000</td><td class="mono r">0,012 s</td><td class="mono r">0,042 s</td></tr>
+        <tr><td><span class="chip" style="font-size:13px; padding:1px 6px">partial_fit</span></td><td class="mono r">sí</td><td class="mono r">no</td></tr>
+      </table>
+      <p class="muted" style="margin-top:10px; font-size:15px">A canvi, el random forest s'entrena més de pressa. Temps segons la màquina.</p></div>
+  </div>
+  <div class="quote" style="margin-top:22px; font-size:22px">Com un motor: poca gent en compra un de solt, però gairebé tots els cotxes en porten.</div>
+  </div>
+  <div class="num">40</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">3 &middot; Triar amb criteri</div>
+  <h2>Què faig servir?</h2>
+  <div class="body">
+  <table class="cmp" style="font-size:19px">
+    <tr><th style="width:42%">Si tens...</th><th class="c1" style="width:26%">Comença per...</th><th>Per què</th></tr>
+    <tr><td style="width:42%">Una taula on cada columna vol dir alguna cosa</td><td style="width:26%">Random forest o gradient boosting</td><td>Demanen pocs ajustos i s'entrenen de pressa</td></tr>
+    <tr><td style="width:42%">Imatges</td><td style="width:26%">Una CNN (UT6)</td><td>Busca el mateix patró a tota la imatge</td></tr>
+    <tr><td style="width:42%">Text o so</td><td style="width:26%">Un model ja entrenat</td><td>Començar de zero demana massa dades</td></tr>
+    <tr><td style="width:42%">Embeddings que ha generat un altre model</td><td style="width:26%">Regressió logística o MLP petit</td><td>La feina difícil ja està feta</td></tr>
+    <tr><td style="width:42%">Moltes dades que arriben sense parar, o molt poc espai per al model</td><td style="width:26%"><b class="amber">MLP</b></td><td><span class="chip">partial_fit</span> i pocs megabytes</td></tr>
+  </table>
+  <p class="lead" style="margin-top:26px">És una guia per començar, no una llei. El mètode no canvia: <b>provar-ne uns quants i mesurar</b>.</p>
+  </div>
+  <div class="num">41</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Resum</div>
+  <h2>Les set idees que us heu d'endur</h2>
+  <div class="body">
+  <ol class="keys" style="margin-top:-8px">
     <li>Una <b>neurona</b> fa una suma ponderada, hi suma un biaix i aplica una activació. Separa l'espai amb una recta.</li>
     <li>El <b>perceptró</b> aprèn corregint els pesos quan s'equivoca, però només resol problemes <b>linealment separables</b>.</li>
     <li>Les <b>capes ocultes</b> transformen les dades en una representació on el problema sí que és separable.</li>
@@ -70038,9 +70096,10 @@ L 425.604375 167.192138
     <li>La <b>backpropagation</b> reparteix la culpa de l'error cap enrere per saber com moure cada pes.</li>
     <li>Amb dades reals calen <b>softmax</b>, <b>mini-batches</b> i <b>validació</b>. La capa oculta aprèn característiques, i
       <b>l'arquitectura decideix quines</b> pot aprendre.</li>
+    <li>Avui, un <b>MLP</b> és sobretot una <b>peça</b>: decideix al final de les CNN, viu dins dels transformers i treballa sobre embeddings.</li>
   </ol>
   </div>
-  <div class="num">40</div>
+  <div class="num">42</div>
 </section>
 
 <section class="slide dark">
@@ -70056,14 +70115,18 @@ L 425.604375 167.192138
     <li>A MNIST, un random forest gairebé iguala l'MLP. Per què, doncs, les xarxes <b>han guanyat en imatges</b>?</li>
   </ol>
   </div>
-  <div class="num">41</div>
+  <div class="num">43</div>
 </section>
 
 <!-- Glossari: inici -->
+
 <section class="slide">
-  <div class="eyebrow">Glossari &middot; 1 de 3</div>
+  <div class="eyebrow">Glossari &middot; 1 de 4</div>
   <h2>Conceptes que surten de passada</h2>
   <div class="gloss">
+    <div><div class="t">Aprenentatge incremental <span class="en"><span class="chip">partial_fit</span></span></div>
+      <p>Continuar entrenant un model amb dades noves sense començar de zero. Un MLP ho permet. Un random forest s'ha de tornar a entrenar sencer, i per això cal conservar totes les dades.</p>
+      <div class="on">Diap. 40 · NB 1.2 §4.1 i §11.3</div></div>
     <div><div class="t">Aturada anticipada <span class="en"><i>early stopping</i></span></div>
       <p>Reservar una part de l'entrenament com a validació i aturar quan l'encert de validació deixa de millorar. Evita entrenar epochs de més i caure en l'overfitting. A scikit-learn, <span class="chip">early_stopping=True</span>.</p>
       <div class="on">NB 1.1 ex. 6 · NB 1.2 ex. 5</div></div>
@@ -70076,12 +70139,27 @@ L 425.604375 167.192138
     <div><div class="t">Dades estructurades i no estructurades</div>
       <p>Estructurades: una taula on cada columna vol dir alguna cosa (la llargada de l'aleta). No estructurades: imatges, so o text, on una columna sola, un píxel, no diu res. És on destaquen les xarxes.</p>
       <div class="on">Diap. 4 · NB 1.1 §12</div></div>
+    <div><div class="t">Decision tree i random forest</div>
+      <p>Un decision tree és una cadena de preguntes de sí o no sobre les columnes. Un random forest n'entrena molts amb sorteigs diferents de les dades i els fa votar. Amb dades tabulars sovint és el primer que es prova.</p>
+      <div class="on">Diap. 39 i 41 · NB 1.2 §8 · 5134 UT5</div></div>
+    <div><div class="t">Embedding</div>
+      <p>Una llista de números, per exemple 1.024, que resumeix un text o una imatge. La genera un model ja entrenat, i amb ella n'hi ha prou amb un model petit i poques dades.</p>
+      <div class="on">Diap. 40 i 41 · NB 1.2 §11.2</div></div>
     <div><div class="t">Encert <span class="en"><i>accuracy</i></span></div>
       <p>La proporció de prediccions correctes. És el que retorna <span class="chip">score</span> d'un classificador. Enganya quan una classe és molt més freqüent que les altres.</p>
       <div class="on">Tota la unitat · NB 1.2 §2 · 5134 UT4</div></div>
     <div><div class="t">Error quadràtic mitjà <span class="en"><i>MSE</i></span></div>
       <p>La mitjana dels errors elevats al quadrat. És la loss habitual en regressió i castiga molt més un error gran que molts de petits. La seva arrel quadrada és el RMSE.</p>
       <div class="on">NB 1.1 §7 i §11.1 · 5134 UT2</div></div>
+  </div>
+  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
+  <div class="num">44</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Glossari &middot; 2 de 4</div>
+  <h2>Conceptes que surten de passada</h2>
+  <div class="gloss">
     <div><div class="t">Escalat <span class="en"><span class="chip">StandardScaler</span></span></div>
       <p>Restar la mitjana i dividir per la desviació típica de cada columna, perquè totes tinguin escales semblants. Sense escalar, la columna amb els números més grans domina l'entrenament.</p>
       <div class="on">Diap. 14 · NB 1.1 §3.2 · 5134 UT3</div></div>
@@ -70091,15 +70169,6 @@ L 425.604375 167.192138
     <div><div class="t">Gradient boosting</div>
       <p>Algorisme clàssic que encadena decision trees petits, cadascun corregint els errors dels anteriors. Amb dades tabulars sovint iguala o supera les xarxes.</p>
       <div class="on">Diap. 4 · NB 1.1 §12 · 5134 UT5</div></div>
-  </div>
-  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
-  <div class="num">42</div>
-</section>
-
-<section class="slide">
-  <div class="eyebrow">Glossari &middot; 2 de 3</div>
-  <h2>Conceptes que surten de passada</h2>
-  <div class="gloss">
     <div><div class="t">Llavor <span class="en"><span class="chip">random_state</span></span></div>
       <p>El número que fixa els sorteigs: pesos inicials, partició, ordre de les mostres. Amb la mateixa llavor surt sempre el mateix resultat; canviant-la, es veu quant depèn de l'atzar.</p>
       <div class="on">Diap. 30 i 31 · NB 1.1 §8.2 i §9</div></div>
@@ -70118,6 +70187,15 @@ L 425.604375 167.192138
     <div><div class="t">Optimitzador <span class="en"><span class="chip">solver</span></span></div>
       <p>El mètode que mou els pesos. <span class="chip">sgd</span> és el gradient descent de la unitat; <span class="chip">adam</span>, el de per defecte, ajusta la passa de cada pes; <span class="chip">lbfgs</span> va bé amb conjunts petits.</p>
       <div class="on">Diap. 31 · NB 1.1 §10 i §11</div></div>
+  </div>
+  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
+  <div class="num">45</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Glossari &middot; 3 de 4</div>
+  <h2>Conceptes que surten de passada</h2>
+  <div class="gloss">
     <div><div class="t">Overfitting</div>
       <p>El model memoritza les mostres d'entrenament, soroll inclòs, en lloc d'aprendre'n la forma general. L'encert d'entrenament puja i el de validació o test no l'acompanya.</p>
       <div class="on">Diap. 30 i 36 · NB 1.1 §10.1 · 5134 UT2</div></div>
@@ -70127,15 +70205,6 @@ L 425.604375 167.192138
     <div><div class="t">Partició estratificada <span class="en"><span class="chip">stratify=y</span></span></div>
       <p>Una partició que manté la proporció de cada classe a entrenament i a test. Amb els pingüins (45% Gentoo), el test té sempre 25 Gentoo de 55; a l'atzar, en pot tenir entre 14 i 36.</p>
       <div class="on">NB 1.1 §3.2 · 5134 UT7</div></div>
-  </div>
-  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
-  <div class="num">43</div>
-</section>
-
-<section class="slide">
-  <div class="eyebrow">Glossari &middot; 3 de 3</div>
-  <h2>Conceptes que surten de passada</h2>
-  <div class="gloss">
     <div><div class="t">Pipeline <span class="en"><span class="chip">make_pipeline</span></span></div>
       <p>Diversos passos encadenats que es fan servir com un sol model. L'escalador aprèn la mitjana i la desviació només amb l'entrenament i s'aplica sol a les dades noves.</p>
       <div class="on">Diap. 14 · NB 1.1 §3.2 · 5134 UT9</div></div>
@@ -70145,15 +70214,30 @@ L 425.604375 167.192138
     <div><div class="t">R2 <span class="en"><i>coeficient de determinació</i></span></div>
       <p>Mètrica de regressió: 1 vol dir perfecte, i 0, tan bo com predir sempre la mitjana. És el que retorna <span class="chip">score</span> d'un regressor.</p>
       <div class="on">NB 1.1 §11.1 · 5134 UT2</div></div>
+    <div><div class="t">Regressió logística <span class="en"><span class="chip">LogisticRegression</span></span></div>
+      <p>Algorisme clàssic que, malgrat el nom, classifica. Calcula una puntuació per classe directament a partir de les columnes, sense capa oculta, i per això només sap fer fronteres rectes.</p>
+      <div class="on">Diap. 23, 29 i 37 · NB 1.1 §11 · NB 1.2 §6.2 · 5134 UT4</div></div>
     <div><div class="t">Regularització <span class="en"><span class="chip">alpha</span> <span class="chip">C</span></span></div>
       <p>Castigar els pesos grans perquè el model faci servir patrons suaus i no memoritzi. A <span class="chip">MLPClassifier</span>, com més gran és <b>alpha</b>, més càstig; a <span class="chip">LogisticRegression</span>, com més petit és <b>C</b>.</p>
       <div class="on">NB 1.2 §6.2 · NB 1.1 ex. 7 · 5134 UT4</div></div>
     <div><div class="t">Saturació</div>
       <p>Una neurona amb sigmoide o tanh i una z molt gran o molt petita queda a la part plana de la corba: el pendent és gairebé zero i gairebé no aprèn.</p>
       <div class="on">Diap. 26 · NB 1.1 §6.2</div></div>
+  </div>
+  <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
+  <div class="num">46</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Glossari &middot; 4 de 4</div>
+  <h2>Conceptes que surten de passada</h2>
+  <div class="gloss">
     <div><div class="t">Soroll</div>
       <p>La part de les dades que és atzar i no segueix cap patró: errors de mesura, punts que cauen dins la classe contrària. Un bon model l'ignora; un que fa overfitting el memoritza.</p>
       <div class="on">Diap. 30 · NB 1.1 §10</div></div>
+    <div><div class="t">Transformer</div>
+      <p>La família de models de llenguatge com ChatGPT. Cada bloc té una part que relaciona les paraules entre si i un MLP petit. S'entrena amb les idees d'aquesta unitat: loss, backpropagation i mini-batches.</p>
+      <div class="on">Diap. 40 · NB 1.2 §11.1</div></div>
     <div><div class="t">Validació i test segellat</div>
       <p>La validació és una part de l'entrenament reservada per prendre decisions: neurones, epochs, model. El test no es mira fins al final, perquè la nota no surti massa optimista.</p>
       <div class="on">Diap. 33 i 36 · NB 1.2 §1.3 i §9 · 5134 UT2 i UT7</div></div>
@@ -70162,7 +70246,7 @@ L 425.604375 167.192138
       <div class="on">NB 1.1 §3.2 · 5134 UT2</div></div>
   </div>
   <div class="src"><b>On surt</b>: diapositiva (Diap. 14), notebook i secció (NB 1.1 §3.2) o exercici (ex. 6). <b>5134 UT7</b>: on el treballareu a fons al mòdul germà.</div>
-  <div class="num">44</div>
+  <div class="num">47</div>
 </section>
 
 <!-- Glossari: final -->
