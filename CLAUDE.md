@@ -117,7 +117,9 @@ Tres excepcions a les convencions, només per a aquesta unitat:
   del repositori privat.
 - **Fotos:** només objectes. Sense cares, persones, matrícules ni dades privades, tret
   de les fotos que ja es donen. Les dades del projecte no es pugen a cap repositori.
-- **GPU.** El fine-tuning és la missió 6 del NB 6.4 (sense GPU, imatges de 112 píxels i 3 epochs) i un pas
+- **GPU.** La GPU s'explica al NB 6.1 §2 amb «La cursa» (`race`, codi donat, no és cap missió): 1 epoch de
+  l'MLP del NB 1.2 amb scikit-learn i amb PyTorch i de la CNN, a la CPU i a la GPU si n'hi ha. El missatge: la GPU
+  surt a compte amb xarxes que fan molts càlculs; amb un MLP petit, scikit-learn guanya o empata. El fine-tuning és la missió 6 del NB 6.4 (sense GPU, imatges de 112 píxels i 3 epochs) i un pas
   opcional del projecte (NB 6.6, pas 4 bis). La competició del NB 6.2 té una lliga CPU (10.000 imatges,
   150.000 pesos, 5 epochs) i una lliga GPU (40.000 imatges, 1.000.000 de pesos, 10 epochs).
 - **Temps:** cap entrenament de més de 2 minuts a la CPU de Colab; els notebooks avisen
