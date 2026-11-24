@@ -120,9 +120,12 @@ Tres excepcions a les convencions, només per a aquesta unitat:
   de les fotos que ja es donen. Les dades del projecte no es pugen a cap repositori.
 - **GPU.** La GPU s'explica al NB 6.1 §2 amb «La cursa» (`race`, codi donat, no és cap missió): 1 epoch de
   l'MLP del NB 1.2 amb scikit-learn i amb PyTorch i de la CNN, a la CPU i a la GPU si n'hi ha. El missatge: la GPU
-  surt a compte amb xarxes que fan molts càlculs; amb un MLP petit, scikit-learn guanya o empata. El fine-tuning és la missió 6 del NB 6.4 (sense GPU, imatges de 112 píxels i 3 epochs) i un pas
+  surt a compte amb xarxes que fan molts càlculs; amb un MLP petit, les dues biblioteques empaten. El fine-tuning és la missió 6 del NB 6.4 (sense GPU, imatges de 112 píxels i 3 epochs) i un pas
   opcional del projecte (NB 6.6, pas 4 bis). La competició del NB 6.2 té una lliga CPU (10.000 imatges,
   150.000 pesos, 5 epochs) i una lliga GPU (40.000 imatges, 1.000.000 de pesos, 10 epochs).
+- **GPU d'un Mac (MPS).** `DEVICE` tria CUDA, després MPS (Mac amb xip M1 o posterior) i, si no, CPU; les
+  comprovacions fan servir `DEVICE != "cpu"`, mai `== "cuda"`. YOLO només s'entrena amb CUDA: al Mac es carrega
+  `fauna_yolo11n.pt`. `tools/run_nb.py` amaga MPS per comprovar el camí de la CPU; amb `--gpu`, el deixa fer servir.
 - **Temps:** cap entrenament de més de 2 minuts a la CPU de Colab; els notebooks avisen
   de la durada amb `⏱`. Els temps se suposen 3 vegades els d'un M1 fins que es faci la prova.
   Amb GPU s'admeten uns minuts (YOLO, lliga GPU). Els temps de GPU s'han mesurat a la GPU d'un M1, no a la T4.
