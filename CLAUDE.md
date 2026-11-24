@@ -104,7 +104,8 @@ Tres excepcions a les convencions, només per a aquesta unitat:
   carpeta porta `ATRIBUCIO.md`. CIFAR-10 es baixa de Hugging Face i MNIST és el de la UT5.
 - **Models.** `train_models.py` entrena `models/cifar_cnn.pt` i `models/cifar_cnn_aug.pt`,
   que el NB 6.3 carrega amb `weights_only=True`. `--export-json` exporta els pesos de la CNN
-  de l'animació, que porta els pesos incrustats i no s'hi entrena res, a diferència de les
+  de l'animació (amb `--moved`, la mateixa entrenada 5 epochs amb dígits desplaçats fins a 4 píxels: l'animació
+  porta les dues, per comparar-les quan es mou el dibuix), que porta els pesos incrustats i no s'hi entrena res, a diferència de les
   altres `animacio_*`. És l'únic lloc de la unitat, amb les diapositives, amb filtres triats a mà.
 - **YOLO11n** (Ultralytics, AGPL-3.0) al NB 6.5: ja entrenat a les missions 1–3, i reentrenat amb *African
   Wildlife* (d'Ultralytics) a la missió 4 si hi ha GPU. Sense GPU es carrega `models/fauna_yolo11n.pt`,
