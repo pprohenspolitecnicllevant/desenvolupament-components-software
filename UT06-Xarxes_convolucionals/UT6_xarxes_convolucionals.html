@@ -168,7 +168,7 @@
 </table></div>
 <div class="card hi"><h3>Com treballarem</h3>
 <p>Poca explicació i moltes missions: primer <b>aposta</b>, després <b>experimenta</b> i al final <b>explica</b>.</p>
-<p>Les xarxes no les programem: les <b>entenem, les fem servir i les mesurem</b>, com a la UT5. El bucle d'entrenament ve donat.</p>
+<p>Les xarxes no les programem: les <b>entenem, les fem servir i les mesurem</b>, com a la UT5. El bucle d'entrenament ve donat, però en coneixerem les peces de PyTorch.</p>
 <p><b>Amb GPU</b> (Colab T4, la gràfica de l'aula o un Mac amb xip M1 o posterior) les missions van més lluny. Sense GPU, totes funcionen amb una versió més petita.</p></div>
 </div></div>
   <div class="num">2</div>
@@ -243,13 +243,70 @@ model = <span class="k">make_cnn</span>(1, 10)   <span class="c"># 1 canal, 10 c
 history = <span class="k">train_model</span>(model, train_loader, val_loader,
                       epochs=3, lr=0.001)
 <span class="k">plot_history</span>(history)</div>
-<p class="caption">Tu en canvies l'arquitectura, els hiperparàmetres i les dades. El bucle queda comentat a la plantilla, per si el vols llegir.</p></div>
+<p class="caption">Tu en canvies l'arquitectura, els hiperparàmetres i les dades. Abans de mirar dins de la xarxa, obrirem la plantilla: són cinc peces de PyTorch.</p></div>
 <div><table class="vals" style="width:100%"><tr><th></th><th class="r">MLP (NB 1.2)</th><th class="r">CNN</th></tr>
 <tr><td>Pesos</td><td class="r">101.770</td><td class="r">105.866</td></tr>
 <tr><td>Epochs</td><td class="r">10</td><td class="r">3</td></tr>
 <tr class="best"><td>Encert de validació</td><td class="r">97,6%</td><td class="r">98,5%</td></tr></table>
-<p style="margin-top:14px">Gairebé els mateixos pesos, un encert més alt i molt menys entrenament.</p></div></div></div><div class="ara"><b>Ara tu · Missions 1 i 2.</b> Aposta quin learning rate guanya abans de provar-los. Després, obre la xarxa i mira què hi ha a cada capa.</div>
+<p style="margin-top:14px">Gairebé els mateixos pesos, un encert més alt i molt menys entrenament.</p></div></div></div><div class="ara"><b>Ara tu · Missió 1.</b> Aposta quin learning rate guanya abans de provar-los.</div>
   <div class="num">7</div>
+</section>
+<section class="slide">
+  <div class="task reg">Sessió 1</div><div class="eyebrow">Sessió 1 · NB 6.1</div>
+  <h2>Obrim la plantilla: cinc peces de PyTorch</h2>
+  <div class="body">
+<div class="two" style="align-items:flex-start"><div style="flex:1">
+<table class="vals tight" style="width:100%;font-size:16.5px"><tr><th>Peça</th><th>Què fa</th></tr>
+<tr><td style="width:44%"><b>Tensor</b><br><span class="chip">torch.tensor</span></td><td>Guarda els números: imatges, etiquetes i pesos</td></tr>
+<tr><td style="width:44%"><b>Capes</b><br><span class="chip">torch.nn</span></td><td>Conv2d, MaxPool2d, ReLU, Flatten, Linear; nn.Sequential les encadena</td></tr>
+<tr><td style="width:44%"><b>Loss</b><br><span class="chip">nn.CrossEntropyLoss</span></td><td>Mesura la distància a l'encert</td></tr>
+<tr><td style="width:44%"><b>Optimitzador</b><br><span class="chip">torch.optim.Adam</span></td><td>Fa la passa de gradient descent</td></tr>
+<tr><td style="width:44%"><b>Dades</b><br><span class="chip">DataLoader</span></td><td>Reparteix les imatges en mini-batches</td></tr></table></div>
+<div style="flex:1.25"><div class="code" style="font-size:14px"><span class="k">for</span> images, labels <span class="k">in</span> train_loader:
+    step_maker.zero_grad()                <span class="c"># esborra els pendents</span>
+    scores = model(images)                <span class="c"># 1. la xarxa prediu</span>
+    loss = loss_function(scores, labels)  <span class="c"># 2. mesura l'error</span>
+    loss.backward()                       <span class="c"># 3. backpropagation</span>
+    step_maker.step()                     <span class="c"># 4. una passa avall</span></div>
+<p class="caption">El cor de <span class="chip">train_model</span>: les quatre passes de la UT5, una vegada per mini-batch. <span class="chip">loss.backward()</span> calcula el pendent de cada pes i <span class="chip">step()</span> el fa baixar.</p></div></div></div>
+  <div class="num">8</div>
+</section>
+<section class="slide">
+  <div class="task reg">Sessió 1</div><div class="eyebrow">Sessió 1 · NB 6.1</div>
+  <h2>Un tensor és una graella de números amb una forma</h2>
+  <div class="body">
+<div class="two" style="align-items:flex-start"><div style="flex:1.05">
+<p class="small muted" style="margin-bottom:10px">Un mini-batch de MNIST, tal com entra a la xarxa:</p>
+<div style="display:flex;gap:8px"><div style="flex:1;background:#D8EBF3;border-radius:12px;padding:16px 6px;text-align:center"><div style="font-family:Georgia,serif;font-size:44px;line-height:1">64</div><div style="font-family:'Courier New',monospace;font-size:17px;font-weight:700;color:#1C7293;margin-top:8px">N</div><div style="font-size:14px;color:#5C6B85;margin-top:2px">imatges del lot</div></div><span style="align-self:center;color:#9AA8BC;font-size:30px">×</span><div style="flex:1;background:#F4F7FB;border-radius:12px;padding:16px 6px;text-align:center"><div style="font-family:Georgia,serif;font-size:44px;line-height:1">1</div><div style="font-family:'Courier New',monospace;font-size:17px;font-weight:700;color:#1C7293;margin-top:8px">C</div><div style="font-size:14px;color:#5C6B85;margin-top:2px">canals</div></div><span style="align-self:center;color:#9AA8BC;font-size:30px">×</span><div style="flex:1;background:#F4F7FB;border-radius:12px;padding:16px 6px;text-align:center"><div style="font-family:Georgia,serif;font-size:44px;line-height:1">28</div><div style="font-family:'Courier New',monospace;font-size:17px;font-weight:700;color:#1C7293;margin-top:8px">H</div><div style="font-size:14px;color:#5C6B85;margin-top:2px">píxels d'alt</div></div><span style="align-self:center;color:#9AA8BC;font-size:30px">×</span><div style="flex:1;background:#F4F7FB;border-radius:12px;padding:16px 6px;text-align:center"><div style="font-family:Georgia,serif;font-size:44px;line-height:1">28</div><div style="font-family:'Courier New',monospace;font-size:17px;font-weight:700;color:#1C7293;margin-top:8px">W</div><div style="font-size:14px;color:#5C6B85;margin-top:2px">píxels d'ample</div></div></div>
+<ul class="plain" style="margin-top:22px"><li>Les capes sempre reben <b>lots</b> amb forma <span class="chip">(N, C, H, W)</span>.</li>
+<li>Una imatge sola és <span class="chip">1 × 28 × 28</span>: abans de passar-la per la xarxa, <span class="chip">unsqueeze(0)</span> la posa dins d'un lot d'una.</li>
+<li>Les imatges són <span class="chip">float32</span>, de 0 a 1. Les etiquetes, <span class="chip">int64</span>.</li></ul></div>
+<div><table class="vals tight" style="width:100%;font-size:16.5px"><tr><th>Què vols fer</th><th>Com</th></tr>
+<tr><td>Saber-ne la forma</td><td class="mono">x.shape</td></tr>
+<tr><td>Saber-ne el tipus</td><td class="mono">x.dtype</td></tr>
+<tr><td>Tallar-lo, com a NumPy</td><td class="mono">X_full[:50_000]</td></tr>
+<tr><td>Canviar-ne la forma</td><td class="mono">x.reshape(-1, 1, 28, 28)</td></tr>
+<tr><td>Fer-ne un lot d'una imatge</td><td class="mono">image.unsqueeze(0)</td></tr>
+<tr><td>Treure'n un número</td><td class="mono">y[0].item()</td></tr>
+<tr><td>Portar-lo a la GPU</td><td class="mono">x.to(DEVICE)</td></tr></table></div></div></div>
+  <div class="num">9</div>
+</section>
+<section class="slide">
+  <div class="task reg">Sessió 1</div><div class="eyebrow">Sessió 1 · NB 6.1</div>
+  <h2>Cada capa es crea amb els seus paràmetres i es crida com una funció</h2>
+  <div class="body">
+<table class="vals tight" style="width:100%;font-size:16.5px"><tr><th>Capa de <span style="text-transform:none">make_cnn(1, 10)</span></th><th class="r">Entra</th><th class="r">Surt</th><th class="r">Pesos</th></tr>
+<tr><td class="mono">nn.Conv2d(1, 16, kernel_size=3, padding=1)</td><td class="r mono">1 × 28 × 28</td><td class="r mono">16 × 28 × 28</td><td class="r">160</td></tr>
+<tr><td class="mono">nn.MaxPool2d(2)</td><td class="r mono">16 × 28 × 28</td><td class="r mono">16 × 14 × 14</td><td class="r">0</td></tr>
+<tr><td class="mono">nn.Conv2d(16, 32, kernel_size=3, padding=1)</td><td class="r mono">16 × 14 × 14</td><td class="r mono">32 × 14 × 14</td><td class="r">4.640</td></tr>
+<tr><td class="mono">nn.Flatten()</td><td class="r mono">32 × 7 × 7</td><td class="r mono">1.568</td><td class="r">0</td></tr>
+<tr><td class="mono">nn.Linear(1568, 64)</td><td class="r mono">1.568</td><td class="r mono">64</td><td class="r">100.416</td></tr>
+<tr><td class="mono">nn.Linear(64, 10)</td><td class="r mono">64</td><td class="r mono">10</td><td class="r">650</td></tr></table>
+<p class="caption">Les <span class="chip">nn.ReLU()</span> no hi surten: no tenen pesos ni canvien la forma.</p>
+<div class="cards" style="margin-top:18px;gap:20px"><div class="card" style="padding:16px 20px"><p class="small"><b>Una <span class="chip">Conv2d</span></b> treu tants canals com filtres.<br>Costat que en surt: costat + 2 × padding − kernel_size + 1.<br>Pesos: filtres × (canals × kernel_size × kernel_size + 1).</p></div>
+<div class="card" style="padding:16px 20px"><p class="small"><span class="chip">nn.Sequential</span> les encadena: la sortida de cada capa és l'entrada de la següent. És el que retorna <span class="chip">make_cnn</span>, i <span class="chip">model[0]</span> n'és la primera capa.</p></div></div>
+</div><div class="ara"><b>Ara tu · Missió 2.</b> Munta la CNN a mà amb <span class="chip">nn.Sequential</span>, comprova que té 105.866 pesos i trenca-la canviant el <span class="chip">padding</span>.</div>
+  <div class="num">10</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 2</div><div class="eyebrow">Sessió 2 · NB 6.1</div>
@@ -258,8 +315,8 @@ history = <span class="k">train_model</span>(model, train_loader, val_loader,
 <div style="display:flex;gap:6px;align-items:stretch"><div style="flex:1;background:#F4F7FB;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Imatge</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">1 × 28 × 28</div></div><span style="align-self:center;color:#9AA8BC;font-size:20px">→</span><div style="flex:1;background:#D8EBF3;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Conv + ReLU</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">16 × 28 × 28</div></div><span style="align-self:center;color:#9AA8BC;font-size:20px">→</span><div style="flex:1;background:#EAF2F8;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Pooling</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">16 × 14 × 14</div></div><span style="align-self:center;color:#9AA8BC;font-size:20px">→</span><div style="flex:1;background:#D8EBF3;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Conv + ReLU</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">32 × 14 × 14</div></div><span style="align-self:center;color:#9AA8BC;font-size:20px">→</span><div style="flex:1;background:#EAF2F8;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Pooling</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">32 × 7 × 7</div></div><span style="align-self:center;color:#9AA8BC;font-size:20px">→</span><div style="flex:1;background:#FBE3C8;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Flatten</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">1.568</div></div><span style="align-self:center;color:#9AA8BC;font-size:20px">→</span><div style="flex:1;background:#FBE3C8;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Densa + ReLU</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">64</div></div><span style="align-self:center;color:#9AA8BC;font-size:20px">→</span><div style="flex:1;background:#FBE3C8;border-radius:10px;padding:14px 4px;text-align:center"><div style="font-size:15.5px;font-weight:700;line-height:1.25">Sortida</div><div style="font-family:'Courier New',monospace;font-size:14px;margin-top:6px">10 classes</div></div></div>
 <div style="display:flex;margin:12px 0 22px;gap:14px"><div style="flex:5;border-top:3px solid #1C7293;padding-top:6px;font-size:17px"><b class="teal">Miren:</b> de traços a parts, cada capa més lluny</div><div style="flex:3;border-top:3px solid #E8871E;padding-top:6px;font-size:17px"><b class="amber">Decideixen:</b> un MLP com el de la UT5</div></div>
 <ul class="plain"><li>La primera capa veu <b>traços</b>. La segona combina traços i veu <b>parts</b>. És el fil de la UT5: les capes ocultes aprenen les característiques.</li>
-<li>Cada número de sota és una mida: <b>quants mapes</b> × alt × ample.</li></ul></div>
-  <div class="num">8</div>
+<li>Cada número de sota és una mida: <b>quants mapes</b> × alt × ample.</li></ul></div><div class="ara"><b>Ara tu · Missió 3.</b> Obre la xarxa: mira els mapes de cada capa amb un 1 i amb un 8.</div>
+  <div class="num">11</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 2</div><div class="eyebrow">Sessió 2 · NB 6.1</div>
@@ -269,8 +326,8 @@ history = <span class="k">train_model</span>(model, train_loader, val_loader,
 <p class="big" style="margin:10px 0">12.560 <span style="font-size:20px">pesos</span></p><p class="small">784 × 16 + 16 de biaix. Un pes per a cada píxel i neurona: el que aprèn en un racó no serveix per a un altre.</p></div>
 <div class="card hi"><div class="tag t">Capa convolucional</div><h3>16 filtres de 3 × 3</h3>
 <p class="big" style="margin:10px 0">160 <span style="font-size:20px">pesos</span></p><p class="small">16 × (3 × 3 + 1 de biaix). La mateixa lupa funciona a tot arreu: si troba una vora a dalt, també la troba a baix.</p></div></div>
-<p style="margin-top:18px">A la nostra CNN, les dues capes convolucionals gasten <b>4.800 pesos</b> dels 105.866. La resta són les capes denses del final.</p></div><div class="ara"><b>Ara tu · Missió 3.</b> Fes créixer la xarxa amb <span class="chip">filters</span> i mira què guanyes, i què et costa.</div>
-  <div class="num">9</div>
+<p style="margin-top:18px">A la nostra CNN, les dues capes convolucionals gasten <b>4.800 pesos</b> dels 105.866. La resta són les capes denses del final.</p></div><div class="ara"><b>Ara tu · Missió 4.</b> Fes créixer la xarxa amb <span class="chip">filters</span> i mira què guanyes, i què et costa.</div>
+  <div class="num">12</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 2</div><div class="eyebrow">Sessió 2 · NB 6.1</div>
@@ -279,8 +336,8 @@ history = <span class="k">train_model</span>(model, train_loader, val_loader,
 <div class="two"><div style="display:flex;justify-content:center;gap:26px;align-items:center"><table class="grid"><tr><td class="a">1</td><td class="a">3</td><td class="b">0</td><td class="b m">2</td></tr><tr><td class="a">2</td><td class="a m">8</td><td class="b">1</td><td class="b">0</td></tr><tr><td class="c">0</td><td class="c">1</td><td class="d">5</td><td class="d">6</td></tr><tr><td class="c m">2</td><td class="c">0</td><td class="d m">7</td><td class="d">1</td></tr></table><span style="font-size:30px;color:#9AA8BC">→</span><table class="grid"><tr><td class="a m">8</td><td class="b m">2</td></tr><tr><td class="c m">2</td><td class="d m">7</td></tr></table></div>
 <div><ul class="plain"><li>De cada quadrat de 2 × 2 es queda el <b>valor més alt</b>: «aquí hi havia això», sense dir on exactament.</li>
 <li>Cada pooling <b>parteix la mida per la meitat</b>: de 28 a 14 i de 14 a 7.</li>
-<li>No té pesos: no ha d'aprendre res. I les lupes de la capa següent veuen <b>més tros d'imatge</b>.</li></ul></div></div></div><div class="ara"><b>Ara tu · Missió 4.</b> Treu el pooling amb <span class="chip">pooling=False</span>. Quants pesos hi ha ara, i quant tarda?</div>
-  <div class="num">10</div>
+<li>No té pesos: no ha d'aprendre res. I les lupes de la capa següent veuen <b>més tros d'imatge</b>.</li></ul></div></div></div><div class="ara"><b>Ara tu · Missió 5.</b> Treu el pooling amb <span class="chip">pooling=False</span>. Quants pesos hi ha ara, i quant tarda?</div>
+  <div class="num">13</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 2</div><div class="eyebrow">Sessió 2 · NB 6.1</div>
@@ -289,8 +346,8 @@ history = <span class="k">train_model</span>(model, train_loader, val_loader,
 <div class="two"><div class="fig" style="flex:1.2"><svg viewBox="0 0 640 370" width="640" height="370" role="img" aria-label="Encert segons el desplaçament"><line x1="58" x2="612" y1="312.0" y2="312.0" stroke="#E4EAF2"/><text x="48" y="317.0" font-size="14" fill="#5C6B85" text-anchor="end">0%</text><line x1="58" x2="612" y1="243.0" y2="243.0" stroke="#E4EAF2"/><text x="48" y="248.0" font-size="14" fill="#5C6B85" text-anchor="end">25%</text><line x1="58" x2="612" y1="174.0" y2="174.0" stroke="#E4EAF2"/><text x="48" y="179.0" font-size="14" fill="#5C6B85" text-anchor="end">50%</text><line x1="58" x2="612" y1="105.0" y2="105.0" stroke="#E4EAF2"/><text x="48" y="110.0" font-size="14" fill="#5C6B85" text-anchor="end">75%</text><line x1="58" x2="612" y1="36.0" y2="36.0" stroke="#E4EAF2"/><text x="48" y="41.0" font-size="14" fill="#5C6B85" text-anchor="end">100%</text><text x="58.0" y="334" font-size="14" fill="#5C6B85" text-anchor="middle">0</text><text x="196.5" y="334" font-size="14" fill="#5C6B85" text-anchor="middle">1</text><text x="335.0" y="334" font-size="14" fill="#5C6B85" text-anchor="middle">2</text><text x="473.5" y="334" font-size="14" fill="#5C6B85" text-anchor="middle">3</text><text x="612.0" y="334" font-size="14" fill="#5C6B85" text-anchor="middle">4</text><text x="335.0" y="360" font-size="15" fill="#5C6B85" text-anchor="middle">píxels de desplaçament</text><line x1="58" y1="13" x2="84" y2="13" stroke="#1C7293" stroke-width="3"/><text x="90" y="18" font-size="15" fill="#17233D">CNN (16, 32)</text><polyline points="58.0,40.1 196.5,41.2 335.0,46.5 473.5,64.7 612.0,117.7" fill="none" stroke="#1C7293" stroke-width="3" stroke-linejoin="round"/><circle cx="58.0" cy="40.1" r="5" fill="#1C7293" stroke="#fff" stroke-width="2"/><circle cx="196.5" cy="41.2" r="5" fill="#1C7293" stroke="#fff" stroke-width="2"/><circle cx="335.0" cy="46.5" r="5" fill="#1C7293" stroke="#fff" stroke-width="2"/><circle cx="473.5" cy="64.7" r="5" fill="#1C7293" stroke="#fff" stroke-width="2"/><circle cx="612.0" cy="117.7" r="5" fill="#1C7293" stroke="#fff" stroke-width="2"/><text x="72.0" y="66.1" font-size="16" font-weight="700" fill="#17233D" text-anchor="middle">98,5%</text><text x="481.5" y="50.7" font-size="16" font-weight="700" fill="#17233D" text-anchor="middle">89,6%</text><text x="606.0" y="137.7" font-size="16" font-weight="700" fill="#17233D" text-anchor="middle">70,4%</text><line x1="612.0" x2="612.0" y1="212.64000000000001" y2="245.76" stroke="#E8871E" stroke-width="8" stroke-linecap="round"/><text x="596.0" y="234.2" font-size="16" font-weight="700" fill="#17233D" text-anchor="end">MLP: 24–36%</text><path d="M467.5 155.2 h12 l-6 9 Z" fill="#E8871E"/><text x="459.5" y="165.2" font-size="16" font-weight="700" fill="#17233D" text-anchor="end">MLP: per sota del 55%</text></svg></div>
 <div><ul class="plain"><li>Aguanta molt millor que l'MLP, però <b>també acaba caient</b>.</li>
 <li>Les lupes segueixen el dibuix. El problema és al final: el <b>Flatten</b> posa cada mapa en fila i les capes denses tornen a mirar posicions fixes.</li>
-<li>Es pot arreglar? I què passaria si barregéssim els píxels?</li></ul></div></div></div><div class="ara"><b>Ara tu · Missions 5 i 6.</b> Aposta i prova: una CNN amb <span class="chip">global_pool=True</span>, i una CNN amb tots els píxels barrejats.</div>
-  <div class="num">11</div>
+<li>Es pot arreglar? I què passaria si barregéssim els píxels?</li></ul></div></div></div><div class="ara"><b>Ara tu · Missions 6 i 7.</b> Aposta i prova: una CNN amb <span class="chip">global_pool=True</span>, i una CNN amb tots els píxels barrejats.</div>
+  <div class="num">14</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 3</div><div class="eyebrow">Sessió 3 · NB 6.2</div>
@@ -304,7 +361,7 @@ history = <span class="k">train_model</span>(model, train_loader, val_loader,
 <div class="code" style="margin-top:18px;font-size:15px">train_set, val_set, test_set, names = <span class="k">load_dataset</span>(<span class="s">"fashion"</span>)
 model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<span class="k">True</span>)</div></div>
 <div class="card"><h3>El llistó</h3><p>Abans de cap CNN, un MLP amb Fashion-MNIST:</p><p class="big amber" style="margin:8px 0">86,7%</p><p>d'encert en un parell de segons. <b>Una CNN ha de guanyar a això.</b> Sempre comencem per un model senzill.</p></div></div></div><div class="ara"><b>Ara tu · Missions 1 i 2.</b> Quina arquitectura traurà més encert? I si canvies Adam per SGD amb el mateix learning rate? Aposta primer.</div>
-  <div class="num">12</div>
+  <div class="num">15</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 3</div><div class="eyebrow">Sessió 3 · NB 6.2</div>
@@ -314,7 +371,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <p>La mateixa xarxa que feia el 98% amb MNIST es queda en un <b>49,2%</b> amb CIFAR-10. L'atzar seria un 10%.</p></div>
 <div class="card hi"><h3>Batch norm</h3><div class="sub"><span class="chip">batch_norm=True</span></div><p>Reescala cada lot de valors perquè la capa següent els rebi sempre amb la mateixa escala.</p>
 <table class="vals" style="margin-top:8px"><tr><th>Valors</th><th>Mitjana</th><th>Després</th></tr><tr><td>10, 50, 90</td><td>50</td><td>−1,2, 0, 1,2</td></tr><tr><td>0,1, 0,2, 0,3</td><td>0,2</td><td>−1,2, 0, 1,2</td></tr></table></div></div></div>
-  <div class="num">13</div>
+  <div class="num">16</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 3</div><div class="eyebrow">Sessió 3 · NB 6.2</div>
@@ -326,7 +383,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <tr><td>Què pots tocar</td><td colspan="2"><span class="chip">filters</span> <span class="chip">pooling</span> <span class="chip">global_pool</span> <span class="chip">batch_norm</span> <span class="chip">dropout</span> <span class="chip">lr</span> <span class="chip">batch_size</span></td></tr></table></div>
 <div><div class="card warm"><h3>Canvia una sola cosa cada vegada</h3><p>Si en canvies tres i millora, no sabràs quina ha ajudat. Apunta cada intent en una taula. Tria la lliga segons si tens GPU, i compara't només amb la teva.</p></div>
 <div class="card" style="margin-top:16px"><h3>I després: tu contra la xarxa</h3><p>Vint imatges de CIFAR-10. Qui n'encerta més, tu o la CNN? Per què us equivoqueu en imatges diferents?</p></div></div></div></div><div class="ara"><b>Ara tu · Missions 3 i 4.</b> La competició i el concurs. Apunta l'aposta abans de començar.</div>
-  <div class="num">14</div>
+  <div class="num">17</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 4</div><div class="eyebrow">Sessió 4 · NB 6.2</div>
@@ -336,7 +393,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <div><p style="margin-bottom:10px">A l'última epoch, 2.000 imatges de CIFAR-10:</p>
 <div style="display:flex;gap:24px;margin-bottom:14px"><div><div class="big">80,8%</div><div class="small muted">a entrenament</div></div><div><div class="big">48,4%</div><div class="small muted">a validació</div></div></div>
 <p>La loss d'entrenament no para de baixar. La de validació <b>s'atura i torna a pujar</b>: la xarxa és cada vegada millor amb les imatges que ja coneix, però no amb les noves.</p></div></div></div>
-  <div class="num">15</div>
+  <div class="num">18</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 4</div><div class="eyebrow">Sessió 4 · NB 6.2</div>
@@ -347,7 +404,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <div class="card hi"><div class="tag a">Mirall + desplaçament</div><h3>Data augmentation</h3><p>Cada epoch, cada imatge arriba una mica diferent. Amb 2.000 imatges i 40 epochs, la xarxa en veu 80.000, totes distintes.</p>
 <div class="code" style="font-size:14px;padding:12px 14px;margin-top:10px">v2.Compose([v2.RandomHorizontalFlip(),
             v2.RandomCrop(32, padding=4)])</div></div></div></div><div class="ara"><b>Ara tu · Missió 5.</b> Cura-la: entrena cada tractament 40 epochs i compara la distància entre entrenament i validació. Què cura millor? Què hi perds?</div>
-  <div class="num">16</div>
+  <div class="num">19</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 4</div><div class="eyebrow">Sessió 4 · NB 6.2</div>
@@ -357,7 +414,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <li>Entrena una CNN amb aquestes classes.</li><li><b>Dibuixa</b> al llenç del notebook i mira què hi veu.</li></ol></div>
 <div class="card warm"><h3>Què diu la xarxa?</h3><p>La <b>softmax</b> converteix les sortides en probabilitats que sumen 100%, i <span class="chip">predict_top3</span> en mostra les tres més altes.</p>
 <p><b>Un 90% no vol dir que tingui raó</b>: si dibuixes una cosa que no coneix, l'ha de ficar igualment en alguna classe.</p></div></div></div><div class="ara"><b>Ara tu · Missió 6.</b> Juga amb la classe. Quin dibuix l'enganya més? Pots fer un dibuix dolent que encerti, i un de bo que falli?</div>
-  <div class="num">17</div>
+  <div class="num">20</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 5</div><div class="eyebrow">Sessió 5 · NB 6.3</div>
@@ -367,7 +424,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <div><table class="vals" style="width:100%"><tr><th>Mateixa xarxa</th><th class="r">Validació</th></tr><tr><td>Sense augmentation</td><td class="r">69,8%</td></tr><tr class="best"><td>Amb augmentation</td><td class="r">78,4%</td></tr></table>
 <p class="small muted" style="margin:8px 0 12px">90.058 pesos, 40.000 imatges i 25 epochs, ja entrenats.</p>
 <p>Un soroll de 0,05, que a tu no et costa gens de veure a través, ja li fa perdre 14 punts. <b>Soroll, difuminat, gir, brillantor, un tros tapat:</b> cada prova és una paret diferent.</p></div></div></div><div class="ara"><b>Ara tu · Missions 1 i 2.</b> Abans de xocar: quin dels dos models aguantarà més, i a quina paret? La resposta potser no és la que esperes.</div>
-  <div class="num">18</div>
+  <div class="num">21</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 5</div><div class="eyebrow">Sessió 5 · NB 6.3</div>
@@ -377,7 +434,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <tr><td>Res</td><td class="r">80%</td><td class="r"></td></tr><tr class="best"><td>Una orella</td><td class="r">30%</td><td class="r">50 punts: mirava aquí</td></tr><tr class="dim"><td>Un tros del fons</td><td class="r">78%</td><td class="r">2 punts: no li importa</td></tr></table>
 <p style="margin-top:16px">Si fem això a totes les posicions, tenim un <b>mapa d'oclusió</b>: la imatge pintada segons on la xarxa hi mirava.</p></div>
 <div><div class="card warm"><h3>Encertar per un mal motiu</h3><p>Una xarxa pot dir «vaixell» perquè hi ha aigua, no pas perquè hi vegi un vaixell. L'encert no t'ho dirà: <b>has de mirar on mira</b>.</p></div></div></div></div><div class="ara"><b>Ara tu · Missió 3.</b> Fes de detectiu: busca un encert i un error, i descobreix on mirava en cada cas.</div>
-  <div class="num">19</div>
+  <div class="num">22</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 5</div><div class="eyebrow">Sessió 5 · NB 6.3</div>
@@ -387,7 +444,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <p style="margin-top:16px">Cada píxel ha canviat <b>poc més d'1 punt sobre 255</b>. Tu hi veuries la mateixa imatge.</p></div>
 <div><table class="vals" style="width:100%"><tr><th>Força de l'atac</th><th class="r">Punts per píxel (de 255)</th></tr><tr><td>0,005</td><td class="r">Poc més d'1</td></tr><tr><td>0,01</td><td class="r">Uns 2,5</td></tr><tr><td>0,05</td><td class="r">Uns 13</td></tr></table>
 <p style="margin-top:14px">L'atac empeny cada píxel just cap on la xarxa s'equivoca més. <span class="chip">attack(model, image, force)</span> ja ve feta: el que ens importa és <b>mesurar-ne l'efecte</b>.</p></div></div></div><div class="ara"><b>Ara tu · Missions 4 i 5.</b> Quanta força cal per fer caure cada model? I després, la fitxa de resistència del teu model del NB 6.2.</div>
-  <div class="num">20</div>
+  <div class="num">23</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 6</div><div class="eyebrow">Sessió 6 · NB 6.4</div>
@@ -397,7 +454,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <p style="margin-top:16px"><b>ImageNet</b> té 1.000 classes, des de races de gos fins a instruments. Entrenar-hi una xarxa porta dies, però fer-la <b>servir</b> tarda menys d'un segon per foto.</p></div>
 <div class="card hi"><h3>La gata de mostra</h3><table class="vals" style="width:100%;margin-top:6px"><tr><td>Egyptian cat</td><td class="r">40%</td></tr><tr><td>tiger cat</td><td class="r">38%</td></tr><tr><td>tabby</td><td class="r">22%</td></tr></table>
 <p style="margin-top:10px">Tres mena de gat: no s'equivoca gaire. Però només coneix aquestes 1.000 classes. <b>I la teva mà?</b></p></div></div></div><div class="ara"><b>Ara tu · Missió 1.</b> Busca què sap i què no: què diu d'una cosa que no és a ImageNet?</div>
-  <div class="num">21</div>
+  <div class="num">24</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 6</div><div class="eyebrow">Sessió 6 · NB 6.4</div>
@@ -411,7 +468,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <ul class="plain"><li>Els 512 números ja descriuen la imatge. Amb 64 neurones, l'MLP entrena <b>menys de 34.000 pesos</b> en lloc d'11 milions.</li>
 <li>El primer pas només es fa <b>una vegada</b>: després pots provar moltes coses gairebé sense esperar.</li>
 <li>Tornem a <span class="chip">fit</span> i <span class="chip">predict</span>: la xarxa grossa és una eina que prepara les característiques.</li></ul></div><div class="ara"><b>Ara tu · Missió 2.</b> Pedra, paper o tisora: entrena'n l'última capa i compara-la amb el que treies des de zero.</div>
-  <div class="num">22</div>
+  <div class="num">25</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 6</div><div class="eyebrow">Sessió 6 · NB 6.4</div>
@@ -421,14 +478,14 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <div class="card warm"><h3>La teva mà</h3><div class="sub">Missió 4</div><p>Fes-te fotos fent pedra, paper o tisora i prova-les. Sense cares ni res privat. Quantes n'encertarà el model? Si en falla alguna, per què?</p></div>
 <div class="card hi"><h3>Des de l'espai</h3><div class="sub">Missió 5</div><p>EuroSAT: fotos de satèl·lit. Una xarxa que va aprendre amb gats i tasses, pot distingir boscos de ciutats? Aposta.</p></div>
 <div class="card"><h3>Afina el gegant</h3><div class="sub">Missió 6</div><p><b>Fine-tuning:</b> deixem aprendre també l'últim bloc de ResNet18, amb un learning rate deu vegades més petit. Millor amb GPU.</p></div></div></div>
-  <div class="num">23</div>
+  <div class="num">26</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 7</div><div class="eyebrow">Sessió 7 · NB 6.5</div>
   <h2>Més enllà de classificar: on és, quina forma té, com està</h2>
   <div class="body"><div class="cards" style="gap:18px"><div class="card" style="padding:14px 16px"><svg viewBox="0 0 240 160" width="100%"><rect x="0" y="0" width="240" height="160" rx="8" fill="#EEF3F8"/><circle cx="74" cy="56" r="17" fill="#8FA3BC"/><rect x="58" y="76" width="32" height="56" rx="10" fill="#8FA3BC"/><rect x="134" y="84" width="84" height="40" rx="10" fill="#B9C6D6"/><circle cx="154" cy="128" r="9" fill="#5C6B85"/><circle cx="198" cy="128" r="9" fill="#5C6B85"/></svg><h3 style="margin-top:10px">Classificar</h3><p class="small">Una etiqueta per a tota la foto: «carrer».</p></div><div class="card" style="padding:14px 16px"><svg viewBox="0 0 240 160" width="100%"><rect x="0" y="0" width="240" height="160" rx="8" fill="#EEF3F8"/><circle cx="74" cy="56" r="17" fill="#8FA3BC"/><rect x="58" y="76" width="32" height="56" rx="10" fill="#8FA3BC"/><rect x="134" y="84" width="84" height="40" rx="10" fill="#B9C6D6"/><circle cx="154" cy="128" r="9" fill="#5C6B85"/><circle cx="198" cy="128" r="9" fill="#5C6B85"/><rect x="50" y="34" width="48" height="104" fill="none" stroke="#E8871E" stroke-width="3"/><rect x="128" y="78" width="96" height="62" fill="none" stroke="#1C7293" stroke-width="3"/><text x="52" y="28" font-size="14" fill="#17233D">persona 0,91</text><text x="130" y="72" font-size="14" fill="#17233D">cotxe 0,84</text></svg><h3 style="margin-top:10px">Detectar</h3><p class="small">Un requadre, una classe i una confiança per a cada objecte.</p></div><div class="card" style="padding:14px 16px"><svg viewBox="0 0 240 160" width="100%"><rect x="0" y="0" width="240" height="160" rx="8" fill="#EEF3F8"/><circle cx="74" cy="56" r="17" fill="#E8871E"/><rect x="58" y="76" width="32" height="56" rx="10" fill="#E8871E"/><rect x="134" y="84" width="84" height="40" rx="10" fill="#1C7293"/><circle cx="154" cy="128" r="9" fill="#1C7293"/><circle cx="198" cy="128" r="9" fill="#1C7293"/></svg><h3 style="margin-top:10px">Segmentar</h3><p class="small">El contorn exacte de cada objecte, píxel a píxel.</p></div><div class="card" style="padding:14px 16px"><svg viewBox="0 0 240 160" width="100%"><rect x="0" y="0" width="240" height="160" rx="8" fill="#EEF3F8"/><circle cx="74" cy="56" r="17" fill="#8FA3BC"/><rect x="58" y="76" width="32" height="56" rx="10" fill="#8FA3BC"/><rect x="134" y="84" width="84" height="40" rx="10" fill="#B9C6D6"/><circle cx="154" cy="128" r="9" fill="#5C6B85"/><circle cx="198" cy="128" r="9" fill="#5C6B85"/><g stroke="#0F1B33" stroke-width="3" fill="none"><path d="M74 66 L74 104 M74 76 L52 96 M74 76 L96 96 M74 104 L60 138 M74 104 L88 138"/></g><circle cx="74" cy="56" r="4.5" fill="#E8871E"/><circle cx="74" cy="76" r="4.5" fill="#E8871E"/><circle cx="52" cy="96" r="4.5" fill="#E8871E"/><circle cx="96" cy="96" r="4.5" fill="#E8871E"/><circle cx="74" cy="104" r="4.5" fill="#E8871E"/><circle cx="60" cy="138" r="4.5" fill="#E8871E"/><circle cx="88" cy="138" r="4.5" fill="#E8871E"/></svg><h3 style="margin-top:10px">Trobar poses</h3><p class="small">Els punts del cos de cada persona: espatlles, colzes, genolls...</p></div></div>
 <p style="margin-top:16px">Tot amb <b>YOLO11n</b>, un model ja entrenat, de la biblioteca Ultralytics. En una foto d'un carrer amb neu troba <b>5 semàfors, 3 persones i 2 cotxes</b>. En una fotografia de 1901, <b>8 persones</b> amb la seva pose.</p></div>
-  <div class="num">24</div>
+  <div class="num">27</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 7</div><div class="eyebrow">Sessió 7 · NB 6.5</div>
@@ -436,7 +493,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
   <div class="body">
 <div class="two"><div><div class="card hi"><h3>Llindar baix</h3><p>Ho troba gairebé tot, però s'inventa coses. Va bé si perdre't un objecte és greu.</p></div><div class="card warm" style="margin-top:16px"><h3>Llindar alt</h3><p>El que diu que hi és, gairebé segur que hi és, però se'n deixa molts. Va bé si una falsa alarma surt cara.</p></div></div>
 <div><ul class="plain"><li><span class="chip">conf</span> indica a partir de quina confiança es mostra un objecte. Per defecte, <b>0,25</b>.</li><li><b>No hi ha un valor bo per a tot:</b> depèn de què costa cada error.</li><li>Quan encara no saps què fer, passa-li el <b>crash test</b>: gira la foto, redueix-la.</li></ul></div></div></div><div class="ara"><b>Ara tu · Missions 1, 2 i 3.</b> Aposta quants objectes hi haurà amb cada llindar, busca què no sap trobar, i posa YOLO a la paret.</div>
-  <div class="num">25</div>
+  <div class="num">28</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 7</div><div class="eyebrow">Sessió 7 · NB 6.5</div>
@@ -449,7 +506,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <p>Una CNN ja entrenada, VGG19, separa el <b>què</b> d'una foto del <b>com</b>: les formes viuen a les capes profundes; els colors i les textures, a les primeres. Gatys i col·laboradors (2015) en van treure la <b>transferència d'estil</b>.</p>
 <p>Amb <span class="chip">depth</span> tries de quantes capes es copia l'estil. <b>El detector encara hi veurà el gat?</b></p></div></div>
 <p class="small muted" style="margin-top:12px">Amb GPU, el detector s'entrena en uns minuts. Sense, es carrega un model que ja hem entrenat.</p></div><div class="ara"><b>Ara tu · Missions 4 i 5.</b> Aposta què dirà el detector nou del carrer nevat, i quina capa et deixa el quadre més bonic.</div>
-  <div class="num">26</div>
+  <div class="num">29</div>
 </section>
 <section class="slide">
   <div class="task reg">Sessió 8</div><div class="eyebrow">Sessió 8 · NB 6.6</div>
@@ -464,7 +521,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <li style="font-size:17.5px;margin-bottom:0"><b>Fotos noves</b> i una altra persona que hi posa les seves.</li></ol></div>
 <div><div class="card warm"><h3>Regles de les fotos</h3><p><b>Només objectes.</b> Ni cares, ni persones, ni matrícules, ni res privat.</p></div>
 <div class="card hi" style="margin-top:14px"><h3>Com s'avaluarà</h3><p>Dades, procés, interpretació i demo.</p><p><b>Un model que falla i que saps explicar val més que un model que encerta i no saps per què.</b></p></div></div></div></div>
-  <div class="num">27</div>
+  <div class="num">30</div>
 </section>
 <section class="slide dark">
   <div class="eyebrow">Per endur-te'n</div>
@@ -475,7 +532,7 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <li><b>Un encert alt no ho diu tot.</b> Cal posar el model a la paret, mirar on mira i intentar enganyar-lo.</li>
 <li><b>Quasi mai no es comença de zero:</b> amb un model ja entrenat i pocs exemples es pot arribar molt lluny.</li>
 <li><b>Prova sempre amb fotos que el model no ha vist mai,</b> i millor si les porta una altra persona.</li></ol></div>
-  <div class="num">28</div>
+  <div class="num">31</div>
 </section>
 <section class="slide">
   <div class="eyebrow">Per al debat de classe</div>
@@ -486,24 +543,24 @@ model = <span class="k">make_cnn</span>(1, 10, filters=(32, 64), batch_norm=<spa
 <li><b>Responsabilitat.</b> Un cotxe no veu una bicicleta perquè l'havien entrenat amb poca pluja. <b>Qui respon:</b> qui l'ha entrenat, qui l'ha venut, qui en conduïa?</li>
 <li><b>Seguretat.</b> Un canvi d'1 punt sobre 255 converteix un cérvol en una granota. On <b>no</b> posaries encara una xarxa, sabent això?</li>
 <li><b>Promeses.</b> Un fabricant diu que el seu model arriba al 99%. Què li preguntaries, després d'aquesta unitat?</li></ol></div>
-  <div class="num">29</div>
+  <div class="num">32</div>
 </section>
 <section class="slide">
   <div class="eyebrow">Glossari · 1 de 3</div>
   <h2 style="margin-bottom:14px">Conceptes que surten de passada</h2>
-  <div class="gloss"><div><div class="t">Adam i SGD <span class="en"><span class="chip">optimizer</span></span></div><p>Dues maneres de baixar la loss. SGD fa la mateixa passa relativa per a tots els pesos; Adam l'adapta a cada pes. Per això n'hi ha prou amb un learning rate de 0,001.</p><div class="on">NB 6.1 §2 · NB 6.2 §3</div></div><div><div class="t">AGPL-3.0</div><p>La llicència d'Ultralytics. Pots fer servir YOLO a classe; si el poses en un producte en xarxa, l'obliga a publicar-ne el codi o a comprar una altra llicència.</p><div class="on">NB 6.5 §0</div></div><div><div class="t">Batch norm <span class="en"><span class="chip">batch_norm</span></span></div><p>Reescala els valors de cada lot perquè la capa següent els rebi sempre amb la mateixa escala. L'entrenament és més estable.</p><div class="on">Diap. 13 · NB 6.2 §4</div></div><div><div class="t">Canal</div><p>Cada capa d'una imatge: un en gris; tres (vermell, verd, blau) en color. És el primer número de la mida d'un tensor.</p><div class="on">NB 6.1 §1 · NB 6.2 §4</div></div><div><div class="t">Confiança</div><p>La probabilitat que el model dona a la seva resposta. No és la probabilitat real d'encertar: pot dir 99% i equivocar-se.</p><div class="on">Diap. 20 · NB 6.4 §1 · NB 6.5 §1</div></div><div><div class="t">Conjunt de validació</div><p>Imatges que no s'usen per entrenar i que serveixen per triar el model. El test es guarda per al final.</p><div class="on">Tota la UT · 5134 UT2 i UT7</div></div><div><div class="t">Dropout <span class="en"><span class="chip">dropout</span></span></div><p>Apaga a l'atzar una part de les neurones finals durant l'entrenament perquè cap no es refiï de les altres.</p><div class="on">Diap. 16 · NB 6.2 §6</div></div><div><div class="t">EuroSAT</div><p>Conjunt de fotos de satèl·lit d'Europa classificades per ús del sòl (bosc, ciutat, riu...). Serveix per provar el transfer learning en un món diferent.</p><div class="on">NB 6.4 §5</div></div><div><div class="t">Fine-tuning</div><p>Reentrenar també l'últim bloc d'una xarxa ja entrenada, amb un learning rate molt petit perquè no oblidi el que sap. Amb GPU va molt més de pressa.</p><div class="on">NB 6.4 §6, Missió 6 · NB 6.6 Pas 4 bis</div></div></div>
-  <div class="num">30</div>
+  <div class="gloss"><div><div class="t">Adam i SGD <span class="en"><span class="chip">optimizer</span></span></div><p>Dues maneres de baixar la loss. SGD fa la mateixa passa relativa per a tots els pesos; Adam l'adapta a cada pes. Per això n'hi ha prou amb un learning rate de 0,001.</p><div class="on">NB 6.1 §2 · NB 6.2 §3</div></div><div><div class="t">AGPL-3.0</div><p>La llicència d'Ultralytics. Pots fer servir YOLO a classe; si el poses en un producte en xarxa, l'obliga a publicar-ne el codi o a comprar una altra llicència.</p><div class="on">NB 6.5 §0</div></div><div><div class="t">Batch norm <span class="en"><span class="chip">batch_norm</span></span></div><p>Reescala els valors de cada lot perquè la capa següent els rebi sempre amb la mateixa escala. L'entrenament és més estable.</p><div class="on">Diap. 16 · NB 6.2 §4</div></div><div><div class="t">Canal</div><p>Cada capa d'una imatge: un en gris; tres (vermell, verd, blau) en color. És el primer número de la mida d'un tensor.</p><div class="on">NB 6.1 §1 · NB 6.2 §4</div></div><div><div class="t">Confiança</div><p>La probabilitat que el model dona a la seva resposta. No és la probabilitat real d'encertar: pot dir 99% i equivocar-se.</p><div class="on">Diap. 23 · NB 6.4 §1 · NB 6.5 §1</div></div><div><div class="t">Conjunt de validació</div><p>Imatges que no s'usen per entrenar i que serveixen per triar el model. El test es guarda per al final.</p><div class="on">Tota la UT · 5134 UT2 i UT7</div></div><div><div class="t">Dropout <span class="en"><span class="chip">dropout</span></span></div><p>Apaga a l'atzar una part de les neurones finals durant l'entrenament perquè cap no es refiï de les altres.</p><div class="on">Diap. 19 · NB 6.2 §6</div></div><div><div class="t">EuroSAT</div><p>Conjunt de fotos de satèl·lit d'Europa classificades per ús del sòl (bosc, ciutat, riu...). Serveix per provar el transfer learning en un món diferent.</p><div class="on">NB 6.4 §5</div></div><div><div class="t">Fine-tuning</div><p>Reentrenar també l'últim bloc d'una xarxa ja entrenada, amb un learning rate molt petit perquè no oblidi el que sap. Amb GPU va molt més de pressa.</p><div class="on">NB 6.4 §6, Missió 6 · NB 6.6 Pas 4 bis</div></div></div>
+  <div class="num">33</div>
 </section>
 <section class="slide">
   <div class="eyebrow">Glossari · 2 de 3</div>
   <h2 style="margin-bottom:14px">Conceptes que surten de passada</h2>
-  <div class="gloss"><div><div class="t">Fitxer de pesos <span class="en"><span class="chip">.pt</span></span></div><p>Desa els pesos d'un model perquè no calgui reentrenar-lo. Amb <span class="chip">weights_only=True</span> només se'n carreguen dades, sense executar codi.</p><div class="on">NB 6.3 §1</div></div><div><div class="t">Flatten</div><p>Posa tots els mapes en fila per poder-los passar a les capes denses. Aquí es perd la informació de la posició relativa.</p><div class="on">Diap. 8 i 11 · NB 6.1 §6</div></div><div><div class="t">Global average pooling <span class="en"><span class="chip">global_pool</span></span></div><p>Resumeix cada mapa en una sola mitjana, en lloc del Flatten. Gasta menys pesos i no depèn tant d'on és l'objecte.</p><div class="on">NB 6.1 §6, Missió 5</div></div><div><div class="t">GPU</div><p>Un xip pensat per fer milers de multiplicacions alhora. Surt a compte amb xarxes que fan molts càlculs, com les CNN; amb un MLP petit, no gaire. A Colab és la T4; en un Mac, la del xip (MPS).</p><div class="on">Diap. 2 i 3 · NB 6.1 §1 i §2 · NB 6.2 Missió 3 · NB 6.4 §6 · NB 6.5 §4 i §5</div></div><div><div class="t">ImageNet</div><p>1,2 milions de fotos en 1.000 classes. La seva competició va impulsar les CNN, i els seus models preentrenats es fan servir a tot arreu.</p><div class="on">Diap. 3 i 21 · NB 6.4 §1</div></div><div><div class="t">joblib</div><p>Biblioteca per desar i carregar objectes de Python, com un <span class="chip">MLPClassifier</span> entrenat. A la UT8 servirà per a la inferència.</p><div class="on">NB 6.6 Pas 7 · UT8</div></div><div><div class="t">mAP50</div><p>L'encert d'un detector, de 0 a 1. Un requadre compta si és de la classe bona i se solapa almenys a la meitat amb el dibuixat a mà. Es fa la mitjana de les classes.</p><div class="on">NB 6.5 §4</div></div><div><div class="t">Padding <span class="en"><span class="chip">padding</span></span></div><p>Vora que s'afegeix a una imatge. A les nostres capes manté la mida; a <span class="chip">RandomCrop</span> deixa espai per desplaçar la imatge abans de retallar-la.</p><div class="on">NB 6.2 §6</div></div><div><div class="t">Partició estratificada <span class="en"><span class="chip">stratify</span></span></div><p>Reparteix cada classe en la mateixa proporció a les dues parts. Amb poques fotos evita que una classe quedi gairebé fora de la prova.</p><div class="on">NB 6.6 Pas 2 · UT5 · 5134 UT7</div></div></div>
-  <div class="num">31</div>
+  <div class="gloss"><div><div class="t">Fitxer de pesos <span class="en"><span class="chip">.pt</span></span></div><p>Desa els pesos d'un model perquè no calgui reentrenar-lo. Amb <span class="chip">weights_only=True</span> només se'n carreguen dades, sense executar codi.</p><div class="on">NB 6.1 §3 · NB 6.3 §1</div></div><div><div class="t">Flatten</div><p>Posa tots els mapes en fila per poder-los passar a les capes denses. Aquí es perd la informació de la posició relativa.</p><div class="on">Diap. 10, 11 i 14 · NB 6.1 §3 i §7</div></div><div><div class="t">Global average pooling <span class="en"><span class="chip">global_pool</span></span></div><p>Resumeix cada mapa en una sola mitjana, en lloc del Flatten. Gasta menys pesos i no depèn tant d'on és l'objecte.</p><div class="on">NB 6.1 §7, Missió 6</div></div><div><div class="t">GPU</div><p>Un xip pensat per fer milers de multiplicacions alhora. Surt a compte amb xarxes que fan molts càlculs, com les CNN; amb un MLP petit, no gaire. A Colab és la T4; en un Mac, la del xip (MPS).</p><div class="on">Diap. 2 i 3 · NB 6.1 §1 i §2 · NB 6.2 Missió 3 · NB 6.4 §6 · NB 6.5 §4 i §5</div></div><div><div class="t">ImageNet</div><p>1,2 milions de fotos en 1.000 classes. La seva competició va impulsar les CNN, i els seus models preentrenats es fan servir a tot arreu.</p><div class="on">Diap. 3 i 24 · NB 6.4 §1</div></div><div><div class="t">joblib</div><p>Biblioteca per desar i carregar objectes de Python, com un <span class="chip">MLPClassifier</span> entrenat. A la UT8 servirà per a la inferència.</p><div class="on">NB 6.6 Pas 7 · UT8</div></div><div><div class="t">mAP50</div><p>L'encert d'un detector, de 0 a 1. Un requadre compta si és de la classe bona i se solapa almenys a la meitat amb el dibuixat a mà. Es fa la mitjana de les classes.</p><div class="on">NB 6.5 §4</div></div><div><div class="t">Padding <span class="en"><span class="chip">padding</span></span></div><p>Vora que s'afegeix a una imatge. A les nostres capes manté la mida; a <span class="chip">RandomCrop</span> deixa espai per desplaçar la imatge abans de retallar-la.</p><div class="on">Diap. 10 · NB 6.1 §3, Missió 2 · NB 6.2 §6</div></div><div><div class="t">Partició estratificada <span class="en"><span class="chip">stratify</span></span></div><p>Reparteix cada classe en la mateixa proporció a les dues parts. Amb poques fotos evita que una classe quedi gairebé fora de la prova.</p><div class="on">NB 6.6 Pas 2 · UT5 · 5134 UT7</div></div></div>
+  <div class="num">34</div>
 </section>
 <section class="slide">
   <div class="eyebrow">Glossari · 3 de 3</div>
   <h2 style="margin-bottom:14px">Conceptes que surten de passada</h2>
-  <div class="gloss"><div><div class="t">Quick Draw</div><p>Milions de dibuixos fets per persones en un joc de Google. En fem servir 30 classes per jugar al Pictionary.</p><div class="on">Diap. 12 i 17 · NB 6.2 §7</div></div><div><div class="t">ResNet</div><p>Família de CNN amb dreceres, que permeten entrenar-ne moltes capes. ResNet18 en té 18; és la que reaprofitem.</p><div class="on">Diap. 3 · NB 6.4</div></div><div><div class="t">Softmax</div><p>Converteix les sortides de l'última capa en probabilitats que sumen 1. Per això la xarxa sempre dona una resposta, encara que no sàpiga res.</p><div class="on">Diap. 17 · NB 6.2 §7</div></div><div><div class="t">Tensor</div><p>Una taula de números amb diverses dimensions. Una imatge de MNIST és un tensor de 1 × 28 × 28, i un lot de 64 és de 64 × 1 × 28 × 28.</p><div class="on">NB 6.1 §1</div></div><div><div class="t">Transferència d'estil</div><p>Pintar una foto amb l'estil d'un quadre: es canvien els píxels perquè les capes profundes de VGG19 hi vegin la foto i les primeres, les textures del quadre.</p><div class="on">Diap. 26 · NB 6.5 §5</div></div><div><div class="t">YOLO</div><p>«You Only Look Once»: família de detectors que miren la imatge una sola vegada i per això són molt ràpids. N'usem la versió petita, YOLO11n.</p><div class="on">Diap. 24 · NB 6.5 §1</div></div><div><div class="t">Zero-shot <span class="en"><span class="chip">CLIP</span></span></div><p>Classificar sense cap exemple de les classes: les escrius amb text i CLIP tria la que s'assembla més a la foto. La part que mira la imatge és un transformer, no una CNN.</p><div class="on">NB 6.5 §6, missió extra</div></div></div>
-  <div class="num">32</div>
+  <div class="gloss"><div><div class="t">Quick Draw</div><p>Milions de dibuixos fets per persones en un joc de Google. En fem servir 30 classes per jugar al Pictionary.</p><div class="on">Diap. 15 i 20 · NB 6.2 §7</div></div><div><div class="t">ResNet</div><p>Família de CNN amb dreceres, que permeten entrenar-ne moltes capes. ResNet18 en té 18; és la que reaprofitem.</p><div class="on">Diap. 3 · NB 6.4</div></div><div><div class="t">Softmax</div><p>Converteix les sortides de l'última capa en probabilitats que sumen 1. Per això la xarxa sempre dona una resposta, encara que no sàpiga res.</p><div class="on">Diap. 20 · NB 6.1 §3 · NB 6.2 §7</div></div><div><div class="t">Tensor</div><p>Una taula de números amb diverses dimensions. Una imatge de MNIST és un tensor de 1 × 28 × 28, i un lot de 64 és de 64 × 1 × 28 × 28.</p><div class="on">Diap. 9 · NB 6.1 §1 i §3</div></div><div><div class="t">Transferència d'estil</div><p>Pintar una foto amb l'estil d'un quadre: es canvien els píxels perquè les capes profundes de VGG19 hi vegin la foto i les primeres, les textures del quadre.</p><div class="on">Diap. 29 · NB 6.5 §5</div></div><div><div class="t">YOLO</div><p>«You Only Look Once»: família de detectors que miren la imatge una sola vegada i per això són molt ràpids. N'usem la versió petita, YOLO11n.</p><div class="on">Diap. 27 · NB 6.5 §1</div></div><div><div class="t">Zero-shot <span class="en"><span class="chip">CLIP</span></span></div><p>Classificar sense cap exemple de les classes: les escrius amb text i CLIP tria la que s'assembla més a la foto. La part que mira la imatge és un transformer, no una CNN.</p><div class="on">NB 6.5 §6, missió extra</div></div></div>
+  <div class="num">35</div>
 </section>
 </body></html>

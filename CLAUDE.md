@@ -26,7 +26,10 @@ L'alumnat no té la base matemàtica per programar les xarxes per dins. Per aix�
     `Pipeline`, `GridSearchCV`.
   - **PyTorch** (només per a les CNN): el bucle d'entrenament es dona com a
     **plantilla comentada**. L'alumnat en canvia l'arquitectura, els
-    hiperparàmetres i les dades, però no l'escriu.
+    hiperparàmetres i les dades, però no l'escriu. El NB 6.1 §3 obre la plantilla:
+    tensors, capes de `torch.nn`, loss, optimitzador, `DataLoader` i desar els pesos,
+    amb els paràmetres que importen. A la missió 2 l'alumnat munta la CNN amb
+    `nn.Sequential`, i és l'única vegada que l'escriu. El bucle no l'escriu mai.
   - **MiniSom** per als SOM.
   - Per a **Hopfield**, una classe proporcionada pel professorat amb `fit`/`predict`.
     Cap biblioteca mantinguda la inclou.
@@ -72,7 +75,7 @@ La UT10 és la FEMPO.
 | UT | Títol | h | Eines | Criteris d'avaluació | Estat |
 |---|---|---|---|---|---|
 | 5 | Introducció a xarxes neuronals supervisades: del perceptró al perceptró multicapa amb retropropagació | 28 | scikit-learn | 3.a, 3.f | carpeta `UT05-...`: NB 1.1 (XOR, pingüins, llunes; 5 pauses «Ara tu» + 2 finals), NB 1.2 (MNIST; 4 pauses «Ara tu» + 4 finals), diapositives (47, amb glossari de 32 conceptes al final) i tres animacions del bucle d'entrenament (`animacio_xor_backprop.html`; `animacio_pinguins_backprop.html`: Chinstrap o no; `animacio_pinguins_especies.html`: les tres espècies amb softmax, tres mesures fixes d'entrada i un gràfic 3D giratori amb les regions de decisió i els plans de les neurones ocultes, que són configurables), adaptats a scikit-learn. Exercicis de consolidació a `consolidacio_xarxa_electrica/` (Electrical Grid Stability i Fashion-MNIST; 8 exercicis i 5 extra, unes 4 h 30); el generador dels tres notebooks és al repositori privat |
-| 6 | Xarxes neuronals convolucionals i introducció a la visió per computador | 24 | PyTorch, torchvision, Ultralytics | 3.a | carpeta `UT06-...`: NB 6.1–6.6 (La lupa, El laboratori, Crash test, A espatlles de gegants, Més enllà de classificar i el projecte; 28 missions «Ara tu», una missió extra amb CLIP al NB 6.5 i 9 finals), diapositives (32: 29 + glossari de 25 conceptes en 3) i animació `animacio_lupa_cnn.html`. Solucionaris al repositori privat. Pendent: revisió del docent i prova a Colab |
+| 6 | Xarxes neuronals convolucionals i introducció a la visió per computador | 24 | PyTorch, torchvision, Ultralytics | 3.a | carpeta `UT06-...`: NB 6.1–6.6 (La lupa, El laboratori, Crash test, A espatlles de gegants, Més enllà de classificar i el projecte; 29 missions «Ara tu», una missió extra amb CLIP al NB 6.5 i 9 finals), diapositives (35: 32 + glossari de 25 conceptes en 3) i animació `animacio_lupa_cnn.html`. Solucionaris al repositori privat. Pendent: revisió del docent i prova a Colab |
 | 7 | Xarxes neuronals no supervisades: k-means, SOM i xarxes de Hopfield | 24 | scikit-learn, MiniSom, classe Hopfield | 3.b–3.e | pendent |
 | 8 | Llibreries de tercers, accés a dades, anàlisi amb NumPy, pandas, Matplotlib i Seaborn, KDD i **inferència amb el model entrenat** | 24 | pandas, requests, joblib, pytest | 4.a–4.f, 2.h–2.k | pendent |
 | 9 | Documentació professional del codi, dels components i de les proves | 20 | docstrings, pdoc/Sphinx | 5.a–5.e | pendent |
@@ -91,7 +94,7 @@ Tres excepcions a les convencions, només per a aquesta unitat:
 
 | Convenció | Canvi a la UT6 | Motiu |
 |---|---|---|
-| Unes 3 pauses «Ara tu» per notebook | 5–6 missions per notebook | L'aprenentatge recau en els exercicis |
+| Unes 3 pauses «Ara tu» per notebook | 5–6 missions per notebook (7 al NB 6.1) | L'aprenentatge recau en els exercicis |
 | Càrrega alta de markdown | Cada cel·la de codi manté l'explicació, però curta | Explicacions breus |
 | Res de `files.upload()` | Permès només per a fotos pròpies: NB 6.4 i 6.5 (opcional) i projecte | El projecte necessita dades pròpies |
 
